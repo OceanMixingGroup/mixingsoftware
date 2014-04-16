@@ -1,0 +1,44 @@
+MATLAB 5.1 CALIBRATION ROUTINES
+
+version 1.01 
+July 1998
+Jonathan Nash
+
+TO USE:
+1) SET a MATLAB path to /home/nalu/shared/matview/cal/
+2) Copy the files README, MASTER_CAL.M and CALI_SCRIPT.M to a working
+directory 
+3) Modify MASTER_CAL.M and CALI_SCRIPT for your own use
+
+
+The structure of this program is as follows:
+
+MASTER_CAL.M:   (~banal.cfg)
+-program loops through different filenames by assigning q.script.num,
+q.script.prefix, and q.script.pathname such as: 
+
+q.script.num=67;
+q.script.prefix='ch98a';
+q.script.pathname='/home/nalu/data1/ch98a/raw/';
+
+After this, execute:
+RAW_LOAD to load the data into the variables DATA and HEAD.
+
+All variables are calibrated in CALI_SCRIPT.M (~cal.cfg) where the
+functions CALIBRATE and CALIBRATE_* are called to calibrate
+variables.  Calibrated variables must be stored in the structure CAL
+and new variables must have HEAD.IREP.* defined (which represents the
+sample rate: 1,2,4, etc) if they are to be used by other subroutines.
+
+Average values of variables and the determination of epsilon, etc, are
+obtained by AVERAGE_DATA.M, which puts the averages into a structure
+AVG.
+
+
+Finally, the data is saved using SAVE, SAVE_MATFILE.M (to save to
+structured variables) or SAVE_MATVIEW_FILE.M to save to unstructured
+variables. 
+
+
+
+

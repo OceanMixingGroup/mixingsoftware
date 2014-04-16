@@ -1,0 +1,8 @@
+% README file  $Revision: 1.1.1.1 $  $Date: 2008/01/31 20:22:51 $
+%
+%    SEAWATER is a toolkit of MATLAB routines for calculating the
+%    properties of sea water. They are a self contained library and
+%    are extremely easy to use.  
+%
+% See the file sw_info.m for info on installation and usage
+

@@ -1,0 +1,506 @@
+/*
+ * FILE: readbiodrv.c
+
+usage:
+
+	[pings,time,pos,head]=readbiodrv(fname,dx,dz)
+
+where: fname is the Biosonics file to be read, dx is a horizontal
+decimation factor and dz a vertical decimation factor.  pings is
+atructure with ping information, time is a structure with time info,
+pos a structure with position info, and head a structure with some
+header info.  See fastreadbio.m for how to use the output
+meaningfully.
+ *
+ *-Updated by G. Avicola and R. Kreth 2006-08-06.  Fixed Jody's math.
+ *The original output was being written as pings.samples.  However pings.samples
+ *is a 16bit integer which is to small to hold the true output, which is 4095.*2.^15.
+ *Therefore, we introduce a new variable, samples32, which is a 32 bit integer.  We then decimate
+ *as needed and output the data through the 32 bit integer 'out'.
+ *pings.samples is no longer output, instead, we output pings.out.  As a result 
+ *we now need to update fast_read_bio.m
+ *Also, I have much improved the code comments so as to improve code clarity.
+ *
+ * Updated by A. Kelbert in September 2008. Fixed Greg's GPS parsing
+ *      To compile:
+ *
+ *   >> mex readbiodrv.c 
+ *
+ *
+ */
+
+/* $Author: aperlin $ $Date: 2008/10/07 16:38:53 $ $Revision: 1.4 $
+ */
+
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include "mex.h"
+
+#define MAXSIZE 65530
+
+void mexFunction(int		nlhs,
+		 mxArray	*plhs[],
+		 int		nrhs,
+		 const mxArray	*prhs[]
+		 )
+{
+  char  fname[256];
+  mxArray *pings;
+  mxArray *timestr;
+  mxArray *pos;
+  mxArray *head;
+  mxArray *fout;
+  /* Output fields, number and names */
+  int    nfields = 3;
+  const char  *fieldnames[]={"out","systime","pingnum"};
+  /* Position output fields, number and names*/
+  int    nposfields = 4;
+  const char    *posnames[]   = {"navtime","lon","lat","systime"};
+  /*Time output fields, number and names*/
+  int    ntimefields = 3;
+  const char    *timenames[]   = {"systime","time","subseconds"};
+   /*Head output fields, number and names*/
+  int    nheadfields = 10;
+  const char    *headnames[]   = {"pulselength","pingrate","initialblanking","absorption",
+                          "soundvel","temperature","salinity","powersetting","nochannels",
+				  "sampleperiod"};
+  FILE   *fin;
+  unsigned short   tuppletype;
+  unsigned short   count;
+  unsigned short   backcount;
+  unsigned short   channel, nsamples; 
+  char             searchstring[10];
+ 
+  /*data input*/
+  unsigned short   *samples;
+  unsigned int     *samples32;
+  unsigned int      dat;
+  /*data output*/
+  unsigned int    *out;
+  unsigned int     *newsystime;
+  unsigned short   mantissa,exponent;
+  unsigned short   *ptr;
+  unsigned int     *uintptr;
+  int              *intptr;
+  unsigned int     junkstart,junkpoint;
+  unsigned char    *charptr,*charhold,*charstep;
+  unsigned short   sampleperiod; 
+  unsigned  int    *pingnum, *systime;   
+  unsigned int     latestsystime;
+  unsigned int     npings;
+  char             junk[MAXSIZE];  
+  int              pingno, timeno, i, posno, starti, stopi,startj,stopj;
+  int              ii,jj,j,thepos,ppos,mycount;
+  unsigned short   nx, nz;
+  unsigned int     dati;
+  /* time stuff */
+  unsigned int     time[MAXSIZE];
+  unsigned int     timesystime[MAXSIZE];
+  unsigned char    subsecond[MAXSIZE];
+  /* position stuff */
+  int              latitude[MAXSIZE];
+  int              longitude[MAXSIZE];
+  unsigned int     possystime[MAXSIZE];
+  unsigned int     navtime[MAXSIZE];
+  /* header stuff */ 
+  unsigned short   absorption;
+  unsigned short   soundvel;
+  short            temperature;
+  unsigned short   salinity;
+  short            powersetting;
+  unsigned short   nochannels;
+  /* channel descriptor */
+  unsigned short   pulselength;
+  unsigned short   pingrate;
+  unsigned short   initialblanking;
+  unsigned short   dx,dz;
+  /* gps string parsing */
+  const char       delimiters[] = "$,";
+  char             *gpsstring;
+  char             *gpsfield, gpstemp[8];
+  //int            h,m,s;
+  float            gpsvalue;
+  int              igps;
+
+  
+  double f;
+  
+  if(nrhs != 3) {
+    mexErrMsgTxt("Error: readbiodrv needs 3 input arguments.");
+  }
+
+  mxGetString(prhs[0],fname,(mxGetM(prhs[0])*mxGetN(prhs[0])*sizeof(mxChar))+1);
+  dx=(unsigned short)mxGetScalar(prhs[1]);
+  dz=(unsigned short)mxGetScalar(prhs[2]);
+  /*printf(0,"1\n");*/
+/*----------------------------------------------------*/
+  /* open the file */
+  fin=fopen(fname,"rb");
+  if (fin==NULL){
+    mexErrMsgTxt("Jim, I could not open biosonics file you specified");
+  }
+  /*printf(0,"2");*/
+
+  /* read in the first tupple... */
+  fread(&count,sizeof(count),1,fin);
+  if (count>=MAXSIZE){
+    mexPrintf("%d %d %d\n",backcount,count,MAXSIZE);
+    mexErrMsgTxt("READBIODRV: first count too big increase MAXSIZE");
+  }
+  fread(&tuppletype,sizeof(tuppletype),1,fin);
+  fread(junk,sizeof(char),count,fin);
+  fread(&backcount,sizeof(unsigned short),1,fin);
+
+  /* HEADER tupple..., read in the header data */
+  fread(&count,sizeof(count),1,fin);
+  if (count>=MAXSIZE)
+    mexErrMsgTxt("READBIODRV: header count too big increase MAXSIZE");
+  fread(&tuppletype,sizeof(tuppletype),1,fin);
+  fread(junk,sizeof(char),count,fin);
+  fread(&backcount,sizeof(unsigned short),1,fin);
+  memcpy(&absorption,&junk[0],sizeof(absorption));
+  memcpy(&soundvel,&junk[2],sizeof(soundvel));
+
+
+  /* CHANNEL DESCRIPTOR tupple...  read in the number of channels (for us, always 1) */
+  fread(&count,sizeof(count),1,fin);
+  if (count>=MAXSIZE)
+    mexErrMsgTxt("READBIODRV: decrtiptor count too big increase MAXSIZE");
+  fread(&tuppletype,sizeof(tuppletype),1,fin);
+  fread(junk,sizeof(char),count,fin);
+  fread(&backcount,sizeof(unsigned short),1,fin);
+  /* assign ping variables their data for each channel */  
+  memcpy(&npings,&junk[2],sizeof(npings));
+  memcpy(&nsamples,&junk[6],sizeof(nsamples));
+  memcpy(&sampleperiod,&junk[8],sizeof(sampleperiod));
+  memcpy(&pulselength,&junk[12],sizeof(pulselength));
+  memcpy(&pingrate,&junk[14],sizeof(pingrate));
+  memcpy(&initialblanking,&junk[16],sizeof(pingrate));
+  
+  /* allocate the sample array  */
+  pingnum=(unsigned int*)mxMalloc(sizeof(unsigned int)*npings);
+  systime=(unsigned int*)mxMalloc(sizeof(unsigned int)*npings);
+  samples=(unsigned short*)mxMalloc(sizeof(unsigned short)*nsamples*npings);
+  samples32=(unsigned int*)mxMalloc(sizeof(unsigned int)*nsamples*npings);
+  
+  pingno=0;
+  timeno=0;
+  posno=0;
+  /*printf(0,"3");*/
+  
+  mycount = 0;
+  
+  /* start reading in each tupple in order */
+
+  while (fread(&count,sizeof(count),1,fin)){
+    if (count>=MAXSIZE){
+      mexPrintf("%d %d %d %d %d\n",backcount,count,pingno,MAXSIZE,(count>=MAXSIZE));
+	      mexErrMsgTxt("READBIODRV: count in middle increase MAXSIZE");
+    }
+    fread(&tuppletype,sizeof(tuppletype),1,fin);
+    fread(junk,sizeof(char),count,fin);
+    fread(&backcount,sizeof(unsigned short),1,fin);
+    mycount++;
+    //if (tuppletype==0x0011){
+    //    mexPrintf("GPS string: %s\n",junk);
+    //}
+    if (backcount!=count+6){
+      mexPrintf("%d %d %d\n",backcount,count,pingno);
+      
+      mexPrintf("READBIODRV: count and backcount do not match - corrupt file.");
+      /* bad file fseek to end */
+      fseek(fin,0,SEEK_END);
+    }
+    /* ping tupple if tuppletype = x0015 */
+    if (tuppletype==0x0015){
+      /*printf(0,"4");*/
+      memcpy(&channel,&junk[0],sizeof(channel));
+      memcpy(&pingnum[pingno],&junk[2],sizeof(int));
+      
+      memcpy(&systime[pingno],&junk[6],sizeof(int));
+      
+      latestsystime=systime[pingno];
+      /* read in ping data and put into sample matrix */
+      memcpy(&samples[pingno*nsamples],&junk[12],sizeof(short)*nsamples);
+      pingno=pingno+1;
+      
+      //mexPrintf("Tupple # %d is %d; ping # %d\n",mycount,tuppletype,pingno); // DEBUGGING
+
+    }
+    /*if type x000F its a time tupple*/
+    else if  (tuppletype==0x000F){
+      /*printf(0,"5");*/
+       memcpy(&time[timeno],&junk[0],sizeof(int));
+       memcpy(&(subsecond[timeno]),&junk[5],sizeof(subsecond[timeno]));
+       memcpy(&(timesystime[timeno]),&junk[6],sizeof(timesystime[timeno]));
+       latestsystime=timesystime[timeno];
+       timeno = timeno+1;
+       if (timeno>=MAXSIZE)
+         mexErrMsgTxt("Error; increase MAXSIZE");
+       
+       //mexPrintf("Tupple # %d is %d: time # %d\n",mycount,tuppletype,timeno); // DEBUGGING
+
+    }
+    /*if its type x000E its a position tupple*/
+    /*else if (tuppletype==0x000E){
+        possystime[posno]=latestsystime;
+        memcpy(&latitude[posno],&junk[0],sizeof(int));
+        memcpy(&longitude[posno],&junk[4],sizeof(int));
+        posno = posno+1;
+        if (posno>=MAXSIZE)
+          mexErrMsgTxt("Error; increase MAXSIZE");
+     }
+    */
+    /*if its type x0011 its a GPS ASCII tupple*/
+    else if (tuppletype==0x0011){
+      /*  printf(0,"6");*/
+        gpsstring = junk;
+        //mexPrintf("GPS string: %s\n",gpsstring);
+        igps = 1;
+        gpsfield = strtok(gpsstring, delimiters);
+        while ((gpsfield != NULL) && (strcmp(gpsfield,"GPGGA") != 0)){
+            //mexPrintf("GPS field %d: %s\n",igps,gpsfield);
+            gpsfield = strtok(NULL, delimiters);  /* stops when GPGGA is read */
+            igps += 1;
+        }
+      /*
+	  read in timestamp
+	  Ray says, 'Not enough error checking in here!  Some other postdoc will probably have to generalize this."  
+	  Greg replies, 'I don't care, because I'm on a ship, and its late, and this is going to work."
+      Anya says, 'Oh well... it's not the first Sunday that I waste debugging other peoples' code...
+         At least it should be robust enough now."
+	*/
+        
+        possystime[posno]=latestsystime;
+        
+        gpsfield = strtok(NULL, delimiters);    /* gpsfield => time */
+        
+        navtime[posno]=0;
+        navtime[posno]=navtime[posno]+(unsigned int)(*(gpsfield)-48)*10*3600;
+        navtime[posno]=navtime[posno]+(unsigned int)(*(gpsfield+1)-48)*3600;
+        navtime[posno]=navtime[posno]+(unsigned int)(*(gpsfield+2)-48)*10*60;
+        navtime[posno]=navtime[posno]+(unsigned int)(*(gpsfield+3)-48)*60;
+        navtime[posno]=navtime[posno]+(unsigned int)(*(gpsfield+4)-48)*10;
+        navtime[posno]=navtime[posno]+(unsigned int)(*(gpsfield+5)-48);
+        
+        gpsfield = strtok(NULL, delimiters);    /* gpsfield => latitude (magnitude) */
+ 
+        /*read in latitude*/
+        latitude[posno]=0;
+        latitude[posno]=latitude[posno]+(unsigned int)(*(gpsfield)-48)*10*100000*60;
+        latitude[posno]=latitude[posno]+(unsigned int)(*(gpsfield+1)-48)*100000*60;
+        if(EOF == sscanf(gpsfield+2, "%f", &gpsvalue))
+        {
+            mexErrMsgTxt("Unable to read latitude in minutes"); 
+        }
+        latitude[posno]=latitude[posno]+gpsvalue*100000;
+        
+        gpsfield = strtok(NULL, delimiters);    /* gpsfield => latitude (direction) */
+        /*north or south?*/
+        if (toupper(*(gpsfield))=='S') {
+            latitude[posno]=latitude[posno]*-1;
+        }
+
+        gpsfield = strtok(NULL, delimiters);    /* gpsfield => longitude (magnitude) */
+        
+        /*read in longitude*/
+        longitude[posno]=0;
+        longitude[posno]=longitude[posno]+(unsigned int)(*(gpsfield)-48)*100*100000*60;
+        longitude[posno]=longitude[posno]+(unsigned int)(*(gpsfield+1)-48)*10*100000*60;
+        longitude[posno]=longitude[posno]+(unsigned int)(*(gpsfield+2)-48)*100000*60;
+        if(EOF == sscanf(gpsfield+3, "%f", &gpsvalue))
+        {
+            mexErrMsgTxt("Unable to read longitude in minutes"); 
+        }
+        longitude[posno]=longitude[posno]+gpsvalue*100000;
+
+        gpsfield = strtok(NULL, delimiters);    /* gpsfield => longitude (direction) */
+        /*east or west?*/
+        if (toupper(*(gpsfield))=='W') {
+            longitude[posno]=longitude[posno]*-1;
+        }
+        
+        f = 1e-5/60.0;
+        //mexPrintf("Position # %d: navtime %d\n",posno,navtime[posno]); // DEBUGGING
+        //mexPrintf("Position # %d: lat %f, lon %f\n",posno,f*latitude[posno],f*longitude[posno]); // DEBUGGING
+
+        posno = posno+1;
+        //mexPrintf("Tupple # %d is %d: navstring # %d\n",mycount,tuppletype,posno); // DEBUGGING
+
+    } else {
+        
+        //mexPrintf("Unknown tuppletype: %d\n",tuppletype); // DEBUGGING
+        
+    }
+  }
+  fclose(fin);
+  
+/*----------------------------------------------------------*/
+  /*all data is now loaded - compute output data from ping samples */
+  /* The data is stored in a 16 bit float - the first four bits are the exponent,
+   *the last 12 bits are the mantissa, where the biosonics output is M * 2^E */
+  for (i=0;i<npings*nsamples;i++){
+      /* Find mantissa - we clear the exponent byte and compute*/
+         mantissa = samples[i] & 0x0FFF;
+       /*find exponent - bit shift 12 bits to the right (clearing mantissa)*/  
+         exponent = samples[i]>>12;
+       /*output is a 32 bit integer which is M*2.^E, here computed as manitssa bitshifted by exponent*/  
+         samples32[i] =(unsigned int)(mantissa << exponent); 
+  }
+
+  /*  printf(0,"7\n");*/
+  
+  /*aloc a new array so we can decimate the samples32 data and output it*/
+  nx = (unsigned short)floor((double)(npings/dx));
+  nz = (unsigned short)floor((double)(nsamples/dz));
+  out = mxMalloc(nz*nx*sizeof(unsigned int));
+  newsystime = mxMalloc(nx*sizeof(unsigned int));
+
+  for (i=0;i<nx;i++){
+    for (j=0;j<nz;j++){
+      thepos = i*nz+j;
+      starti = i*dx;
+      stopi  = (i+1)*dx;
+      startj = j*dz;
+      stopj  = (j+1)*dz;
+      dat=0;
+      
+      for (ii=starti;ii<stopi;ii++){
+	for (jj=startj;jj<stopj;jj++){
+          ppos = ii*nsamples+jj;
+	  dat = dat+samples32[ppos];
+	}
+      }
+      dat = dat/(unsigned int)(dx*dz);
+      out[thepos] = (unsigned int)dat;
+      /*      printf("i %d j %d thepos %d starti %d stopi %d startj %d stopj %d\n",i,j,thepos,starti,stopi,startj,stopj); */
+    }
+  }
+
+
+  /*   printf("%d %d %d %d %d %d",npings,nsamples,nx,nz,dx,dz); */
+  for (i=0;i<npings/dx;i++){
+    newsystime[i] = systime[i*dx+(int)floor((double)dx/2)];
+  }
+
+  
+  /* that should be it.  Now lets write it out somehow. 
+  */
+  pings=mxCreateStructMatrix(1,1,nfields,fieldnames);
+  timestr=mxCreateStructMatrix(1,1,ntimefields,timenames);
+  pos=mxCreateStructMatrix(1,1,nposfields,posnames);
+  head=mxCreateStructMatrix(1,1,nheadfields,headnames);
+  /* now fill these in.  Ummm, how?  */
+
+  
+  fout = mxCreateNumericMatrix(nsamples/dz,npings/dx,mxUINT32_CLASS,mxREAL);
+  intptr = (unsigned int*)mxGetPr(fout);
+  memcpy(intptr,out,(nx)*(nz)*sizeof(unsigned int));
+  mxSetField(pings,0,"out",fout);
+
+  
+  fout = mxCreateNumericMatrix(1,nx,mxUINT32_CLASS,mxREAL);
+  intptr = (unsigned int*)mxGetPr(fout);
+  memcpy(intptr,pingnum,nx*sizeof(unsigned int));
+  mxSetField(pings,0,"pingnum",fout);
+
+  fout = mxCreateNumericMatrix(1,npings/dx,mxUINT32_CLASS,mxREAL);
+  intptr = (unsigned int*)mxGetPr(fout);
+  memcpy(intptr,newsystime,nx*sizeof(unsigned int));
+  mxSetField(pings,0,"systime",fout);
+
+  /* timestr */
+  fout = mxCreateNumericMatrix(1,timeno,mxUINT32_CLASS,mxREAL);
+  intptr = (unsigned int*)mxGetPr(fout);
+  memcpy(intptr,timesystime,timeno*sizeof(unsigned int));
+  mxSetField(timestr,0,"systime",fout);
+
+  fout = mxCreateNumericMatrix(1,timeno,mxUINT32_CLASS,mxREAL);
+  intptr = (unsigned int*)mxGetPr(fout);
+  memcpy(intptr,time,timeno*sizeof(unsigned int));
+  mxSetField(timestr,0,"time",fout);
+
+  fout = mxCreateNumericMatrix(1,timeno,mxUINT8_CLASS,mxREAL);
+  charptr = (unsigned char*)mxGetPr(fout);
+  memcpy(charptr,subsecond,timeno*sizeof(unsigned char));
+  mxSetField(timestr,0,"subseconds",fout);
+
+  /* pos */
+  fout = mxCreateNumericMatrix(1,posno,mxUINT32_CLASS,mxREAL);
+  uintptr = (unsigned int*)mxGetPr(fout);
+  memcpy(uintptr,navtime,posno*sizeof(unsigned int));
+  mxSetField(pos,0,"navtime",fout);
+  
+  fout = mxCreateNumericMatrix(1,posno,mxINT32_CLASS,mxREAL);
+  intptr = (int*)mxGetPr(fout);
+  memcpy(intptr,longitude,posno*sizeof(int));
+  mxSetField(pos,0,"lon",fout);
+
+  fout = mxCreateNumericMatrix(1,posno,mxINT32_CLASS,mxREAL);
+  intptr = (int*)mxGetPr(fout);
+  memcpy(intptr,latitude,posno*sizeof(int));
+  mxSetField(pos,0,"lat",fout);
+
+  fout = mxCreateNumericMatrix(1,posno,mxUINT32_CLASS,mxREAL);
+  uintptr = (unsigned int*)mxGetPr(fout);
+  memcpy(uintptr,possystime,posno*sizeof(unsigned int));
+  mxSetField(pos,0,"systime",fout);
+
+  /* header stuff */
+  fout = mxCreateNumericMatrix(1,1,mxUINT16_CLASS,mxREAL);
+  ptr = (unsigned short*)mxGetPr(fout);
+  memcpy(ptr,&pulselength,sizeof(unsigned short));
+  mxSetField(head,0,"pulselength",fout);
+  
+  fout = mxCreateNumericMatrix(1,1,mxUINT16_CLASS,mxREAL);
+  ptr = (unsigned short*)mxGetPr(fout);
+  memcpy(ptr,&pingrate,sizeof(unsigned short));
+  mxSetField(head,0,"pingrate",fout);
+
+  fout = mxCreateNumericMatrix(1,1,mxUINT32_CLASS,mxREAL);
+  uintptr = (unsigned int*)mxGetPr(fout);
+  dati = (unsigned int)sampleperiod*dz;
+  memcpy(uintptr,&dati,sizeof(unsigned int));
+  mxSetField(head,0,"sampleperiod",fout);
+
+  fout = mxCreateNumericMatrix(1,1,mxUINT16_CLASS,mxREAL);
+  ptr = (unsigned short*)mxGetPr(fout);
+  initialblanking = (100*initialblanking)/dz;
+  memcpy(ptr,&initialblanking,sizeof(unsigned short));
+  mxSetField(head,0,"initialblanking",fout);
+
+  fout = mxCreateNumericMatrix(1,1,mxUINT16_CLASS,mxREAL);
+  ptr = (unsigned short*)mxGetPr(fout);
+  memcpy(ptr,&absorption,sizeof(unsigned short));
+  mxSetField(head,0,"absorption",fout);
+
+  fout = mxCreateNumericMatrix(1,1,mxUINT16_CLASS,mxREAL);
+  ptr = (unsigned short*)mxGetPr(fout);
+  memcpy(ptr,&soundvel,sizeof(unsigned short));
+  mxSetField(head,0,"soundvel",fout);
+
+  fout = mxCreateNumericMatrix(1,1,mxUINT16_CLASS,mxREAL);
+  ptr = (unsigned short*)mxGetPr(fout);
+  memcpy(ptr,&salinity,sizeof(unsigned short));
+  mxSetField(head,0,"salinity",fout);
+
+  fout = mxCreateNumericMatrix(1,1,mxINT16_CLASS,mxREAL);
+  ptr = (short*)mxGetPr(fout);
+  memcpy(ptr,&temperature,sizeof(short));
+  mxSetField(head,0,"temperature",fout);
+
+  fout = mxCreateNumericMatrix(1,1,mxINT16_CLASS,mxREAL);
+  ptr = (short*)mxGetPr(fout);
+  memcpy(ptr,&powersetting,sizeof(short));
+  mxSetField(head,0,"powersettings",fout);
+
+  plhs[0]=pings;
+  plhs[1]=timestr;
+  plhs[2]=pos;
+  plhs[3]=head;
+
+  
+  
+}
+

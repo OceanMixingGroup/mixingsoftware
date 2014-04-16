@@ -1,0 +1,52 @@
+function d=ddz2(z,bc)
+
+%Function D=DDZ2(Z,BC); 2nd derivative matrix using centered difference
+%scheme
+
+%Use to calculate the second derivative of y, i.e. d(dy/dz)/dz=ddz2(z)*y
+%Note that y must be a vector, and z must be equally spaced column vector.
+
+%Inputs:
+%z --> independent variable
+%bc --> specifies boundary conditions
+%   [1]-->dirichlet, (y=0 at boundaries)
+%   [2]-->one-sided (default)
+
+%Based off of work developed in Bill Smyth's stability class. 
+% $Revision: 1.1.1.1 $ $Date: 2008/01/31 20:22:45 $ $Author: aperlin $	
+%Originally Emily Shroyer, 2005
+
+if nargin < 2
+    bc=2;
+end
+
+del=mean(diff(z));
+N=length(z);
+d=zeros(N,N);
+
+for n=2:N-1
+    d(n,n-1)=1.;
+    d(n,n)=-2.;
+    d(n,n+1)=1.;
+end
+
+if bc==1;
+    d(1,1)=-2;
+    d(1,2)=1;
+    d(N,N)=-2;
+    d(N,N-1)=1;
+elseif bc==2;
+    d(1,1)=2;
+    d(1,2)=-5;
+    d(1,3)=4;
+    d(1,4)=-1;
+    d(N,N)=2;
+    d(N,N-1)=-5;
+    d(N,N-2)=4;
+    d(N,N-3)=-1;
+end
+
+d=d/del^2; 
+
+
+

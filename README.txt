@@ -11,11 +11,11 @@ This software is used by many people, all who may update code when they find bug
 
 INSTALLATION FOR A "READER"
 
->>> This is for a user who never plans to update the code. Someone who will just add the files to their MATLAB path.
+>>> This is for a user who never plans to update the code or receive updates from other users. Someone who will just add the files to their MATLAB path.
 
-1. Download mixingsoftware by going to github.com and searching for "mixingsoftware". You do not need to create an account. The link to DOWNLOAD ZIP is on the lower right hand side of the screen. Click this button, save the .zip file, expand it, and put the mixingsoftware folder in a convenient, safe place on your computer (i.e. not the Downloads folder, but someplace where you store MATLAB files.)
+1. First, rename your old version of mixingsoftware to something like "mixingsoftware_old_April2014". Download mixingsoftware by going to https://github.com/OceanMixingGroup/mixingsoftware/. You do not need to create an account. The button to DOWNLOAD ZIP is on the lower right hand side of the screen. Click this button, save the .zip file, expand it, and put the mixingsoftware folder in a convenient, safe place on your computer (i.e. not the Downloads folder, but someplace where you store MATLAB files.)
 
-2. In MATLAB, click on "Set Path". In the Set Path dialogue box, click on "Add with Subfolders". Navigate to the mixingsoftware folder and click "open" to add all of the folders within mixingsoftware to your MATLAB path. You may want to add these folders to the bottom of your path list.
+2. In MATLAB, click on "Set Path". Remove paths to the previous version of mixingsoftware. In the Set Path dialogue box, click on "Add with Subfolders". Navigate to the mixingsoftware folder and click "open" to add all of the folders within mixingsoftware to your MATLAB path. You may want to add these folders to the bottom of your path list.
    >>> Important note: when adding mixingsoftware to your MATLAB path, make sure that the folders are in alphabetical order (caps before lower case) within the path. There are cases of duplicate files and you want to make sure that MATLAB is using the correct one. For instance, mixingsoftware/marlcham/calc_salt.m is much newer than mixingsoftware/realtime/chameleon/calc_salt.m. Therefore, the subfolder "marlcham" must come before the subfolder "realtime". It is unfortunate that there are duplicates, but they have yet to be fixed because there is a fear of deleting something important. Duplications only becomes an issue if you add folders individually to your MATLAB path rather than using "Add with Subfolders." To check which version of a code MATLAB is using, type "which calc_salt" to make sure that it is the one in the "marlin" folder.
 
 
@@ -24,7 +24,7 @@ INSTALLATION FOR A "READER"
 
 INSTALLATION FOR AN "EDITOR"
 
->>> This is for a user who will use mixingsoftware often and will update the code and share their updates with the rest of the group. 
+>>> This is for a user who will use mixingsoftware often. By installing this way, you will be able to update the master repository of you have made changes to the code and you will receive updates made by others.
 
 1. Go to github.com and create a username and password. Choose the free version of the software.
 

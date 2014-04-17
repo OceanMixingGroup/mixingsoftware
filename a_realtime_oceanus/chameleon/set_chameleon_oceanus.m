@@ -39,7 +39,6 @@
 % chameleon, but instead, it is where the raw data is copied by
 % backup_chameleon_timer_oceanus.
 % path_raw = '~/data/yq14/data/chameleon/raw/';
-% path_raw = '~/ganges/data/Yq14/Chameleon/raw/';
 path_raw = '~/ganges/data/Yq14/Chameleon/raw/';
 
 % path_cham='~/data/yq14/processed/chameleon/';

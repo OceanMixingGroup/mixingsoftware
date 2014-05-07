@@ -1,5 +1,7 @@
 function [h] = airden(airtmp,press,relhum)
 %C
+%C  [h] = airden(airtmp,press,relhum)
+%C
 %C  This function calculates air density as function of air temperature,
 %C  pressure and humidity. Based on A. Gill's book Atmosphere-Ocean
 %C  Dynamics p 41.

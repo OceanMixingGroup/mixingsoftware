@@ -84,13 +84,13 @@
 %   -transparent - option indicating that the figure background is to be
 %                  made transparent (png, pdf and eps output only).
 %   -m<val> - option where val indicates the factor to magnify the
-%             on-screen figure pixel dimensions by when generating bitmap
+%             on-screen figure dimensions by when generating bitmap
 %             outputs. Default: '-m1'.
 %   -r<val> - option val indicates the resolution (in pixels per inch) to
-%             export bitmap and vector outputs at, keeping the dimensions
-%             of the on-screen figure. Default: '-r864' (for vector output
-%             only). Note that the -m option overides the -r option for
-%             bitmap outputs only.
+%             export bitmap outputs at, keeping the dimensions of the
+%             on-screen figure. Default: sprintf('-r%g', get(0,
+%             'ScreenPixelsPerInch')). Note that the -m and -r options
+%             change the same property.
 %   -native - option indicating that the output resolution (when outputting
 %             a bitmap format) should be such that the vertical resolution
 %             of the first suitable image found in the figure is at the
@@ -122,8 +122,8 @@
 %             of being overwritten (default).
 %   -bookmark - option to indicate that a bookmark with the name of the
 %               figure is to be created in the output file (pdf only).
-%   handle - The handle of the figure, axes or uipanels (can be an array of
-%            handles, but the objects must be in the same figure) to be
+%   handle - The handle of the figure or axes (can be an array of handles
+%            of several axes, but these must be in the same figure) to be
 %            saved. Default: gcf.
 %
 %OUT:
@@ -165,30 +165,19 @@
 %           bookmarking of figures in pdf files.
 % 09/05/12: Incorporate patch of Arcelia Arrieta (many thanks), to keep
 %           tick marks fixed.
-% 12/12/12: Add support for isolating uipanels. Thanks to michael for
-%           suggesting it.
-% 25/09/13: Add support for changing resolution in vector formats. Thanks
-%           to Jan Jaap Meijer for suggesting it.
-% 07/05/14: Add support for '~' at start of path. Thanks to Sally Warner
-%           for suggesting it.
 
-function [im, alpha] = export_fig(varargin)
+function [im alpha] = export_fig(varargin)
 % Make sure the figure is rendered correctly _now_ so that properties like
 % axes limits are up-to-date.
 drawnow;
 % Parse the input arguments
-[fig, options] = parse_args(nargout, varargin{:});
+[fig options] = parse_args(nargout, varargin{:});
 % Isolate the subplot, if it is one
-cls = all(ismember(get(fig, 'Type'), {'axes', 'uipanel'}));
+cls = strcmp(get(fig(1), 'Type'), 'axes');
 if cls
     % Given handles of one or more axes, so isolate them from the rest
     fig = isolate_axes(fig);
 else
-    % Check we have a figure
-    if ~isequal(get(fig, 'Type'), 'figure');
-        error('Handle must be that of a figure, axes or uipanel');
-    end
-    % Get the old InvertHardcopy mode
     old_mode = get(fig, 'InvertHardcopy');
 end
 % Hack the font units where necessary (due to a font rendering bug in
@@ -292,7 +281,7 @@ if isbitmap(options)
         A = uint8(A);
         % Crop the background
         if options.crop
-            [alpha, v] = crop_background(alpha, 0);
+            [alpha v] = crop_background(alpha, 0);
             A = A(v(1):v(2),v(3):v(4),:);
         end
         if options.png
@@ -335,7 +324,7 @@ if isbitmap(options)
             set(fig, 'Color', tcol, 'Position', pos);
             tcol = 255;
         else
-            [A, tcol] = print2array(fig, magnify, renderer);
+            [A tcol] = print2array(fig, magnify, renderer);
         end
         % Crop the background
         if options.crop
@@ -409,7 +398,7 @@ if isvector(options)
         pdf_nam = [tempname '.pdf'];
     end
     % Generate the options for print
-    p2eArgs = {renderer, sprintf('-r%d', options.resolution)};
+    p2eArgs = {renderer};
     if options.colourspace == 1
         p2eArgs = [p2eArgs {'-cmyk'}];
     end
@@ -470,7 +459,7 @@ else
 end
 return
 
-function [fig, options] = parse_args(nout, varargin)
+function [fig options] = parse_args(nout, varargin)
 % Parse the input arguments
 % Set the defaults
 fig = get(0, 'CurrentFigure');
@@ -489,8 +478,7 @@ options = struct('name', 'export_fig_out', ...
                  'im', nout == 1, ...
                  'alpha', nout == 2, ...
                  'aa_factor', 3, ...
-                 'magnify', [], ...
-                 'resolution', [], ...
+                 'magnify', 1, ...
                  'bookmark', false, ...
                  'quality', []);
 native = false; % Set resolution to native of an image
@@ -547,13 +535,13 @@ for a = 1:nargin-1
                         case 'm'
                             options.magnify = val;
                         case 'r'
-                            options.resolution = val;
+                            options.magnify = val ./ get(0, 'ScreenPixelsPerInch');
                         case 'q'
                             options.quality = max(val, 0);
                     end
             end
         else
-            [p, options.name, ext] = fileparts(varargin{a});
+            [p options.name ext] = fileparts(varargin{a});
             if ~isempty(p)
                 options.name = [p filesep options.name];
             end
@@ -577,23 +565,6 @@ for a = 1:nargin-1
     end
 end
 
-% Convert user dir '~' to full path
-if numel(options.name) > 2 && options.name(1) == '~' && (options.name(2) == '/' || options.name(2) == '\')
-    options.name = fullfile(char(java.lang.System.getProperty('user.home')), options.name(2:end));
-end
-
-% Compute the magnification and resolution
-if isempty(options.magnify)
-    if isempty(options.resolution)
-        options.magnify = 1;
-        options.resolution = 864;
-    else
-        options.magnify = options.resolution ./ get(0, 'ScreenPixelsPerInch');
-    end
-elseif isempty(options.resolution)
-    options.resolution = 864;
-end  
-
 % Check we have a figure handle
 if isempty(fig)
     error('No figure found');
@@ -605,7 +576,7 @@ if ~isvector(options) && ~isbitmap(options)
 end
 
 % Check whether transparent background is wanted (old way)
-if isequal(get(ancestor(fig(1), 'figure'), 'Color'), 'none')
+if isequal(get(fig, 'Color'), 'none')
     options.transparent = true;
 end
 
@@ -695,9 +666,9 @@ if size(A, 3) == 3 && ...
 end
 return
 
-function [A, v] = crop_background(A, bcol)
+function [A v] = crop_background(A, bcol)
 % Map the foreground pixels
-[h, w, c] = size(A);
+[h w c] = size(A);
 if isscalar(bcol) && c > 1
     bcol = bcol(ones(1, c));
 end

@@ -18,13 +18,16 @@
 %   string - The currently saved string. Default: ''.
 %   saved - Boolean indicating whether the save was succesful
 
-% Copyright (C) Oliver Woodford 2011
+% Copyright (C) Oliver Woodford 2011-2013
 
 % This method of saving paths avoids changing .m files which might be in a
 % version control system. Instead it saves the user dependent paths in
 % separate files with a .txt extension, which need not be checked in to
 % the version control system. Thank you to Jonas Dorn for suggesting this
 % approach.
+
+% 10/01/2013 - Access files in text, not binary mode, as latter can cause
+% errors. Thanks to Christian for pointing this out.
 
 function string = user_string(string_name, string)
 if ~ischar(string_name)
@@ -57,13 +60,13 @@ if nargin > 1
         end
     end
     % Write the file
-    fid = fopen(string_name, 'w');
+    fid = fopen(string_name, 'wt');
     if fid == -1
         string = false;
         return
     end
     try
-        fwrite(fid, string, '*char');
+        fprintf(fid, '%s', string);
     catch
         fclose(fid);
         string = false;
@@ -73,12 +76,12 @@ if nargin > 1
     string = true;
 else
     % Get string
-    fid = fopen(string_name, 'r');
+    fid = fopen(string_name, 'rt');
     if fid == -1
         string = '';
         return
     end
-    string = fread(fid, '*char')';
+    string = fgetl(fid);
     fclose(fid);
 end
 return

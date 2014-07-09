@@ -17,12 +17,12 @@ temp.depth=temp.depth';
 temp.time=[];
 temp.t=ones(length(temp.depth),ilength)*NaN;
 temp.quality=[];
-temp.mode=[];
+temp.source=[];
 for ii=1:length(t)
     lt=length(temp.time);
     temp.time=[temp.time t(ii).time'];
     temp.quality=[temp.quality t(ii).quality'];
-    temp.mode=[temp.mode t(ii).mode'];
+    temp.source=[temp.source t(ii).source'];
     for jj=1:length(temp.depth)
        ik=find(t(ii).depth==temp.depth(jj));
        if ~isempty(ik)
@@ -34,20 +34,20 @@ end
 [temp.time ind]=unique(temp.time);
 temp.t=temp.t(:,ind);
 temp.quality=temp.quality(:,ind);
-temp.mode=temp.mode(:,ind);
+temp.source=temp.source(:,ind);
 % make continious timestamp with uniform dt
 timebase=temp.time(1):round((temp.time(2)-temp.time(1))*24*3600)/24/3600:temp.time(end);
 tt.time=timebase;
 tt.depth=temp.depth;
 tt.t=ones(length(temp.depth),length(timebase))*NaN;
 tt.quality=cellstr(repmat('0',length(tt.time),length(tt.depth)))';
-tt.mode=cellstr(repmat('0',length(tt.time),length(tt.depth)))';
+tt.source=cellstr(repmat('0',length(tt.time),length(tt.depth)))';
 temp.time=round(temp.time*24*3600)/24/3600;
 tt.time=round(tt.time*24*3600)/24/3600;
 [c,ia,ib]=intersect(tt.time,temp.time);
 tt.t(:,ia)=temp.t(:,ib);
 tt.quality(:,ia)=temp.quality(:,ib);
-tt.mode(:,ia)=temp.mode(:,ib);
+tt.source(:,ia)=temp.source(:,ib);
 tt.readme=t(1).readme;
 t=tt;
 idot=strfind(fname,'.');

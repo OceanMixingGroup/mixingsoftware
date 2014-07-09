@@ -15,6 +15,12 @@ function [colormap]=cbrewer(ctype, cname, ncol, interp_method)
 %            cname
 %   - interp_method: if the table need to be interpolated, what method
 %                    should be used for interp1? Default='cubic'.
+%
+% COLOR OPTIONS:
+%   - div: RdYlGn, RdYlBu, RdGy, RdBu, PuOr, PRGn, PiYG, BrBG
+%   - seq: YlOrRd, YlOrBr, YlGnBu, YlGn, Reds, RdPu, Purples, PuRd, PuBuGn,
+%          PuBu, OrRd, Oranges, Greys, Greens, GnBu, BuPu, BuGn, Blues
+%   - qual: Set3, Set2, Set1, Pastel2, Pastel1, Paired, Dark2, Accent
 % 
 % A note on the number of colors: Based on the original data, there is
 % only a certain number of colors available for each type and name of
@@ -44,7 +50,7 @@ load('colorbrewer.mat')
 % initialise the colormap is there are any problems
 colormap=[];
 if (~exist('interp_method', 'var'))
-    interp_method='cubic';
+    interp_method='linear';
 end
 
 % If no arguments

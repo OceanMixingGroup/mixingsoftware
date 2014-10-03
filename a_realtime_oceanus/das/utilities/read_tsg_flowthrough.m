@@ -12,7 +12,7 @@ out.T=str2num(tt(:,33:38));
 out.C=str2num(tt(:,41:47));
 out.S=str2num(tt(:,50:56));
 out.T(out.T<-2 | out.T>40)=NaN;
-out.C(out.C<1 | out.C>4)=NaN;
+out.C(out.C<1 | out.C>6)=NaN;
 out.S(out.S<10 | out.S>43)=NaN;
 
 % tt(:,end+1)=',';

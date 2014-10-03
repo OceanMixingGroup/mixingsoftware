@@ -26,11 +26,15 @@ tt(:,end+1)=',';
 frm='%s %s %s %f %s %f %s %f %s %f %s %s %s %s %s %s %s';
 data=textscan(tt',frm,size(tt,1),'delimiter',',','bufsize',1e6);
 tm=char(data{2});
+if strcmp(tm(1,1),'"') == 1
+    tm = tm(:,2:end-1);
+end
 out.time=datenum(tm(:,1:10))+datenum(tm(:,12:23))-fix(datenum(tm(:,12:23)));
 out.T_air=data{4};
 out.RH=data{6};
 out.T_wetbulb=data{8};
 out.T_dewpoint=data{10};
-out.AH=data{12};
+out.AH=str2num(char(data{12}));
+
 end % function out=read_metstation_bow(fname)
 

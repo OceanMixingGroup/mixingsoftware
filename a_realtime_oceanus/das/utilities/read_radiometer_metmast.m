@@ -12,6 +12,9 @@ tt(:,end+1)=',';
 frm='%s %s %s %s %s %f %f %f %f %f %f %f %s';
 data=textscan(tt',frm,size(tt,1),'delimiter',',','bufsize',1e6);
 tm=char(data{2});
+if strcmp(tm(1,1),'"') == 1
+    tm = tm(:,2:end-1);
+end
 out.time=datenum(tm(:,1:10))+datenum(tm(:,12:23))-fix(datenum(tm(:,12:23)));
 out.LW=data{8};
 out.SW=data{11};

@@ -1,4 +1,7 @@
-function out=read_truewind_bow_adu5(fname)
+function out=read_truewind_bow_gyro_bowgps(fname)
+% adapted from read_truewind_bow_adu5 which I think are the same
+
+
 fid=fopen(fname);
 data=textscan(fid,'%s',1e6,'delimiter','\r');
 fclose(fid);
@@ -24,7 +27,7 @@ data=textscan(tt',frm,size(tt,1),'delimiter',',','bufsize',1e6);
 tm=char(data{2});
 
 out.time=datenum(tm(:,1:10))+datenum(tm(:,12:23))-fix(datenum(tm(:,12:23)));
-out.u_t=data{8}*0.5144;
+out.u_t=data{8}*0.5144; %convert knots to m/s
 out.v_t=data{9}*0.5144;
 
 
@@ -50,5 +53,5 @@ out.v_t=data{9}*0.5144;
 % out.cog=str2num(tt(:,72:77));
 % out.u_t=str2num(tt(:,80:95));out.u_t(out.u_t>150)=NaN;
 % out.v_t=str2num(tt(:,99:115));out.v_t(out.v_t>150)=NaN;
-end % function out=read_truewind_bow_adu5(fname)
+end 
 

@@ -21,38 +21,47 @@ clear all
 % path to the raw data
 % datadir='\\ttwo\ttwo_cruises\current\das\';
 % datadir  = '/Volumes/ttwo_cruises/current/das/';
-datadir = '~/data/yq14/data/das/';
+% datadir = '~/data/yq14/data/das/';
+datadir = '~/GDrive/data/eq14/testing_oceanus_met_data_oct2014/raw/das/';
 
 % path to where the processed data should be saved
 % savedir='e:\work\Alaska12\das\';
-savedir='~/data/yq14/processed/das/';
+% savedir='~/data/yq14/processed/das/';
+savedir = '~/GDrive/data/eq14/testing_oceanus_met_data_oct2014/processed/das/';
 
 % startnum
 % on what day do you want to start processing? This is the number of the
 % day within the das folder on ttwo. (This is necessary because there might
 % be folders for days that you do not need to analyze.)
-startday = 7;
+startday = 1;
 
 % cruise id
-cruise_id='yq14';
+cruise_id='eq14_test';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % loop through all instruments to process
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-strc={'fluorometer_flowthrough','fluorometer';
-    'gnss_adu5_bow','ashtech';
-    'gyrocompass','gyro';
-    'metstation_03stb','met';
-    'metstation_bow','met';
-    'radiometer_metmast','rad';
-    'raingauge_metmast_1','rain';
-    'thermometer_bow','temp_bow';
-    'thermometer_fwdintake','temp_int';
-    'transmissometer_flowthrough','trans';
-    'tsg_flowthrough','tsg';
-    'truewind_bow_adu5','wind'};
+% strc={'fluorometer_flowthrough','fluorometer';
+% %     'gnss_adu5_bow','ashtech';
+%     'gnss_bow_gps','ashtech';
+%     'gyrocompass','gyro';
+%     'metstation_03stb','met2';
+%     'metstation_bow','met';
+%     'oxygen_mll_flowthrough','oxygen';
+%     'radiometer_metmast','rad';
+%     'radiometer_metmast_par','par';
+%     'raingauge_metmast_1','rain';
+%     'thermometer_bow','temp_bow';
+%     'thermometer_fwdintake','temp_int';
+%     'transmissometer_flowthrough','trans';
+% %     'truewind_bow_adu5','wind';
+%     'truewind_bow_gyro_bowgps','wind';
+%     'tsg_flowthrough','tsg'};
+
+strc={'tsg_flowthrough','tsg'};
+
 warning off    
 dd1=dir([datadir '2*']);
 for ii=startday:length(dd1)

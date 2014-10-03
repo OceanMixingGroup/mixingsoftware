@@ -17,10 +17,12 @@ clear all
 % make_das_oceanus.
 
 % matdir='e:\work\Alaska12\das\';
-matdir='~/data/yq14/processed/das/';
+% matdir='~/data/yq14/processed/das/';
+matdir = '~/GDrive/data/eq14/testing_oceanus_met_data_oct2014/processed/das/';
 
 % crusie id
-cruise_id='yq14';
+% cruise_id='yq14';
+cruise_id='eq14';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % loop through all data and combine
@@ -39,7 +41,7 @@ for ii=1:length(dd1)
         end
     else
         for jj=1:length(dd2)
-            fln=dir([matdir dd1(ii).name filesep dd2(jj).name(1:end-14) '*']);
+            fln=dir([matdir dd1(ii).name filesep dd2(jj).name(1:end-12) '*']);
             tmp=load([matdir dd1(ii).name filesep fln.name]);
             for kk=1:length(var2(jj).fl)
                 ff{jj}.(char(var1(jj))).(char(var2(jj).fl(kk))) = ...

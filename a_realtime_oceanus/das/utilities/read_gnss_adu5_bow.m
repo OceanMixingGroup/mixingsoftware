@@ -16,6 +16,9 @@ if ~isempty(igpggl)
     frm='%s %s %s %f %s %f %s %s %s %s';
     gpggl=textscan(gpggl',frm,size(gpggl,1),'delimiter',',','bufsize',1e6);
     tm=char(gpggl{2});
+    if strcmp(tm(1,1),'"') == 1
+        tm = tm(:,2:end-1);
+    end
     out.pos_time=datenum(tm(:,1:10))+datenum(tm(:,12:23))-fix(datenum(tm(:,12:23)));
     out.lat=gpggl{4};
     out.lat=fix(out.lat/100)+(out.lat/100-fix(out.lat/100))/60*100;
@@ -35,6 +38,9 @@ if ~isempty(igphdt)
     frm='%s %s %s %f %s';
     gphdt=textscan(gphdt',frm,size(gphdt,1),'delimiter',',','bufsize',1e6);
     tm=char(gphdt{2});
+    if strcmp(tm(1,1),'"') == 1
+        tm = tm(:,2:end-1);
+    end
     out.heading_time=datenum(tm(:,1:10))+datenum(tm(:,12:23))-fix(datenum(tm(:,12:23)));
     out.heading=gphdt{4};
 else

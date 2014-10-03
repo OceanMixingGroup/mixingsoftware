@@ -1,4 +1,5 @@
-function out=read_raingauge_metmast_1(fname)
+function out=read_radiometer_metmast_par(fname)
+
 fid=fopen(fname);
 data=textscan(fid,'%s',1e6,'delimiter','\r');
 fclose(fid);
@@ -8,12 +9,12 @@ out.readme=data(1:ik,:);
 data=data(ik+1:end,:);
 data(:,end+1)=',';
 frm=['%s %s %s'];
-data=textscan(data',frm,size(data,1),'delimiter',',','bufsize',1e6);
-tm=char(data{2});
+tt=textscan(data',frm,size(data,1),'delimiter',',','bufsize',1e6);
+tm=char(tt{2});
 if strcmp(tm(1,1),'"') == 1
     tm = tm(:,2:end-1);
 end
 out.time=datenum(tm(:,1:10))+datenum(tm(:,12:23))-fix(datenum(tm(:,12:23)));
-vv=char(data{3});
-out.Volt=str2num(vv(:,2:7));
-end % function out=read_raingauge(fname)
+
+out.parVolts=char(tt{3});
+out.parVolts=str2num(out.parVolts(:,2:7));

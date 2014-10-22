@@ -43,24 +43,23 @@ cruise_id='eq14_test';
 % loop through all instruments to process
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% strc={'fluorometer_flowthrough','fluorometer';
-% %     'gnss_adu5_bow','ashtech';
-%     'gnss_bow_gps','ashtech';
-%     'gyrocompass','gyro';
-%     'metstation_03stb','met2';
-%     'metstation_bow','met';
-%     'oxygen_mll_flowthrough','oxygen';
-%     'radiometer_metmast','rad';
-%     'radiometer_metmast_par','par';
-%     'raingauge_metmast_1','rain';
-%     'thermometer_bow','temp_bow';
-%     'thermometer_fwdintake','temp_int';
-%     'transmissometer_flowthrough','trans';
-% %     'truewind_bow_adu5','wind';
-%     'truewind_bow_gyro_bowgps','wind';
-%     'tsg_flowthrough','tsg'};
+strc={'fluorometer_flowthrough','fluorometer';
+%     'gnss_adu5_bow','ashtech';
+    'gnss_bow_gps','ashtech';
+    'gyrocompass','gyro';
+    'metstation_03stb','met2';
+    'metstation_bow','met';
+    'oxygen_mll_flowthrough','oxygen';
+    'radiometer_metmast','rad';
+    'radiometer_metmast_par','par';
+    'raingauge_metmast_1','rain';
+    'thermometer_bow','temp_bow';
+    'thermometer_fwdintake','temp_int';
+    'transmissometer_flowthrough','trans';
+%     'truewind_bow_adu5','wind';
+    'truewind_bow_gyro_bowgps','wind';
+    'tsg_flowthrough','tsg'};
 
-strc={'tsg_flowthrough','tsg'};
 
 warning off    
 dd1=dir([datadir '2*']);

@@ -16,7 +16,7 @@ clear all
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % set paths
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%h%%%%%
 
 % path to the raw data
 % datadir='\\ttwo\ttwo_cruises\current\das\';
@@ -46,8 +46,8 @@ cruise_id='eq14';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 strc={...
-%     'anemometer_metmast','anemometer';  % not needed because it should be processed first using other data. Use the truewind products
-    'echosounder_well','echosounder';
+%     'anemometer_metmast','anemometer';
+%     'echosounder_well','echosounder';
     'fluorometer_flowthrough','fluorometer';
     'gnss_adu5_bow','ashtech';
     'gnss_bow_gps','ashtech';
@@ -61,8 +61,8 @@ strc={...
     'thermometer_fwdintake','temp_int';
     'thermometer_hull','temp_hull';         % used to be "thermometer_bow"
     'transmissometer_flowthrough','trans';
-    'truewind_metmast_adu5','wind';         % used to be "truewind_bow_adu5". Uses the same anemometer as truewind_metmast_gyro_gps, but then processes the wind product using ship's pitch and roll
-    'truewind_metmast_gyro_gps','wind';     % used to be "truewind_bow_gyro_bowgps". Uses the same anemometer as truewind_metmast_adu5, but then processes the wind product using ship's gps and gyro 
+    'truewind_metmast_adu5','wind';         % used to be "truewind_bow_adu5"
+    'truewind_metmast_gyro_gps','wind';     % used to be "truewind_bow_gyro_bowgps"
     'tsg_flowthrough','tsg'};
 
 

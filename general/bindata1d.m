@@ -35,7 +35,7 @@ y=y';
 
 [meanX,VarX,nX]=bindata(binx,biny,x,y,X);
 bad = find(nX==0);
-meanX(bad) = NaN;varX(bad)=NaN;
+meanX(bad) = NaN;VarX(bad)=NaN;
 
 if flip
   meanX=meanX';

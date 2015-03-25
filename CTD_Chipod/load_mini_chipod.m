@@ -28,8 +28,8 @@ if 1% Chipod2
 end
 fclose(fid);
 
-counter_offset=find(out(1:101,1)==65535)
-lenn=length(out(:,1))
+counter_offset=find(out(1:101,1)==65535);
+lenn=length(out(:,1));
 counter_inds=counter_offset+[0:101:(lenn-counter_offset)];
 % length(counter_inds)
 % paus

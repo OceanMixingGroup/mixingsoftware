@@ -48,6 +48,8 @@ if isbig==1
 end
 nfiles=length(the_files);
 big=[];
+fnamelist={} ; % list of chipod files for this time range
+fcount=1
 for a=1:nfiles
     a;%
     fname=the_files(a).name;
@@ -57,8 +59,13 @@ for a=1:nfiles
     if datenum(file_time,'yymmddhh')>(time_range(1)-t_extra/24) & datenum(file_time,'yymmddhh')<(time_range(2)+t_extra/24)
         % we've got the right file, so let's load it.
         %        fname=[the_path the_files(a).name];
-        fname=fullfile(the_path,the_files(a).name); % use fullfile
+        fname=fullfile(the_path,the_files(a).name) % use fullfile
         disp('found the file')
+        
+        % save the filename
+        fnamelist{fcount}=the_files(a).name;
+        fcount=fcount+1;
+
         try
             if isbig
                 [data head]=raw_load_chipod(fname);
@@ -118,9 +125,10 @@ for a=1:length(fnames)
     big.(fnames{a})=big.(fnames{a})(ginds);
 end
 
-% also save name of chi file data is from - AP
-big.fname=fname;
+
 big.MakeInfo=['Made ' datestr(now) ' w/ ' mfilename ' in ' version];
+% also save name of chi file data is from - AP
+big.chi_files=fnamelist;
 
 doplots=0;
 if doplots

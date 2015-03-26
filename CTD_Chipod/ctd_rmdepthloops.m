@@ -10,8 +10,8 @@ function [data,loop_inds] = ctd_rmdepthloops(data,extra_z,wthresh)
 % wthresh : Threshold vertical velocity
 %
 % OUTPUT
-% data : CTD data with data during loops removed.
-%
+% data      : CTD data with data during loops (loop_inds) removed.
+% loop_inds : Indices of data with loops
 %
 % Additional comments added by AP 24 Mar 2015
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

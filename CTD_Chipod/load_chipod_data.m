@@ -41,8 +41,8 @@ end
 % Hardwire for the time being.
 
 the_files=dir([the_path '/*.' suffix]);
-%t_extra=2;% AP
-t_extra=5;
+%t_extra=2;% 
+t_extra=24;% AP
 if isbig==1
     t_extra=24;
 end
@@ -56,7 +56,10 @@ for a=1:nfiles
     time_inds=findstr(fname,'.')+[-8:-1];
     file_time=fname(time_inds);
     
-    if datenum(file_time,'yymmddhh')>(time_range(1)-t_extra/24) & datenum(file_time,'yymmddhh')<(time_range(2)+t_extra/24)
+%    if datenum(file_time,'yymmddhh')>(time_range(1)-t_extra/24) & datenum(file_time,'yymmddhh')<(time_range(2)+t_extra/24)
+    if datenum(file_time,'yymmddhh')>(time_range(1)-t_extra/24) && datenum(file_time,'yymmddhh')<(time_range(2))% AP start time of file has to be before end of time_range...
+ 
+        % datenum(file_time,'yymmddhh')+1
         % we've got the right file, so let's load it.
         %        fname=[the_path the_files(a).name];
         fname=fullfile(the_path,the_files(a).name) % use fullfile

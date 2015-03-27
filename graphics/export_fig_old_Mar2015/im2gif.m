@@ -48,7 +48,7 @@ function im2gif(A, varargin)
 
 if options.crop ~= 0
     % Crop
-    A = crop_borders(A, A(ceil(end/2),1,:,1));
+    A = crop_borders(A);
 end
 
 % Convert to indexed image
@@ -80,7 +80,7 @@ map(B(1)+1,:) = im2double(A(1,1,:));
 
 % Save as a gif
 imwrite(B, map, options.outfile, 'LoopCount', round(options.loops(1)), 'DelayTime', options.delay);
-end
+return
 
 %% Parse the input arguments
 function [A, options] = parse_args(A, varargin)
@@ -135,7 +135,7 @@ if ischar(A)
     % Read in the image
     A = imread_rgb(A);
 end
-end
+return
 
 %% Read image to uint8 rgb array
 function [A, alpha] = imread_rgb(name)
@@ -183,4 +183,66 @@ switch lower(info(1).Format)
             A = A(:,:,1:3);
         end
 end
+return
+
+%% Crop the borders
+function A = crop_borders(A)
+[h, w, c, n] = size(A);
+bcol = A(ceil(end/2),1,:,1);
+bail = false;
+for l = 1:w
+    for a = 1:c
+        if ~all(col(A(:,l,a,:)) == bcol(a))
+            bail = true;
+            break;
+        end
+    end
+    if bail
+        break;
+    end
 end
+bcol = A(ceil(end/2),w,:,1);
+bail = false;
+for r = w:-1:l
+    for a = 1:c
+        if ~all(col(A(:,r,a,:)) == bcol(a))
+            bail = true;
+            break;
+        end
+    end
+    if bail
+        break;
+    end
+end
+bcol = A(1,ceil(end/2),:,1);
+bail = false;
+for t = 1:h
+    for a = 1:c
+        if ~all(col(A(t,:,a,:)) == bcol(a))
+            bail = true;
+            break;
+        end
+    end
+    if bail
+        break;
+    end
+end
+bcol = A(h,ceil(end/2),:,1);
+bail = false;
+for b = h:-1:t
+    for a = 1:c
+        if ~all(col(A(b,:,a,:)) == bcol(a))
+            bail = true;
+            break;
+        end
+    end
+    if bail
+        break;
+    end
+end
+A = A(t:b,l:r,:,:);
+return
+
+function A = col(A)
+A = A(:);
+return

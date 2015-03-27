@@ -75,11 +75,13 @@ if f>0
     % *** usually want to find an average of the start and end times ***
     % *** !!! change this back in the future !!! ***
         
-    cham.time(n) = datenum(head.starttime(1:12),'ddmmyyHHMMSS');
-    
-%     time1 = datenum(head.starttime(1:12),'ddmmyyHHMMSS');
-%     time2 = datenum(head.endtime(1:12),'ddmmyyHHMMSS');
-%     cham.time(n) = mean([time1,time2]);
+    if strcmp(head.thisfile(end-10:end-7),'YQ14')
+        cham.time(n) = datenum(head.starttime(1:12),'ddmmyyHHMMSS');
+    else
+        time1 = datenum(head.starttime(1:12),'ddmmyyHHMMSS');
+        time2 = datenum(head.endtime(1:12),'ddmmyyHHMMSS');
+        cham.time(n) = mean([time1,time2]);
+    end
 
     
     % save the summary file

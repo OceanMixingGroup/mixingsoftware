@@ -106,6 +106,14 @@ function avg=average_data_gen(series,varargin)
 %    end
 %****** END OF EXAMPLE *************************************************
 %***********************************************************************
+
+%% notes: SJW, March 2015
+% Updating this code to work with the new chameleon data.
+
+
+
+%% define some parameters (some of these will be overwritten with varargin)
+
 min_bin=0; % first depth bin
 max_bin=inf; % final depth bin 
 depth_or_time='P'; % this is the cal.?? series to be used for binning.
@@ -118,12 +126,16 @@ epsilon_glitch_factor=6; % the ratio of EPSILON1/EPSILON2 which, if
 
 global head cal q
 
-% Redefine any of the above defaults if they have been specified:
+%% Redefine any of the above defaults if they have been specified:
+
+% check that inputs are properly paired
 a=length(varargin)/2;
 if a~=floor(a)
   error('must have matching number of property-pairs')
   return
 end
+
+% replace parameters with varargin values
 for i=1:2:a*2
   tmp=varargin(i+1);
   if strcmp(lower(char(varargin(i))),'depth_or_time')
@@ -135,16 +147,17 @@ end
 
 % set the series for binning:  
 eval(['binseries=cal.' upper(depth_or_time) ';'])
-
 eval(['series={''' depth_or_time ''' series{:}};'])
-% now do the averaging:
+
+%% now do the averaging over each 1m bin
+
 firstbin=binsize*max(floor(min(binseries)/binsize),min_bin/binsize)+(whole_bins~=0)*binsize/2;
 lastbin=binsize*min(ceil(max(binseries)/binsize),max_bin/binsize)-(whole_bins~=0)*binsize/2;
 
 avail_series=fieldnames(cal);
 n=0;
+% find the indices of each meter's worth of data
 for pressure=firstbin:binsize:(lastbin-binsize)
-  
   temp=find(binseries>pressure & binseries<(pressure+binsize));
   n=n+1;
   if ~isempty(temp)
@@ -158,10 +171,13 @@ for pressure=firstbin:binsize:(lastbin-binsize)
   end
 end
 nmax=n;
+
+% go through every variable in 'series' and either average the variable or 
+% calculate epsilon or chi
 for i=1:length(series)
     active=upper(char(series(i)));
     if strncmp(active,'EPSILON',7) | strncmp(active,'CHI',3) 
-        if head.direction~='d'
+        if head.direction~='d' % skip over the cast if the head is NOT 'd'
             if strncmp(active,'EPSILON',7) 
                 if length(active)>7
                     prb=active(8:length(active));
@@ -173,7 +189,7 @@ for i=1:length(series)
             elseif strncmp(active,'CHI',3)
                 avg.CHI(1:nmax)=NaN;
             end
-        else
+        else % find averaged temp, sal, and press from THIS cast
             if exist('avg','var')
                 tmp=fieldnames(avg);
                 if any(strcmp((tmp),'T'))
@@ -206,7 +222,7 @@ for i=1:length(series)
                     warning('Assuming P=0 dBar for viscosity calc')
                     pres=zeros(size(min_ind));
                 end    
-            else
+            else % use default values for temp, sal, and press if necessary
                 warning('Assuming S=35 psu for viscosity calc')
                 sal=35*ones(size(min_ind));
                 warning('Assuming T=10 deg C for viscosity calc')
@@ -220,13 +236,13 @@ for i=1:length(series)
                 else
                     prb='1';
                 end
-                for n=1:nmax
-                    nu=sw_visc(sal(n),temp(n),pres(n));  
+                for n=1:nmax %step through all depth bins
+                    nu=sw_visc(sal(n),temp(n),pres(n));  % calculate viscosity
                     % 	  eval(['avg.EPSILON' prb '(n)=calc_epsilon(cal.S' prb '(1+(min_ind(n)-1)*head.irep.S' prb ...
                     % 										  ':max_ind(n)*head.irep.S' prb '),avg.FALLSPD(n),nfft,nu,' ...
                     % 								   'head.sensor_index.S' prb ');'])
                     %       
-                    Sdata = getfield(cal,['S' prb]); 
+                    Sdata = getfield(cal,['S' prb]); %find shear probe 1 or 2
                     sensorindex = getfield(head.sensor_index,['S' prb]);
                     irep = getfield(head.irep,['S' prb]);
                     samplerate = head.slow_samp_rate.*irep;
@@ -279,7 +295,7 @@ for i=1:length(series)
             end
         end
         
-    else
+    else % average data that is NOT epsilon or chi
         for n=1:nmax
             eval(['avg.' active '(n)=mean(cal.' active ...
                     '(1+(min_ind(n)-1)*head.irep.' active ...

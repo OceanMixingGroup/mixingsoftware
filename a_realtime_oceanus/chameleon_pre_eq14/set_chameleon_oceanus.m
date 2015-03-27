@@ -40,7 +40,7 @@
 % backup_chameleon_timer_oceanus.
 % path_raw = '~/data/yq14/data/chameleon/raw/';
 % path_raw = '~/ganges/data/Yq14/Chameleon/raw/';
-path_raw = '~/ganges/data/Yq14/Chameleon/raw/';
+path_raw = '~/GDrive/data/yq14/data/chameleon/raw/';
 
 % path_cham='~/data/yq14/processed/chameleon/';
 % path_cham = '~/ganges/data/Yq14/Chameleon/processed/';

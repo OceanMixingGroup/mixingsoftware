@@ -1,4 +1,5 @@
-function [epsilon_real,k,spec,k_nas,spec_nas]=calc_epsilon_filt_gen(s1,fallspd,nfft,nu,head_index_num,filters,k_start,k_stop,kstop_coef)
+function [epsilon_real,k,spec,k_nas,spec_nas] = ...
+    calc_epsilon_filt_gen(s1,fallspd,nfft,nu,head_index_num,filters,k_start,k_stop,kstop_coef)
 %CALC_EPSILON calculates epsilon from shear data.  
 % function CALC_EPSILON(S1,FSPD,NFFT,NU,SENSOR_INDEX,FILTERS) calculates epsilon
 % from shear data.  S1 and FSPD are required; NFFT, NU and SENSOR_INDEX are

@@ -237,7 +237,8 @@ for i=1:length(series)
                     fallspd = avg.FALLSPD(n);
                     sind = [1+(min_ind(n)-1)*irep:max_ind(n)*irep];
                     [f,ss] = calc_shearspec(Sdata(sind),samplerate,nfft,0.01*fallspd,filtord,fcutoff);
-                    eval(['set_filters_' q.script.prefix]);
+%                     eval(['set_filters_' q.script.prefix]);
+                    eval(['set_filters_EQ14']);
                     %variables FILTERS K_START,K_STOP,KSTOP_COEF that used in the next statement are calculated
                     %in set_filters script
                     if avg.FALLSPD(n)<200

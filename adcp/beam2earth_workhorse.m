@@ -1,10 +1,11 @@
 function nadcp=bm2earth(adcp);
 % bm2earth.m converts RDI data recorded in BEAM to earth coordinates
 %
-% function earth=bm2earth(beam, head, HeadingOffset, roll, ssnd, ECssnd, beams_up, xfreq, convex, sensor_config, BeamAngle);
+% function earth=bm2earth(beam, head, HeadingOffset, roll, ssnd, ECssnd, ...
+%        beams_up, xfreq, convex, sensor_config, BeamAngle);
 % This file uses assumes the adcp structure is in the form that rich's
 % software generates...
-
+%
 % where 
 %	beam = bins by beam matrix of data, a single ensemble, in mm/s
 %	head = value for the ensemble, in degrees

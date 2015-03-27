@@ -1,5 +1,7 @@
 function out=read_truewind_metmast_adu5(fname)
 % used to be "truewind_bow_adu5". the only difference in the name
+% (sjw 11/2014) added wind stress
+
 fid=fopen(fname);
 data=textscan(fid,'%s',1e6,'delimiter','\r');
 fclose(fid);
@@ -15,7 +17,8 @@ out.readme=data(1:ik,:);
 %     'spd_t - wind speed true [m/s]',...
 %     'dir_r - wind direction true [deg]','',out.readme);
 out.readme=char('u_t - eastward wind speed true [m/s]',...
-    'v_t - northward wind speed true [m/s]','',out.readme);
+    'v_t - northward wind speed true [m/s]',...
+    'tau - wind stress [Pa]','',out.readme);
 tt=data(ik+1:end,:);
 idata=strmatch('DATA',tt);
 tt=tt(idata,:);
@@ -27,6 +30,17 @@ tm=char(data{2});
 out.time=datenum(tm(:,1:10))+datenum(tm(:,12:23))-fix(datenum(tm(:,12:23)));
 out.u_t=data{8}*0.5144;
 out.v_t=data{9}*0.5144;
+
+
+% calculate wind stress
+% the anemometer is located 47.5ft above sea level (14.5m). Calculate the
+% 10m wind speed
+u10 = sw_u10(out.u_t,14.5);
+v10 = sw_u10(out.v_t,14.5);
+rho_a = 1.225; % air density [kg/m^3], Kundu, p.619
+windspeed10 = sqrt(u10.^2 + v10.^2);
+Cd = sw_drag(windspeed10);
+out.tau = rho_a*Cd.*windspeed10.^2;
 
 
 % frm=['%s %s %s' '%s %s %s' '%s %f %f %f %f'];

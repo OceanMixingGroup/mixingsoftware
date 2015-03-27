@@ -1,8 +1,5 @@
-function out=read_truewind_metmast_gyro_gps(fname)
+function out=read_truewind_bow_gyro_bowgps(fname)
 % adapted from read_truewind_bow_adu5 which I think are the same
-%
-% (sjw 11/2014) used to be "truewind_bow_gyro_bowgps". the only difference in the name
-
 
 
 fid=fopen(fname);

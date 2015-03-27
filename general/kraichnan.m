@@ -19,7 +19,8 @@ if test==1
   k=k';
 end
 % C-star=0.024
-C_star=0.032;% 0.024
+% C_star=0.032;% 0.024
+C_star=0.01366;  % Aurelie says this is the correct value
 % The value of c*=0.04 is consistent with C_theta=0.4 and q=3.7, which is
 % what I have been using....
 k_cut=C_star*kb*sqrt(D/nu);

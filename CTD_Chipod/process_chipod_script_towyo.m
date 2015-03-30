@@ -484,11 +484,11 @@ for a=1:length(CTD_list)
                                 
                                 %try
                                 addpath /Users/Andy/Cruises_Research/mixingsoftware/marlcham/ % for integrate.m
-                                [chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,avg.fspd(n),avg.nu(n),...
-                                    avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
+                                %[chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,avg.fspd(n),avg.nu(n),...
+                                 %   avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
                                 
-                                %[chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,abs(avg.fspd(n)),avg.nu(n),...
-                                %	avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
+                                [chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,abs(avg.fspd(n)),avg.nu(n),...
+                                	avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
                                 %catch
                                 %	chi1=NaN;
                                 %	epsil1=NaN;
@@ -557,7 +557,7 @@ for a=1:length(CTD_list)
 
     
     else
-        fprintf(fileID,'Not a towyo')
+        fprintf(fileID,'Not a towyo \n')
     end % check if towyo
     
 end % each CTD file

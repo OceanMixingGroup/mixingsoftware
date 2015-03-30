@@ -57,7 +57,7 @@ hb=waitbar(0,'Looping through ctd files')
 
 % ind for TTide towyos: 61-68, 102-117,120-131, 151-206
 
-for a=62%1:length(CTD_list)
+for a=1:length(CTD_list)
     waitbar(a/length(CTD_list),hb)
     
     clear castname tlim time_range cast_suffix_tmp cast_suffix data2
@@ -75,7 +75,7 @@ for a=62%1:length(CTD_list)
     if data2.time > tlim
         % jen didn't save us a real 24 hz time.... so create timeseries. JRM
         % from data record
-        disp('test!!!!!!!!!!')
+%        disp('test!!!!!!!!!!')
         tmp=linspace(data2.time(1),data2.time(end),length(data2.time));
         data2.datenum=tmp'/24/3600+datenum([1970 1 1 0 0 0]);
     end
@@ -84,6 +84,13 @@ for a=62%1:length(CTD_list)
     time_range=[min(data2.datenum) max(data2.datenum)];
     cast_suffix_tmp=CTD_list(a).name; % Cast # may be different than file #. JRM
     cast_suffix=cast_suffix_tmp(end-8:end-6);
+    
+    
+    % check if this is a towyo (only do towyos)
+    %if ~exist(fullfile(CTD_path,[] '_leg1_' cast_suffix '_split*.mat']
+    clear splitlist
+    splitlist=dir([CTD_path '*' cast_suffix '_split*.mat']);
+    if size(splitlist,1)>1
     
     % Info for chipods deployed on CTD is entered here (SN, up/down, etc.).
     % Might run into issues if chipods are switched out during cruise...
@@ -493,10 +500,10 @@ for a=62%1:length(CTD_list)
                                 
                                 
                             else
-                                disp('fail1')
+                              %  disp('fail1')
                             end
                         else
-                            disp('fail')
+                            %disp('fail')
                         end
                         if ~mod(n,10)
                             waitbar(n/length(todo_inds),h);
@@ -540,13 +547,18 @@ for a=62%1:length(CTD_list)
             end % whsplit
             
         else
-            disp('no good chi data for this profile')
+            %disp('no good chi data for this profile')
             fprintf(fileID,' No chi file found \n')
         end % if we have good chipod data for this profile
         %catch
         %2end
         
     end % each chipod on rosette (up_down_big)
+
+    
+    else
+        fprintf(fileID,'Not a towyo')
+    end % check if towyo
     
 end % each CTD file
 

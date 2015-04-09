@@ -2,7 +2,7 @@
 %
 % process_chipod_script_AP.m
 %
-% Script to do CTD-chipod processing. 
+% Script to do CTD-chipod processing.
 %
 % This script is part of CTD_Chipod software folder in the the mixingsoftware github repo.
 % For latest version, download/sync the mixingsoftware github repo at
@@ -11,6 +11,9 @@
 % Before running:
 % -This script assumes that CTD data has been processed into mat files and
 % put into folders in some kind of standard form (with ctd_proc2??).
+% -CTD data are used for two purposes: (1) the 24Hz data is used to compute
+% dp/dt and compare with chipod acceleration to find the time offset . (2)
+% lower resolution (here 1m) N^2 and dTdz are needed to compute chi.
 % -Chipod data files need to be downloaded and saved as well.
 %
 % Instructions to run:
@@ -37,6 +40,12 @@
 %
 % Notes/Issues/Todo:
 %
+% - On some cruises a RBR is also deployed with the chipods that measures P
+% and T. Might modfiy codes so that RBR data can be used in place of cTd
+% data (though not in places where salinity is important?)
+%
+% - Sometimes chipod T calibration is bad. Does this affect chi?
+%
 % -As of 31 Mar 2015 , this runs for Ttide data. Still need to test for
 %  other cruises.
 %
@@ -50,10 +59,12 @@ clear ; close all ; clc
 tstart=tic;
 
 %~~~~ Modify these paths for your cruise/computer ~~~~
-cd /Users/Andy/Cruises_Research/mixingsoftware/CTD_Chipod
-addpath /Users/Andy/Cruises_Research/mixingsoftware/general % makelen.m in /general is needed
-addpath /Users/Andy/Cruises_Research/mixingsoftware/marlcham/ % for integrate.m
 % ~~ Paths for Andy's laptop
+mixpath='/Users/Andy/Cruises_Research/mixingsoftware/'
+cd (fullfile(mixpath,'CTD_Chipod'))
+addpath(fullfile(mixpath,'general')) % makelen.m in /general is needed
+addpath(fullfile(mixpath,'marlcham')) % for integrate.m
+addpath(fullfile(mixpath,'adcp')) % need for mergefields_jn.m in load_chipod_data
 % Path where ctd data are located (already processed into mat files). There
 % should be a folder in it called /24Hz
 CTD_path='/Users/Andy/Dropbox/TTIDE_OBSERVATIONS/scienceparty_share/TTIDE-RR1501/data/ctd_processed/'
@@ -97,8 +108,8 @@ for a=1:length(CTD_list)
     
     %load CTD profile
     load([CTD_path '24hz/' castname])
+    % 24Hz data loaded here is in a structure 'data2'
     
-    % create a CTD time:
     % Sometimes the time needs to be converted from computer time into matlab (datenum?) time.
     % Time will be converted when CTD time is more than 5 years bigger than now.
     % JRM
@@ -113,20 +124,21 @@ for a=1:length(CTD_list)
     
     clear tlim tmp
     time_range=[min(data2.datenum) max(data2.datenum)];
+    
+    % not sure if this will work for other cruises/names ? - AP
     cast_suffix_tmp=CTD_list(a).name; % Cast # may be different than file #. JRM
     cast_suffix=cast_suffix_tmp(end-8:end-6);
-    
-    
+        
     % check if this is a towyo, if so skip for now
     clear splitlist
     splitlist=dir([CTD_path '*' cast_suffix '_split*.mat']);
-    if size(splitlist,1)==0
-                
+    if size(splitlist,1)==0 % not a towyo, continue processing
+        
         %~~~ Info for chipods deployed on CTD is entered here ~~
         %~~~ This needs to be modified for each cruise ~~~
-         
+        
         for up_down_big=1:2
-            % load chipod data
+          
             short_labs={'up_1012','down_1013','big','down_1010'};
             big_labs={'Ti UpLooker','Ti DownLooker','Unit 1002','Ti Downlooker'};
             
@@ -175,7 +187,6 @@ for a=1:length(CTD_list)
             ChkMkDir(fig_path_specific)
             
             % filename for processed chipod data (will check if already exists)
-            % processed_file=fullfile(chi_processed_path,['chi_' short_labs{up_down_big} ],['cast_' cast_suffix '_' short_labs{up_down_big} '.mat']);
             processed_file=fullfile(chi_processed_path_specific,['cast_' cast_suffix '_' short_labs{up_down_big} '.mat']);
             
             % Load chipod data
@@ -183,10 +194,10 @@ for a=1:length(CTD_list)
                 load(processed_file)
             else
                 disp('loading chipod data')
-                addpath /Users/Andy/Cruises_Research/mixingsoftware/adcp/ % need for mergefields_jn.m in load_chipod_data
                 chidat=load_chipod_data(chi_path,time_range,suffix,isbig);
                 save(processed_file,'chidat')
             end
+            %
             
             if length(chidat.datenum)>1000
                 %%% First we'll compute fallspeed from dp/dz and compare this to chipod's
@@ -214,11 +225,11 @@ for a=1:length(CTD_list)
                 ax1= subplot(211)
                 plot(data2.datenum,data2.dpdt_hp,'b',chidat.datenum,w_from_chipod,'r'),hold on
                 legend('ctd dp/dt','w_{chi}','orientation','horizontal','location','best')
-                title([castname],'interpreter','none')                
+                title([castname],'interpreter','none')
                 ylabel('w [m/s]')
                 datetick('x')
                 grid on
-                                  
+                
                 % find profile inds (ctd profile 'starts' at 10m )
                 ginds=get_profile_inds(data2.p,10);
                 
@@ -226,7 +237,7 @@ for a=1:length(CTD_list)
                 offset=TimeOffset(data2.datenum(ginds),data2.dpdt_hp(ginds),chidat.datenum,w_from_chipod);
                 
                 % apply correction to chipod time
-                chidat.datenum=chidat.datenum+offset; % JRM TimeOffset is not working right ??                
+                chidat.datenum=chidat.datenum+offset; % 
                 chidat.time_offset_correction_used=offset;
                 chidat.fspd=interp1(data2.datenum,-data2.dpdt,chidat.datenum);
                 
@@ -238,7 +249,7 @@ for a=1:length(CTD_list)
                 ylabel('w [m/s]')
                 
                 linkaxes([ax1 ax2])
-                print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_w_TimeOffset'])                
+                print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_w_TimeOffset'])
                 
                 %%% Now we'll calibrate T by comparison to the CTD.
                 cal.datenum=chidat.datenum;
@@ -285,8 +296,7 @@ for a=1:length(CTD_list)
                     cal.T2=cal.T1;
                     cal.T2P=cal.T1P;
                 end
-                
-                
+                                
                 do_timeseries_plot=1;
                 if do_timeseries_plot
                     
@@ -366,10 +376,10 @@ for a=1:length(CTD_list)
                     
                     % this plot for diagnostics to see if we are picking
                     % right half of profile (up/down)
-%                     figure(99);clf
-%                     plot(chidat.datenum,chidat.T1P)
-%                     hold on
-%                     plot(chidat.datenum(chi_inds),chidat.T1P(chi_inds))
+                    %                     figure(99);clf
+                    %                     plot(chidat.datenum,chidat.T1P)
+                    %                     hold on
+                    %                     plot(chidat.datenum(chi_inds),chidat.T1P(chi_inds))
                     
                     ctd.s1=interp_missing_data(ctd.s1,100);
                     ctd.t1=interp_missing_data(ctd.t1,100);
@@ -400,7 +410,7 @@ for a=1:length(CTD_list)
                     
                     % pick max dTdz and N^2 from these two?
                     ctd.dTdz=max(ctd.dTdz_50,ctd.dTdz_20);
-                    ctd.N2=max(ctd.N2_50,ctd.N2_20);                    
+                    ctd.N2=max(ctd.N2_50,ctd.N2_20);
                     
                     %~~ plot N2 and dTdz
                     doplot=1;
@@ -424,7 +434,7 @@ for a=1:length(CTD_list)
                     
                     
                     %~~~ now let's do the chi computations:
-                                        
+                    
                     % remove loops in CTD data
                     extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
                     wthresh = 0.4;
@@ -472,7 +482,7 @@ for a=1:length(CTD_list)
                             
                             [tp_power,freq]=fast_psd(cal.T1P(inds),nfft,avg.samplerate);
                             avg.TP1var(n)=sum(tp_power)*nanmean(diff(freq));
-                        
+                            
                             if avg.TP1var(n)>1e-4
                                 
                                 % not sure what this is for...
@@ -483,13 +493,13 @@ for a=1:length(CTD_list)
                                     thermistor_filter_order=2;
                                     thermistor_cutoff_frequency=32;
                                     analog_filter_order=4;
-                                    analog_filter_freq=50;                                    
+                                    analog_filter_freq=50;
                                     tp_power=invert_filt(freq,invert_filt(freq,tp_power,thermistor_filter_order, ...
                                         thermistor_cutoff_frequency),analog_filter_order,analog_filter_freq);
                                 end
                                 
                                 %try
-                                                                
+                                
                                 % [chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,avg.fspd(n),avg.nu(n),...
                                 %  avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
                                 %  % AP 27 Mar - fspd needs to be positive?
@@ -507,10 +517,10 @@ for a=1:length(CTD_list)
                                 avg.KT1(n)=0.5*chi1(1)/avg.dTdz(n)^2;
                                 
                             else
-                                %disp('fail2')                                
+                                %disp('fail2')
                             end
                         else
-                           % disp('fail1')
+                            % disp('fail1')
                         end
                         
                         if ~mod(n,10)
@@ -528,7 +538,7 @@ for a=1:length(CTD_list)
                     xlabel('log_{10}(avg chi)')
                     ylabel('Depth [m]')
                     grid on
-                    title(['cast ' cast_suffix])                    
+                    title(['cast ' cast_suffix])
                     
                     subplot(132)
                     plot(log10(avg.KT1),avg.P),axis ij
@@ -550,7 +560,7 @@ for a=1:length(CTD_list)
                     ChkMkDir(chi_processed_path_avg)
                     %processed_file=[chi_processed_path 'chi_' short_labs{up_down_big} '/avg/avg_' ...
                     %cast_suffix '_' short_labs{up_down_big} '.mat'];
-                    processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' short_labs{up_down_big} '.mat']);                    
+                    processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' short_labs{up_down_big} '.mat']);
                     save(processed_file,'avg','ctd')
                     
                     ngc=find(~isnan(avg.chi1));
@@ -565,10 +575,10 @@ for a=1:length(CTD_list)
             end % if we have good chipod data for this profile
             
         end % each chipod on rosette (up_down_big)
-       
+        
     else
         fprintf(fileID,' Cast is a towyo, skipping ')
-    end % if not towyo 
+    end % if not towyo
     
 end % each CTD file
 

@@ -42,11 +42,11 @@ CTD_list=dir([CTD_path  '24hz/' '*_leg1_*.mat']);
 
 % make a text file to print a summary of results to
 if exist(fullfile(chi_processed_path,'TowyoResults.txt'),'file')
-    delete(fullfile(chi_processed_path,'TowyoResults.txt'))
+    %    delete(fullfile(chi_processed_path,'TowyoResults.txt'))
 end
 fileID= fopen(fullfile(chi_processed_path,'TowyoResults.txt'),'a');
 
-fprintf(fileID,['Created ' datestr(now) '\n'])
+fprintf(fileID,['\n Created ' datestr(now) '\n'])
 fprintf(fileID,[CTD_path '\n'])
 fprintf(fileID,[chi_data_path '\n'])
 fprintf(fileID,[chi_processed_path '\n'])
@@ -100,7 +100,7 @@ for a=1:length(CTD_list)
             short_labs={'up_1012','down_1013','big'};
             big_labs={'Ti UpLooker','Ti DownLooker','Unit 1002'};
             
-            fprintf(fileID,['~' short_labs{up_down_big} '~\n'])
+            fprintf(fileID,['\n ~' short_labs{up_down_big} '~\n'])
             
             switch up_down_big
                 case 1
@@ -321,230 +321,246 @@ for a=1:length(CTD_list)
                     clear splitfilename
                     splitfilename=SplitFiles(whsplit).name;
                     
-                    fprintf(fileID,[splitfilename ])
+                    fprintf(fileID,['\n ' splitfilename ])
                     
-                    %            if exist([CTD_path castname(1:end-6) '.mat'],'file')
-                    if exist(fullfile(CTD_path,splitfilename),'file')
+                    %
+                    if exist(fullfile(CTD_path,splitfilename),'file') && strcmp(splitfilename(1),'t')
                         %                load([CTD_path castname(1:end-6) '.mat']);
                         disp('Loading split file')
                         load(fullfile(CTD_path,splitfilename))
                         
                         clear split_range idt_split idt_split_cal
-                        split_range=[nanmin(datad_1m.datenum) nanmax(datau_1m.datenum)]
+                        split_range=[nanmin(datad_1m.datenum) nanmax(datau_1m.datenum)];
                         idt_split=isin(data2.datenum,split_range);
                         idt_split_cal=isin(cal.datenum,split_range);
                         
-                        clear p_max ind_max
-                        %                [p_max,ind_max]=max(cal.P);% this sisn't going to work...
-                        [p_max,ind_max]=max(cal.P(idt_split_cal));% this sisn't going to work...
-                        
-                        figure(77);clf
-                        plot(cal.datenum,cal.P)
-                        hold on
-                        plot(cal.datenum(idt_split_cal),cal.P(idt_split_cal))
-                        plot(cal.datenum(idt_split_cal(ind_max)),cal.P(idt_split_cal(ind_max)),'o')
-                        axis ij
-                        datetick('x')
-                        ylabel('P [db]')
-                        title(splitfilename,'interpreter','none')
-                        %                pause
-                        
-                        if is_downcast
-                            fallspeed_correction=-1;
-                            ctd=datad_1m;
-                            %                    chi_inds=[1:ind_max];
-                            chi_inds=[1:idt_split_cal(ind_max)];
-                            sort_dir='descend';
-                        else
-                            fallspeed_correction=1;
-                            ctd=datau_1m;
-                            %                    chi_inds=[ind_max:length(cal.P)];
-                            chi_inds=[idt_split_cal(ind_max):idt_split_cal(end)];
-                            sort_dir='ascend';
-                        end
-                        ctd.s1=interp_missing_data(ctd.s1,100);
-                        ctd.t1=interp_missing_data(ctd.t1,100);
-                        smooth_len=20;
-                        [bfrq] = sw_bfrq(ctd.s1,ctd.t1,ctd.p,nanmean(ctd.lat)); % JRM removed "vort,p_ave" from outputs
-                        ctd.N2=abs(conv2(bfrq,ones(smooth_len,1)/smooth_len,'same')); % smooth once
-                        ctd.N2=conv2(ctd.N2,ones(smooth_len,1)/smooth_len,'same'); % smooth twice
-                        ctd.N2_20=ctd.N2([1:end end]);
-                        tmp1=sw_ptmp(ctd.s1,ctd.t1,ctd.p,1000);
-                        ctd.dTdz=[0 ; abs(conv2(diff(tmp1),ones(smooth_len,1)/smooth_len,'same'))./diff(ctd.p)];
-                        ctd.dTdz_20=conv2(ctd.dTdz,ones(smooth_len,1)/smooth_len,'same');
-                        
-                        smooth_len=50;
-                        [bfrq] = sw_bfrq(ctd.s1,ctd.t1,ctd.p,nanmean(ctd.lat)); %JRM removed "vort,p_ave" from outputs
-                        ctd.N2=abs(conv2(bfrq,ones(smooth_len,1)/smooth_len,'same')); % smooth once
-                        ctd.N2=conv2(ctd.N2,ones(smooth_len,1)/smooth_len,'same'); % smooth twice
-                        ctd.N2_50=ctd.N2([1:end end]);
-                        tmp1=sw_ptmp(ctd.s1,ctd.t1,ctd.p,1000);
-                        ctd.dTdz=[0 ; abs(conv2(diff(tmp1),ones(smooth_len,1)/smooth_len,'same'))./diff(ctd.p)];
-                        ctd.dTdz_50=conv2(ctd.dTdz,ones(smooth_len,1)/smooth_len,'same');
-                        
-                        ctd.dTdz=max(ctd.dTdz_50,ctd.dTdz_20);
-                        ctd.N2=max(ctd.N2_50,ctd.N2_20);
-                        
-                        
-                        doplot=1;
-                        if doplot
-                            disp('plotting N and dTdz')
-                            figure(3);clf
-                            subplot(121)
-                            plot(log10(abs(ctd.N2)),ctd.p),
-                            xlabel('log_{10}N^2'),ylabel('depth [m]')
-                            title(castname,'interpreter','none')
-                            grid on
-                            axis ij
+                        if ~isempty(idt_split_cal)
                             
-                            subplot(122)
-                            plot(log10(abs(ctd.dTdz)),ctd.p) % ,log10(abs(ctd.dTdz2)),ctd.p,log10(abs(ctd.dTdz3)),ctd.p)
-                            xlabel('dTdz [^{o}Cm^{-1}]'),ylabel('depth [m]')
-                            grid on
-                            axis ij
+                            clear p_max ind_max
+                            %                [p_max,ind_max]=max(cal.P);% this sisn't going to work...
+                            [p_max,ind_max]=nanmax(cal.P(idt_split_cal));% this sisn't going to work...
                             
-                            print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_N2_dTdz'])
-                        end
-                        % now let's do the chi computations:
-                        
-                        
-                        % remove loops in CTD data
-                        disp('Removing loops from CTD data')
-                        extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
-                        wthresh = 0.4;
-                        
-                        %** This was an issue - rmloops meant to handle single
-                        %profile only - AP
-                        % [datau2,bad_inds] = ctd_rmdepthloops(data2,extra_z,wthresh);
-                        %
-                        % instead, make a new temporary 'data2split' structure that
-                        % has just the indices for this time period
-                        clear data2split
-                        dnames=fieldnames(data2);
-                        data2split=struct();
-                        for whfield=1:length(dnames)
-                            data2split.(dnames{whfield})=data2.(dnames{whfield})(idt_split);
-                        end
-                        %
-                        
-                        [datau2,bad_inds] = ctd_rmdepthloops(data2split,extra_z,wthresh);
-                        tmp=ones(size(datau2.p));
-                        tmp(bad_inds)=0;
-                        cal.is_good_data=interp1(datau2.datenum,tmp,cal.datenum,'nearest');
-                        %
-                        
-                        %%% Now we'll do the main looping through of the data.
-                        clear avg
-                        nfft=128;
-                        todo_inds=chi_inds(1:nfft/2:(length(chi_inds)-nfft))';
-                        tfields={'datenum','P','N2','dTdz','fspd','T','S','P','theta','sigma',...
-                            'chi1','eps1','chi2','eps2','KT1','KT2','TP1var','TP2var'};
-                        for n=1:length(tfields)
-                            avg.(tfields{n})=NaN*ones(size(todo_inds));
-                        end
-                        avg.datenum=cal.datenum(todo_inds+(nfft/2)); % This is the mid-value of the bin
-                        avg.P=cal.P(todo_inds+(nfft/2));
-                        good_inds=find(~isnan(ctd.p));
-                        avg.N2=interp1(ctd.p(good_inds),ctd.N2(good_inds),avg.P);
-                        avg.dTdz=interp1(ctd.p(good_inds),ctd.dTdz(good_inds),avg.P);
-                        avg.T=interp1(ctd.p(good_inds),ctd.t1(good_inds),avg.P);
-                        avg.S=interp1(ctd.p(good_inds),ctd.s1(good_inds),avg.P);
-                        
-                        % note sw_visc not included in newer versions of sw?
-                        addpath  /Users/Andy/Cruises_Research/mixingsoftware/seawater
-                        % avg.nu=sw_visc(avg.S,avg.T,avg.P);
-                        avg.nu=sw_visc_ctdchi(avg.S,avg.T,avg.P);
-                        
-                        % avg.tdif=sw_tdif(avg.S,avg.T,avg.P);
-                        avg.tdif=sw_tdif_ctdchi(avg.S,avg.T,avg.P);
-                        
-                        avg.samplerate=1./nanmedian(diff(cal.datenum))/24/3600;
-                        
-                        h = waitbar(0,['Computing chi for cast ' cast_suffix ' split ' num2str(whsplit)]);
-                        for n=1:length(todo_inds)
-                            inds=todo_inds(n)-1+[1:nfft];
-                            if all(cal.is_good_data(inds)==1) %
-                                avg.fspd(n)=mean(cal.fspd(inds));
-                                
-                                [tp_power,freq]=fast_psd(cal.T1P(inds),nfft,avg.samplerate);
-                                avg.TP1var(n)=sum(tp_power)*nanmean(diff(freq));
-                                if avg.TP1var(n)>1e-4
-                                    fixit=0;
-                                    if fixit
-                                        trans_fcn=0;
-                                        trans_fcn1=0;
-                                        thermistor_filter_order=2;
-                                        thermistor_cutoff_frequency=32;
-                                        analog_filter_order=4;
-                                        analog_filter_freq=50;
-                                        
-                                        tp_power=invert_filt(freq,invert_filt(freq,tp_power,thermistor_filter_order, ...
-                                            thermistor_cutoff_frequency),analog_filter_order,analog_filter_freq);
-                                    end
-                                    
-                                    %try
-                                    addpath /Users/Andy/Cruises_Research/mixingsoftware/marlcham/ % for integrate.m
-                                    %[chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,avg.fspd(n),avg.nu(n),...
-                                    %   avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
-                                    
-                                    [chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,abs(avg.fspd(n)),avg.nu(n),...
-                                        avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
-                                    %catch
-                                    %	chi1=NaN;
-                                    %	epsil1=NaN;
-                                    %end
-                                    
-                                    avg.chi1(n)=chi1(1);
-                                    avg.eps1(n)=epsil1(1);
-                                    avg.KT1(n)=0.5*chi1(1)/avg.dTdz(n)^2;
-                                    
-                                    
-                                else
-                                    %  disp('fail1')
-                                end
+                            figure(77);clf
+                            plot(cal.datenum,cal.P)
+                            hold on
+                            plot(cal.datenum(idt_split_cal),cal.P(idt_split_cal))
+                            plot(cal.datenum(idt_split_cal(ind_max)),cal.P(idt_split_cal(ind_max)),'o')
+                            axis ij
+                            datetick('x')
+                            ylabel('P [db]')
+                            title(splitfilename,'interpreter','none')
+                            %                pause
+                            
+                            if is_downcast
+                                fallspeed_correction=-1;
+                                ctd=datad_1m;
+                                %                    chi_inds=[1:ind_max];
+                                chi_inds=[1:idt_split_cal(ind_max)];
+                                sort_dir='descend';
                             else
-                                %disp('fail')
+                                fallspeed_correction=1;
+                                ctd=datau_1m;
+                                %                    chi_inds=[ind_max:length(cal.P)];
+                                chi_inds=[idt_split_cal(ind_max):idt_split_cal(end)];
+                                sort_dir='ascend';
                             end
-                            if ~mod(n,10)
-                                waitbar(n/length(todo_inds),h);
+                            ctd.s1=interp_missing_data(ctd.s1,100);
+                            ctd.t1=interp_missing_data(ctd.t1,100);
+                            smooth_len=20;
+                            [bfrq] = sw_bfrq(ctd.s1,ctd.t1,ctd.p,nanmean(ctd.lat)); % JRM removed "vort,p_ave" from outputs
+                            ctd.N2=abs(conv2(bfrq,ones(smooth_len,1)/smooth_len,'same')); % smooth once
+                            ctd.N2=conv2(ctd.N2,ones(smooth_len,1)/smooth_len,'same'); % smooth twice
+                            ctd.N2_20=ctd.N2([1:end end]);
+                            tmp1=sw_ptmp(ctd.s1,ctd.t1,ctd.p,1000);
+                            ctd.dTdz=[0 ; abs(conv2(diff(tmp1),ones(smooth_len,1)/smooth_len,'same'))./diff(ctd.p)];
+                            ctd.dTdz_20=conv2(ctd.dTdz,ones(smooth_len,1)/smooth_len,'same');
+                            
+                            smooth_len=50;
+                            [bfrq] = sw_bfrq(ctd.s1,ctd.t1,ctd.p,nanmean(ctd.lat)); %JRM removed "vort,p_ave" from outputs
+                            ctd.N2=abs(conv2(bfrq,ones(smooth_len,1)/smooth_len,'same')); % smooth once
+                            ctd.N2=conv2(ctd.N2,ones(smooth_len,1)/smooth_len,'same'); % smooth twice
+                            ctd.N2_50=ctd.N2([1:end end]);
+                            tmp1=sw_ptmp(ctd.s1,ctd.t1,ctd.p,1000);
+                            ctd.dTdz=[0 ; abs(conv2(diff(tmp1),ones(smooth_len,1)/smooth_len,'same'))./diff(ctd.p)];
+                            ctd.dTdz_50=conv2(ctd.dTdz,ones(smooth_len,1)/smooth_len,'same');
+                            
+                            ctd.dTdz=max(ctd.dTdz_50,ctd.dTdz_20);
+                            ctd.N2=max(ctd.N2_50,ctd.N2_20);
+                            
+                            
+                            doplot=1;
+                            if doplot
+                                disp('plotting N and dTdz')
+                                figure(3);clf
+                                subplot(121)
+                                plot(log10(abs(ctd.N2)),ctd.p),
+                                xlabel('log_{10}N^2'),ylabel('depth [m]')
+                                title(castname,'interpreter','none')
+                                grid on
+                                axis ij
+                                
+                                subplot(122)
+                                plot(log10(abs(ctd.dTdz)),ctd.p) % ,log10(abs(ctd.dTdz2)),ctd.p,log10(abs(ctd.dTdz3)),ctd.p)
+                                xlabel('dTdz [^{o}Cm^{-1}]'),ylabel('depth [m]')
+                                grid on
+                                axis ij
+                                
+                                print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_N2_dTdz'])
                             end
-                        end
-                        delete(h)
-                        
-                        figure(4);clf
-                        
-                        subplot(131)
-                        plot(log10(avg.chi1),avg.P),axis ij
-                        xlabel('log_{10}(avg chi)')
-                        ylabel('Depth [m]')
-                        grid on
-                        
-                        subplot(132)
-                        plot(log10(avg.KT1),avg.P),axis ij
-                        xlabel('log_{10}(avg Kt1)')
-                        grid on
-                        
-                        subplot(133)
-                        plot(log10(abs(avg.dTdz)),avg.P),axis ij
-                        grid on
-                        xlabel('log_{10}(avg dTdz)')
-                        print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_split' num2str(whsplit) '_avg_chi_KT_dTdz'])
-                        
-                        chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
-                        ChkMkDir(chi_processed_path_avg)
-                        
-                        %                processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' short_labs{up_down_big} '.mat']);
-                        processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' short_labs{up_down_big} '_split' num2str(whsplit) '.mat']);
-                        
-                        save(processed_file,'avg','ctd')
-                        
-                        ngc=find(~isnan(avg.chi1));
-                        
-                    end
+                            % now let's do the chi computations:
+                            
+                            
+                            % remove loops in CTD data
+                            disp('Removing loops from CTD data')
+                            extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
+                            wthresh = 0.4;
+                            
+                            %** This was an issue - rmloops meant to handle single
+                            %profile only - AP
+                            % [datau2,bad_inds] = ctd_rmdepthloops(data2,extra_z,wthresh);
+                            %
+                            % instead, make a new temporary 'data2split' structure that
+                            % has just the indices for this time period
+                            clear data2split
+                            dnames=fieldnames(data2);
+                            data2split=struct();
+                            for whfield=1:length(dnames)
+                                data2split.(dnames{whfield})=data2.(dnames{whfield})(idt_split);
+                            end
+                            %
+                            
+                            [datau2,bad_inds] = ctd_rmdepthloops(data2split,extra_z,wthresh);
+                            tmp=ones(size(datau2.p));
+                            tmp(bad_inds)=0;
+                            cal.is_good_data=interp1(datau2.datenum,tmp,cal.datenum,'nearest');
+                            %
+                            
+                            %%% Now we'll do the main looping through of the data.
+                            clear avg
+                            nfft=128;
+                            todo_inds=chi_inds(1:nfft/2:(length(chi_inds)-nfft))';
+                            tfields={'datenum','P','N2','dTdz','fspd','T','S','P','theta','sigma',...
+                                'chi1','eps1','chi2','eps2','KT1','KT2','TP1var','TP2var'};
+                            for n=1:length(tfields)
+                                avg.(tfields{n})=NaN*ones(size(todo_inds));
+                            end
+                            avg.datenum=cal.datenum(todo_inds+(nfft/2)); % This is the mid-value of the bin
+                            avg.P=cal.P(todo_inds+(nfft/2));
+                            good_inds=find(~isnan(ctd.p));
+                            avg.N2=interp1(ctd.p(good_inds),ctd.N2(good_inds),avg.P);
+                            avg.dTdz=interp1(ctd.p(good_inds),ctd.dTdz(good_inds),avg.P);
+                            avg.T=interp1(ctd.p(good_inds),ctd.t1(good_inds),avg.P);
+                            avg.S=interp1(ctd.p(good_inds),ctd.s1(good_inds),avg.P);
+                            
+                            % note sw_visc not included in newer versions of sw?
+                            addpath  /Users/Andy/Cruises_Research/mixingsoftware/seawater
+                            % avg.nu=sw_visc(avg.S,avg.T,avg.P);
+                            avg.nu=sw_visc_ctdchi(avg.S,avg.T,avg.P);
+                            
+                            % avg.tdif=sw_tdif(avg.S,avg.T,avg.P);
+                            avg.tdif=sw_tdif_ctdchi(avg.S,avg.T,avg.P);
+                            
+                            avg.samplerate=1./nanmedian(diff(cal.datenum))/24/3600;
+                            
+                            h = waitbar(0,['Computing chi for cast ' cast_suffix ' split ' num2str(whsplit)]);
+                            for n=1:length(todo_inds)
+                                inds=todo_inds(n)-1+[1:nfft];
+                                if all(cal.is_good_data(inds)==1) %
+                                    avg.fspd(n)=mean(cal.fspd(inds));
+                                    
+                                    [tp_power,freq]=fast_psd(cal.T1P(inds),nfft,avg.samplerate);
+                                    avg.TP1var(n)=sum(tp_power)*nanmean(diff(freq));
+                                    if avg.TP1var(n)>1e-4
+                                        fixit=0;
+                                        if fixit
+                                            trans_fcn=0;
+                                            trans_fcn1=0;
+                                            thermistor_filter_order=2;
+                                            thermistor_cutoff_frequency=32;
+                                            analog_filter_order=4;
+                                            analog_filter_freq=50;
+                                            
+                                            tp_power=invert_filt(freq,invert_filt(freq,tp_power,thermistor_filter_order, ...
+                                                thermistor_cutoff_frequency),analog_filter_order,analog_filter_freq);
+                                        end
+                                        
+                                        %try
+                                        addpath /Users/Andy/Cruises_Research/mixingsoftware/marlcham/ % for integrate.m
+                                        %[chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,avg.fspd(n),avg.nu(n),...
+                                        %   avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
+                                        
+                                        [chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,abs(avg.fspd(n)),avg.nu(n),...
+                                            avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
+                                        %catch
+                                        %	chi1=NaN;
+                                        %	epsil1=NaN;
+                                        %end
+                                        
+                                        avg.chi1(n)=chi1(1);
+                                        avg.eps1(n)=epsil1(1);
+                                        avg.KT1(n)=0.5*chi1(1)/avg.dTdz(n)^2;
+                                        
+                                        
+                                    else
+                                        %  disp('fail1')
+                                    end
+                                else
+                                    %disp('fail')
+                                end
+                                
+                                %                             if ~mod(n,10)
+                                %                                 waitbar(n/length(todo_inds),h);
+                                %                             end
+                                
+                                
+                                
+                            end
+                            
+                            
+                            
+                            delete(h)
+                            
+                            figure(4);clf
+                            
+                            subplot(131)
+                            plot(log10(avg.chi1),avg.P),axis ij
+                            xlabel('log_{10}(avg chi)')
+                            ylabel('Depth [m]')
+                            grid on
+                            
+                            subplot(132)
+                            plot(log10(avg.KT1),avg.P),axis ij
+                            xlabel('log_{10}(avg Kt1)')
+                            grid on
+                            
+                            subplot(133)
+                            plot(log10(abs(avg.dTdz)),avg.P),axis ij
+                            grid on
+                            xlabel('log_{10}(avg dTdz)')
+                            print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_split' num2str(whsplit) '_avg_chi_KT_dTdz'])
+                            
+                            chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
+                            ChkMkDir(chi_processed_path_avg)
+                            
+                            %                processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' short_labs{up_down_big} '.mat']);
+                            processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' short_labs{up_down_big} '_split' num2str(whsplit) '.mat']);
+                            
+                            save(processed_file,'avg','ctd')
+                            
+                            ngc=find(~isnan(avg.chi1));
+                            
+                            if numel(ngc)>1
+                                fprintf(fileID,' Chi computed \n')
+                            end
+                            
+                        else
+                           fprintf(fileID,' no chi data for this time period\n')                            
+                        end % if there is good chipod data
+                      
+                    else
+                        fprintf(fileID,' no ctd split file found\n')
+                    end % if there exists a split file
                     
-                    if numel(ngc)>1
-                        fprintf(fileID,' Chi computed \n')
-                    end
                 end % whsplit
                 
             else

@@ -1,18 +1,21 @@
-function big=load_chipod_data(the_path,time_range,suffix,isbig);
+function big=load_chipod_data(the_path,time_range,suffix,isbig)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% function big=load_chipod_data(the_path,time_range,suffix,isbig);
+% function big=load_chipod_data(the_path,time_range,suffix,isbig)
+%
+% Load chipod data for a specified time range. If time range spans multiple
+% chipod files, get data from both and combine.
 %
 % INPUT
 % the_path   : Path to folder containing chipod data files
-% time_range : Time range of ctd profile
+% time_range : Time range of ctd profile (datenum)
 % suffix     : Suffix for chipod filenames
-% isbig      : Specify if 'big' chipod (data structure different)
+% isbig      : Specify if 'big' chipod (data structure is different)
 %
 % OUTPUT
 % big        : Structure with chipod data for this time range
-% 
-% Part of CTD_chipod software in OSU mixingsoftware.
+%
+% Part of CTD_chipod software in OSU 'mixingsoftware' github repository.
 %
 % Dependencies:
 % calls mixingsoftware/adcp/mergefields_jn.m
@@ -29,19 +32,9 @@ if nargin<4
     isbig=1; % presume it is a big chipod
 end
 
-%	the_path='../data/A16S/Ti_RBR_Chipod_Downlooker/';
-%the_path='../data/A16S/Ti_RBR_Chipod_Uplooker/';
-%suffix='mlg';
-%isbig=0;
-%the_path='../data/A16S/Chipod_CTD/';
-%suffix='1002';
-%isbig=1;
-
-% load appropriate chipod data (not quite sure how to do this efficiently?)
-% Hardwire for the time being.
 
 the_files=dir([the_path '/*.' suffix]);
-%t_extra=2;% 
+%t_extra=2;%
 t_extra=24;% AP
 if isbig==1
     t_extra=24;
@@ -49,26 +42,24 @@ end
 nfiles=length(the_files);
 big=[];
 fnamelist={} ; % list of chipod files for this time range
-fcount=1
+fcount=1;
 for a=1:nfiles
     a;%
     fname=the_files(a).name;
     time_inds=findstr(fname,'.')+[-8:-1];
     file_time=fname(time_inds);
     
-%    if datenum(file_time,'yymmddhh')>(time_range(1)-t_extra/24) & datenum(file_time,'yymmddhh')<(time_range(2)+t_extra/24)
+    %    if datenum(file_time,'yymmddhh')>(time_range(1)-t_extra/24) & datenum(file_time,'yymmddhh')<(time_range(2)+t_extra/24)
     if datenum(file_time,'yymmddhh')>(time_range(1)-t_extra/24) && datenum(file_time,'yymmddhh')<(time_range(2))% AP start time of file has to be before end of time_range...
- 
-        % datenum(file_time,'yymmddhh')+1
+        
         % we've got the right file, so let's load it.
-        %        fname=[the_path the_files(a).name];
-        fname=fullfile(the_path,the_files(a).name) % use fullfile
-        disp('found the file')
+        fname=fullfile(the_path,the_files(a).name);
+        disp('found a file')
         
         % save the filename
         fnamelist{fcount}=the_files(a).name;
         fcount=fcount+1;
-
+        
         try
             if isbig
                 [data head]=raw_load_chipod(fname);
@@ -83,7 +74,7 @@ for a=1:nfiles
                 chidat.T2P=data.T2P;
                 chidat.AX=makelen(data.AX(1:(len/2)),len);
                 chidat.AY=makelen(data.AY(1:(len/2)),len);
-                chidat.AZ=makelen(data.AZ(1:(len/2)),len)
+                chidat.AZ=makelen(data.AZ(1:(len/2)),len);
             else
                 % its a minichipod
                 
@@ -110,7 +101,7 @@ for a=1:nfiles
         %	else
         % do nothing.
     else
-%        disp('didnt find any files in time range');
+        %        disp('didnt find any files in time range');
     end
     
 end
@@ -122,7 +113,6 @@ end
 
 %datestr([big.datenum(1) big.datenum(end)])
 ginds=find(big.datenum>time_range(1) & big.datenum<time_range(2));
-length(ginds)
 fnames=fieldnames(big);
 for a=1:length(fnames)
     big.(fnames{a})=big.(fnames{a})(ginds);
@@ -166,6 +156,4 @@ if doplots
     
 end
 
-%big=chidat
-
-%print -dpng -r300 case5.png
+%%

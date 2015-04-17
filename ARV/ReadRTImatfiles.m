@@ -35,6 +35,8 @@ vel.bt_status=nan*ones(1,Nens);
 vel.bt_u=nan*ones(1,Nens);
 vel.bt_v=nan*ones(1,Nens);
 vel.bt_w=nan*ones(1,Nens);
+vel.btheading=nan*ones(1,Nens);
+
 EmpMat=nan*ones(Nbins,Nens);
 
 % beam velocities
@@ -154,6 +156,7 @@ for a=1:Nens
     range_firstbin=Anc(1); % range to 1st bin
     binsize=Anc(2); % bin size
     % make a depth vector from bin sizes
+    vel.range_firstbin=range_firstbin;
     vel.z=range_firstbin : binsize : range_firstbin+((Nbins-1)*binsize);
     vel.binsize=binsize;
     
@@ -167,6 +170,7 @@ for a=1:Nens
     vel.roll(a)=roll;
     
     % bottom-tracking data
+    clear BTdat
     BTdat=E000010;
     bt_time_first=BTdat(1);
     bt_time_last=BTdat(2);
@@ -182,6 +186,7 @@ for a=1:Nens
     vel.bt_v(a)=BTdat(48);
     vel.bt_w(a)=BTdat(49);
     
+    vel.btheading(a)=BTdat(3);
     
 end
 

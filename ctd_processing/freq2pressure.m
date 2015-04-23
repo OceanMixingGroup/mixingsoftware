@@ -1,8 +1,15 @@
-  function pres = freq2pressure(freq, tc, pcal)
-% function pres = freq2pressure(freq, tc, pcal) 
-% calculates pressure given frequency pressure temperature compensation 
+function pres = freq2pressure(freq, tc, pcal)
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% function pres = freq2pressure(freq, tc, pcal)
+%
+% Calculates pressure given frequency pressure temperature compensation
 % and pressure calibration structure pcal
-
+%
+% Original code from Jen MacKinnon in 'ctd_proc2' folder.
+% Added to 'ctd_processing' folder by A. Pickering
+%
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%%
 psi2dbar = 0.689476;
 
 Td = pcal.AD590(1) .* tc + pcal.AD590(2);
@@ -14,3 +21,5 @@ t0f = 1e-6 .* t0 .* freq;
 fact = 1 - (t0f .* t0f);
 pres = psi2dbar .* (c .* fact .* (1 - d .* fact));
 pres = pcal.linear(1)*pres + pcal.linear(2);
+
+return

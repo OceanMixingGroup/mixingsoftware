@@ -69,12 +69,25 @@ if tcflag
     data.tcfit=tcfit;
 end
 
-%% time is discretized
-t0=data.time-min(data.time); iit=min(find(diff(t0)==1));
-dtt=diff(t0); if size(find(dtt<0))~=0; ib=find(dtt<0); data.time((ib+1):end)=data.time((ib+1):end)+abs(dtt(ib))+1; end
-t1=(data.time(iit+1)-iit/24-0.5):1/24:max(data.time)+1; t1=t1(1:length(data.time)); 
+%%
+dotime=1
+if dotime==1
+% time is discretized
+t0=data.time-min(data.time); % time since beginning of cast
+iit=min(find(diff(t0)==1));% 1 second after cast starts?
+dtt=diff(t0); 
+if size(find(dtt<0))~=0; 
+    
+    % find where time is decreasing
+    ib=find(dtt<0); 
+    data.time((ib+1):end)=data.time((ib+1):end)+abs(dtt(ib))+1;%original
+%     data.time((ib+1):end)=data.time((ib+1):end)+abs(dtt(ib+1));% AP 23 April
+end
+t1=(data.time(iit+1)-iit/24-0.5):1/24:max(data.time)+1;
+t1=t1(1:length(data.time)); 
 data.time=t1(:);
 
+end
 %% August 2010: removed this section, was messing up the t-c fit. 
 % do it later 
 %

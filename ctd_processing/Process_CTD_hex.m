@@ -1,5 +1,9 @@
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
+% Process_CTD_hex.m
+%
+% (formerly named load_hex_ttide.m)
+%
 % Script to process raw shipboard (Seabird) CTD data from a cruise.
 %
 % Part of ctd_processing folder in OSU mixing software github repo.
@@ -32,7 +36,6 @@ addpath /Users/Andy/Cruises_Research/mixingsoftware/ctd_processing/
 %cruise= 'ttide_leg1';
 cruise='TS'
 %cruise='IWISE10'
-
 
 % ~ folder with raw CTD files
 %datadir=['/Volumes/current_cruise/ctd/data/'];
@@ -140,7 +143,7 @@ xlabel('cond.')
 %datetick('x')
 %
 
-%data2.MakeInfo=['Made ' datestr(now) ' w/ load_hex_ttide.m in ' version]
+%data2.MakeInfo=['Made ' datestr(now) ' w/ Process_CTD_hex.m in ' version]
 
 % output raw data 
 disp(['saving: ' matname])
@@ -251,10 +254,16 @@ if dobin
         end
     end
     
-    datad_1m.MakeInfo=['Made ' datestr(now) ' w/ load_hex_ttide.m in ' version]
-    datau_1m.MakeInfo=['Made ' datestr(now) ' w/ load_hex_ttide.m in ' version]
-    datad.MakeInfo=['Made ' datestr(now) ' w/ load_hex_ttide.m in ' version]
-    datau.MakeInfo=['Made ' datestr(now) ' w/ load_hex_ttide.m in ' version]
+    datad_1m.MakeInfo=['Made ' datestr(now) ' w/ Process_CTD_hex.m in ' version]
+    datau_1m.MakeInfo=['Made ' datestr(now) ' w/ Process_CTD_hex.m in ' version]
+    datad.MakeInfo=['Made ' datestr(now) ' w/ Process_CTD_hex.m in ' version]
+    datau.MakeInfo=['Made ' datestr(now) ' w/ Process_CTD_hex.m in ' version]
+    
+    datad_1m.source=ctdname;
+    datau_1m.source=ctdname;
+    datad.source=ctdname;
+    datau.source=ctdname;
+    
     disp(['saving: ' matname])
     save(matname, 'datad_1m', 'datau_1m','datad','datau')
     
@@ -288,6 +297,8 @@ title(ctdlist(icast).name)
 
 %% save as a text file for use by LADCP
 
+doascii=0
+if doascii
 % a little  too high resolution in time, stalls ladcp processing
 % try to reduce a bit
 data3b = swcalcs(data3, cfg); % calc S, theta, sigma, depth
@@ -304,6 +315,7 @@ dataout=[sec p t s lat lon];
 ig=find(~isnan(mean(dataout,2))); dataout=dataout(ig,:);
 %save([outdir outname(1:end-4) '.cnv'],'dataout','-ascii','-tabs')
 save(fullfile(outdir,[outname(1:end-4) '.cnv']),'dataout','-ascii','-tabs')
+end
 %%
 %%%%%%%%%%%%%
 

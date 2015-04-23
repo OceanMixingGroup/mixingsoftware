@@ -1,11 +1,13 @@
 function data = ctd_correction(data)
-
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% function data = ctd_correction(data)
+%
 % Calculates and applies a correction to the 24Hz temperature data in
-% the structure data. The correction aims to make temperature and 
-% conductivity be in phase. The raw and corrected series of temperature, 
-% conductivity, pressure, salinity, fluorescense, transmissivity and 
+% the structure data. The correction aims to make temperature and
+% conductivity be in phase. The raw and corrected series of temperature,
+% conductivity, pressure, salinity, fluorescense, transmissivity and
 % dissolved oxygen are stored in a structure and output.
-% 
+%
 % Robert Todd, 2006-12-5
 % Updates:
 %  2006-12-19 (Robert Todd): changed to use entire length of time series;
@@ -14,7 +16,13 @@ function data = ctd_correction(data)
 %                            trans, fl, oxygen in LP filter; change function
 %                            name from salinity_correction to ctd_correction;
 %                            output structure instead of saving to .mat file
-
+%
+% This version of code is part of 'ctd_processing' folder in the OSU
+% 'mixing software' github repository.
+% Added to 'ctd_processing' folder by A. Pickering - April 2015
+% Original code from Jen MacKinnon in 'ctd_proc2' folder.
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%%
 figures = 0; % 0 for no figures, 1 for figures
 
 % remove spikes
@@ -61,20 +69,20 @@ m = n/N; % number of segments = dof/2
 dof = 2*m; % Number of degrees of freedom (power of 2)
 df = 1/(N*dt); % Frequency resolution at dof degrees of freedom.
 At1 = fft(detrend(reshape(data.t1(i1:i2),N,m)).*...% FFT of each column (segment)
-  (window(@triang,N)*ones(1,m)));                  % Data are detrended then
+    (window(@triang,N)*ones(1,m)));                  % Data are detrended then
 At2 = fft(detrend(reshape(data.t2(i1:i2),N,m)).*...% windowed.
-  (window(@triang,N)*ones(1,m))); 
+    (window(@triang,N)*ones(1,m)));
 Ac1 = fft(detrend(reshape(data.c1(i1:i2),N,m)).*...
-  (window(@triang,N)*ones(1,m)));
+    (window(@triang,N)*ones(1,m)));
 Ac2 = fft(detrend(reshape(data.c2(i1:i2),N,m)).*...
-  (window(@triang,N)*ones(1,m)));
+    (window(@triang,N)*ones(1,m)));
 
 At1 = At1(1:N/2,:); % Positive frequencies only
 At2 = At2(1:N/2,:);
 Ac1 = Ac1(1:N/2,:);
 Ac2 = Ac2(1:N/2,:);
 
-% Frequency 
+% Frequency
 f = ifftshift(linspace(-N/2,N/2-1,N)/(N)/dt); % +/- frequencies
 f = f(:);
 f = f(1:N/2); % Positive frequencies only
@@ -105,7 +113,7 @@ Phit2c2 = atan2(imag(Ct2c2),real(Ct2c2));
 %epsPhit2c2 = asin(tinv(.05,dof)*sqrt((1-Coht2c2)./(dof*Coht2c2)));
 
 % Determine tau and L--------------------------------------------------%
-% tau is the thermistor time constant (sec), and 
+% tau is the thermistor time constant (sec), and
 % L is the lag of t behind c due to sensor separation (sec)
 %
 %disp('   ctd_correction: finding tau, L')
@@ -129,57 +137,57 @@ disp(['2: tau = ' num2str(tau2) ', lag = ' num2str(L2) ' s'])
 % Plots of Spectral Quantities for Uncorrected Data--------------------%
 
 if figures
-  % Temperature Spectra
-  fig1 = figure;
-  subplot(211)
-  semilogy(f,Et1,'b',f,Et2,'r')
-  hold on
-  semilogy([f(50) f(50)],[dof*Et1(100)/chi2inv(.05/2,dof) dof*Et1(100)/chi2inv(1-.05/2,dof)],'k')
-  xlabel('Frequency (Hz)')
-  ylabel('Spectral Density (^{\circ}C^2/Hz)')
-  legend('1','2')
-
-  % Conductivity Spectra
-  fig2 = figure;
-  subplot(211)
-  semilogy(f,Ec1,'b',f,Ec2,'r')
-  hold on
-  semilogy([f(50) f(50)],[dof*Ec1(100)/chi2inv(.05/2,dof) dof*Ec1(100)/chi2inv(1-.05/2,dof)],'k')
-  xlabel('Frequency (Hz)')
-  ylabel('Spectral Density (mmho^2/cm^2/Hz)')
-  legend('1','2')
-
-  % Coherence between Temperature and Conductivity
-  fig3 = figure;
-  subplot(211)
-  plot(f,Coht1c1,'b')
-  hold on
-  plot(f,Coht2c2,'r')
-  legend('1','2')
-  %plot(f,Coht1c1./(1+2*epsCoht1c1),'b:')
-  %plot(f,Coht1c1./(1-2*epsCoht1c1),'b:')
-  %plot(f,Coht2c2./(1+2*epsCoht2c2),'r:')
-  %plot(f,Coht2c2./(1-2*epsCoht2c2),'r:')
-  %plot(f,beta*ones(size(f)),'k--')
-  xlabel('Frequency (Hz)')
-  ylabel('Squared Coherence')
-
-  % Phase between Temperature and Conductivity
-  fig4 = figure;
-  subplot(211)
-  plot(f,Phit1c1,'b')
-  hold on
-  plot(f,Phit2c2,'r')
-  legend('1','2')
-  %plot(f,Phit1c1./(1+2*epsPhit1c1),'b:')
-  %plot(f,Phit1c1./(1-2*epsPhit1c1),'b:')
-  %plot(f,Phit2c2./(1+2*epsPhit2c2),'r:')
-  %plot(f,Phit2c2./(1-2*epsPhit2c2),'r:')
-  xlabel('Frequency (Hz)')
-  ylabel('Phase (rad)')
-  plot(f,-atan(2*pi*f*x1(1))-2*pi*f*x1(2),'g--')
-  plot(f,-atan(2*pi*f*x2(1))-2*pi*f*x2(2),'g--')
-  drawnow
+    % Temperature Spectra
+    fig1 = figure;
+    subplot(211)
+    semilogy(f,Et1,'b',f,Et2,'r')
+    hold on
+    semilogy([f(50) f(50)],[dof*Et1(100)/chi2inv(.05/2,dof) dof*Et1(100)/chi2inv(1-.05/2,dof)],'k')
+    xlabel('Frequency (Hz)')
+    ylabel('Spectral Density (^{\circ}C^2/Hz)')
+    legend('1','2')
+    
+    % Conductivity Spectra
+    fig2 = figure;
+    subplot(211)
+    semilogy(f,Ec1,'b',f,Ec2,'r')
+    hold on
+    semilogy([f(50) f(50)],[dof*Ec1(100)/chi2inv(.05/2,dof) dof*Ec1(100)/chi2inv(1-.05/2,dof)],'k')
+    xlabel('Frequency (Hz)')
+    ylabel('Spectral Density (mmho^2/cm^2/Hz)')
+    legend('1','2')
+    
+    % Coherence between Temperature and Conductivity
+    fig3 = figure;
+    subplot(211)
+    plot(f,Coht1c1,'b')
+    hold on
+    plot(f,Coht2c2,'r')
+    legend('1','2')
+    %plot(f,Coht1c1./(1+2*epsCoht1c1),'b:')
+    %plot(f,Coht1c1./(1-2*epsCoht1c1),'b:')
+    %plot(f,Coht2c2./(1+2*epsCoht2c2),'r:')
+    %plot(f,Coht2c2./(1-2*epsCoht2c2),'r:')
+    %plot(f,beta*ones(size(f)),'k--')
+    xlabel('Frequency (Hz)')
+    ylabel('Squared Coherence')
+    
+    % Phase between Temperature and Conductivity
+    fig4 = figure;
+    subplot(211)
+    plot(f,Phit1c1,'b')
+    hold on
+    plot(f,Phit2c2,'r')
+    legend('1','2')
+    %plot(f,Phit1c1./(1+2*epsPhit1c1),'b:')
+    %plot(f,Phit1c1./(1-2*epsPhit1c1),'b:')
+    %plot(f,Phit2c2./(1+2*epsPhit2c2),'r:')
+    %plot(f,Phit2c2./(1-2*epsPhit2c2),'r:')
+    xlabel('Frequency (Hz)')
+    ylabel('Phase (rad)')
+    plot(f,-atan(2*pi*f*x1(1))-2*pi*f*x1(2),'g--')
+    plot(f,-atan(2*pi*f*x2(1))-2*pi*f*x2(2),'g--')
+    drawnow
 end
 
 % Apply Phase Correction and LP Filter----------------------------------------%
@@ -210,7 +218,7 @@ trans(:,1:2:2*m-1) = reshape(data.trans(i1:i2),N,m);
 fl(:,1:2:2*m-1) = reshape(data.fl(i1:i2),N,m);
 oxygen(:,1:2:2*m-1) = reshape(data.oxygen(i1:i2),N,m);
 % 24 Hz time, lon, lat
-time = data.time(i1:i2); 
+time = data.time(i1:i2);
 lon = data.lon(i1:i2);
 lat = data.lat(i1:i2);
 
@@ -269,7 +277,7 @@ trans = reshape(trans(N/4+1:3*N/4,:),[],1);
 fl = reshape(fl(N/4+1:3*N/4,:),[],1);
 oxygen = reshape(oxygen(N/4+1:3*N/4,:),[],1);
 % 24 Hz time, lon, lat
-time = time(N/4 + 1:end - N/4,:); 
+time = time(N/4 + 1:end - N/4,:);
 lon = lon(N/4 + 1:end - N/4,:);
 lat = lat(N/4 + 1:end - N/4,:);
 
@@ -310,13 +318,13 @@ m = (i2-N)/N; % number of segments = dof/2
 dof = 2*m; % Number of degrees of freedom (power of 2)
 df = 1/(N*dt); % Frequency resolution at dof degrees of freedom.
 At1 = fft(detrend(reshape(t1,N,m)).*...% FFT of each column (segment)
-  (window(@triang,N)*ones(1,m)));      % Data are detrended then
+    (window(@triang,N)*ones(1,m)));      % Data are detrended then
 At2 = fft(detrend(reshape(t2,N,m)).*...% windowed.
-  (window(@triang,N)*ones(1,m))); 
+    (window(@triang,N)*ones(1,m)));
 Ac1 = fft(detrend(reshape(c1,N,m)).*...
-  (window(@triang,N)*ones(1,m)));
+    (window(@triang,N)*ones(1,m)));
 Ac2 = fft(detrend(reshape(c2,N,m)).*...
-  (window(@triang,N)*ones(1,m)));
+    (window(@triang,N)*ones(1,m)));
 At1 = At1(1:N/2,:); % Positive frequencies only
 At2 = At2(1:N/2,:);
 Ac1 = Ac1(1:N/2,:);
@@ -351,61 +359,61 @@ Phit2c2 = atan2(imag(Ct2c2),real(Ct2c2));
 % Plots of Spectral Quantities for Corrected Data-----------------------------%
 
 if figures
-  % Temperature Spectra
-  figure(fig1)
-  subplot(212)
-  semilogy(f(1:N/2,:),Et1,'b',f(1:N/2,:),Et2,'r')
-  hold on
-  semilogy([f(50) f(50)],[dof*Et1(100)/chi2inv(.05/2,dof) dof*Et1(100)/chi2inv(1-.05/2,dof)],'k')
-  xlabel('Frequency (Hz)')
-  ylabel('Spectral Density (^{\circ}C^2/Hz)')
-  title('corrected')
-  legend('1','2')
-
-  % Conductivity Spectra
-  figure(fig2)
-  subplot(212)
-  semilogy(f(1:N/2,:),Ec1,'b',f(1:N/2,:),Ec2,'r')
-  hold on
-  semilogy([f(50) f(50)],[dof*Ec1(100)/chi2inv(.05/2,dof) dof*Ec1(100)/chi2inv(1-.05/2,dof)],'k')
-  xlabel('Frequency (Hz)')
-  ylabel('Spectral Density (mmho^2/cm^2/100/Hz)')
-  title('corrected')
-  legend('1','2')
-
-  % Coherence between Corrected Temperature and Conductivity
-  figure(fig3)
-  subplot(212)
-  plot(f(1:N/2,:),Coht1c1,'b')
-  hold on
-  plot(f(1:N/2,:),Coht2c2,'r')
-  legend('1','2')
-  %plot(f(1:N/2,:),Coht1c1./(1+2*epsCoht1c1),'b:')
-  %plot(f(1:N/2,:),Coht1c1./(1-2*epsCoht1c1),'b:')
-  %plot(f(1:N/2,:),Coht2c2./(1+2*epsCoht2c2),'r:')
-  %plot(f(1:N/2,:),Coht2c2./(1-2*epsCoht2c2),'r:')
-  %plot(f(1:N/2,:),beta*ones(size(f(1:N/2,:))),'k--')
-  set(gca,'YLim',[0 1])
-  xlabel('Frequency (Hz)')
-  ylabel('Squared Coherence')
-  title('corrected')
-
-  % Cross-Spectral Phase between Corrected Temperature and Conductivity
-  figure(fig4)
-  subplot(212)
-  plot(f(1:N/2,:),Phit1c1,'b')
-  hold on
-  plot(f(1:N/2,:),Phit2c2,'r')
-  legend('1','2')
-  %plot(f(1:N/2,:),Phit1c1./(1+2*epsPhit1c1),'b:')
-  %plot(f(1:N/2,:),Phit1c1./(1-2*epsPhit1c1),'b:')
-  %plot(f(1:N/2,:),Phit2c2./(1+2*epsPhit2c2),'r:')
-  %plot(f(1:N/2,:),Phit2c2./(1-2*epsPhit2c2),'r:')
-  xlabel('Frequency (Hz)')
-  ylabel('Phase (rad)')
-  title('corrected')
-
-  drawnow
+    % Temperature Spectra
+    figure(fig1)
+    subplot(212)
+    semilogy(f(1:N/2,:),Et1,'b',f(1:N/2,:),Et2,'r')
+    hold on
+    semilogy([f(50) f(50)],[dof*Et1(100)/chi2inv(.05/2,dof) dof*Et1(100)/chi2inv(1-.05/2,dof)],'k')
+    xlabel('Frequency (Hz)')
+    ylabel('Spectral Density (^{\circ}C^2/Hz)')
+    title('corrected')
+    legend('1','2')
+    
+    % Conductivity Spectra
+    figure(fig2)
+    subplot(212)
+    semilogy(f(1:N/2,:),Ec1,'b',f(1:N/2,:),Ec2,'r')
+    hold on
+    semilogy([f(50) f(50)],[dof*Ec1(100)/chi2inv(.05/2,dof) dof*Ec1(100)/chi2inv(1-.05/2,dof)],'k')
+    xlabel('Frequency (Hz)')
+    ylabel('Spectral Density (mmho^2/cm^2/100/Hz)')
+    title('corrected')
+    legend('1','2')
+    
+    % Coherence between Corrected Temperature and Conductivity
+    figure(fig3)
+    subplot(212)
+    plot(f(1:N/2,:),Coht1c1,'b')
+    hold on
+    plot(f(1:N/2,:),Coht2c2,'r')
+    legend('1','2')
+    %plot(f(1:N/2,:),Coht1c1./(1+2*epsCoht1c1),'b:')
+    %plot(f(1:N/2,:),Coht1c1./(1-2*epsCoht1c1),'b:')
+    %plot(f(1:N/2,:),Coht2c2./(1+2*epsCoht2c2),'r:')
+    %plot(f(1:N/2,:),Coht2c2./(1-2*epsCoht2c2),'r:')
+    %plot(f(1:N/2,:),beta*ones(size(f(1:N/2,:))),'k--')
+    set(gca,'YLim',[0 1])
+    xlabel('Frequency (Hz)')
+    ylabel('Squared Coherence')
+    title('corrected')
+    
+    % Cross-Spectral Phase between Corrected Temperature and Conductivity
+    figure(fig4)
+    subplot(212)
+    plot(f(1:N/2,:),Phit1c1,'b')
+    hold on
+    plot(f(1:N/2,:),Phit2c2,'r')
+    legend('1','2')
+    %plot(f(1:N/2,:),Phit1c1./(1+2*epsPhit1c1),'b:')
+    %plot(f(1:N/2,:),Phit1c1./(1-2*epsPhit1c1),'b:')
+    %plot(f(1:N/2,:),Phit2c2./(1+2*epsPhit2c2),'r:')
+    %plot(f(1:N/2,:),Phit2c2./(1-2*epsPhit2c2),'r:')
+    xlabel('Frequency (Hz)')
+    ylabel('Phase (rad)')
+    title('corrected')
+    
+    drawnow
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

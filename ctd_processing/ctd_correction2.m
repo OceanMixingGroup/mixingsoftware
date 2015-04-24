@@ -1,10 +1,19 @@
 function data = ctd_correction2(data)
-
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%
+% function data = ctd_correction2(data)
+%
 % Calculates and applies a correction to the 24Hz temperature data in
 % the structure data. The correction aims to make temperature and
 % conductivity be in phase. The raw and corrected series of temperature,
 % conductivity, pressure, salinity, fluorescense, transmissivity and
 % dissolved oxygen are stored in a structure and output.
+%
+% This is same as ctd_correction, but was modified by JM (see comments
+% below) to do fit over specified depth range instead of a fixed range.
+% These limits are specified in data.tcfit; if not specifed use full depth
+% range.
+%
 %
 % Robert Todd, 2006-12-5
 % Updates:
@@ -18,6 +27,14 @@ function data = ctd_correction2(data)
 % updated during IWISE10, Aug 201
 % fit t-c lag in deeper water, below intrusions. Then apply to entire water
 % column.
+%
+% This version of code is part of 'ctd_processing' folder in the OSU
+% 'mixing software' github repository.
+% Added to 'ctd_processing' folder by A. Pickering - April 2015
+% Original code from Jen MacKinnon in 'ctd_proc2' folder.
+%
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%%
 
 figures = 1; % 0 for no figures, 1 for figures
 

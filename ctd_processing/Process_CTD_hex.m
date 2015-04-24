@@ -15,8 +15,11 @@
 % and dT/dz computed from these.
 %
 % Steps:
+% - Copy this file to a new script and save as Process_CTD_hex_[cruise
+% name]
 % - Modify the data directory and output paths
-% - Modify the cfgxxx.m file with calibration info for the cruise
+% - Modify the cfgxxx.m file with calibration info for the cruise (replace
+% xxx with the cruise name). Change this filename in script below .
 % - Run script!
 %
 % Original script from Jen MacKinnon @ Scripps. Modified by A. Pickering
@@ -32,27 +35,27 @@ addpath /Users/Andy/Cruises_Research/mixingsoftware/ctd_processing/
 %function load_hex_ttide = load_hex_ttide(icast)
 %icast=56;
 
-% ~ cruise name (in filename of CTD files)
+% ~ *** cruise name (in filename of CTD files) ***
 %cruise= 'ttide_leg1';
 cruise='TS'
 %cruise='IWISE10'
 
-% ~ folder with raw CTD files
+% ~ *** folder with raw CTD files ***
 %datadir=['/Volumes/current_cruise/ctd/data/'];
 % ~ folder for final processed data, saved at 25 cm grid
-%outdir=['/Volumes/scienceparty_share/TTIDE-RR1501/data/ctd_processed/'];
+%outdir_bin=['/Volumes/scienceparty_share/TTIDE-RR1501/data/ctd_processed/'];
 % ~ folder to output mat files of raw data, and ascii files for ladcp processing
-%outdir2=['/Volumes/scienceparty_share/TTIDE-RR1501/data/ctd_processed/24hz/'];
+%outdir_raw=['/Volumes/scienceparty_share/TTIDE-RR1501/data/ctd_processed/24hz/'];
 
-% for testing with some IWISE data - AP
+% *** for testing with some IWISE data - AP ***
 datadir='/Users/Andy/Cruises_Research/IWISE/Data/2011/ctd'
 %datadir='/Users/Andy/Cruises_Research/LADCP_processing/ctd/raw'
-outdir='/Users/Andy/Cruises_Research/ChiPod/Testout'
-outdir2='/Users/Andy/Cruises_Research/ChiPod/Testout2'
-
-
-ChkMkDir(outdir)
-ChkMkDir(outdir2)
+outdir_bin='/Users/Andy/Cruises_Research/ChiPod/Testout'
+outdir_raw='/Users/Andy/Cruises_Research/ChiPod/Testout2'
+figdir='/Users/Andy/Cruises_Research/ChiPod/ctdfigs/'
+ChkMkDir(figdir)
+ChkMkDir(outdir_bin)
+ChkMkDir(outdir_raw)
 
 % which cast (eventually use a loop to do all casts)
 icast=1
@@ -62,15 +65,17 @@ disp('=============================================================')
 
 
 %~~~
-ctdlist = dir(fullfile(datadir, [cruise '*.hex']))
+ctdlist = dirs(fullfile(datadir, [cruise '*.hex']))
 ctdname = fullfile(datadir,ctdlist(icast).name)
 outname=[sprintf([cruise '_%03d'],icast) '.mat']
-matname=fullfile(outdir, outname);
+matname=fullfile(outdir_bin, outname);
 disp(['CTD file: ' ctdname])
 %~~~
 
 % ~ load calibration info (should be updated for each cruise)
 disp('Loading calibrations')
+
+% *** change this to appropriate file for cruise ***
 cfgload000
 
 % 24 Hz data
@@ -115,6 +120,7 @@ axis ij
 ylabel('p [db]')
 grid on
 xlabel('temp [^oC]')
+title(ctdlist(icast).name)
 
 subplot(122)
 plot(data2.c1,data2.p,data2.c2,data2.p)
@@ -122,6 +128,8 @@ axis ij
 ylabel('p [db]')
 grid on
 xlabel('cond.')
+
+print('-dpng',fullfile(figdir,[ctdlist(icast).name(1:end-4) '_Raw_Temp_Cond_vsP']))
 
 %data2.dnum=data2.time/86400 + datenum(1970,1,1,0,0,0);
 
@@ -147,10 +155,9 @@ xlabel('cond.')
 
 % output raw data 
 disp(['saving: ' matname])
-matname0 = fullfile(outdir2,[outname(1:end - 4) '_0.mat'])
+matname0 = fullfile(outdir_raw,[outname(1:end - 4) '_0.mat'])
 save(matname0, 'data2')
 
-%
 
 % specify the depth range over which t-c lag fitting is done. For deep
 % stations, use data below 500 meters, otherwise use the entire depth
@@ -272,6 +279,7 @@ end
 %% Make summary plots
 
 figure(3);clf
+subplot(121)
 plot(datad.t1,datad.p)
 hold on
 plot(datad.t2,datad.p)
@@ -283,7 +291,8 @@ xlabel('Temp [^oC]')
 ylabel('Pressure [db]')
 title(ctdlist(icast).name)
 
-figure(4);clf
+%figure(4);clf
+subplot(122)
 plot(datad.c1,datad.p)
 hold on
 plot(datad.c2,datad.p)
@@ -295,6 +304,7 @@ xlabel('Cond []')
 ylabel('Pressure [db]')
 title(ctdlist(icast).name)
 
+print('-dpng',fullfile(figdir,[ctdlist(icast).name(1:end-4) '_binned_Temp_Cond_vsP']))
 %% save as a text file for use by LADCP
 
 doascii=0
@@ -313,8 +323,8 @@ lon=data3b.lon;
 
 dataout=[sec p t s lat lon];
 ig=find(~isnan(mean(dataout,2))); dataout=dataout(ig,:);
-%save([outdir outname(1:end-4) '.cnv'],'dataout','-ascii','-tabs')
-save(fullfile(outdir,[outname(1:end-4) '.cnv']),'dataout','-ascii','-tabs')
+%save([outdir_bin outname(1:end-4) '.cnv'],'dataout','-ascii','-tabs')
+save(fullfile(outdir_bin,[outname(1:end-4) '.cnv']),'dataout','-ascii','-tabs')
 end
 %%
 %%%%%%%%%%%%%

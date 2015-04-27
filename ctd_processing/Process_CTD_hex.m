@@ -13,6 +13,7 @@
 % the CTD-chipod processing to align the accelerations up in time.
 % - Saves a 2nd folder of binned 1m data. The chipod processing uses N^2
 % and dT/dz computed from these.
+% - Saves some summary figures in another folder.
 %
 % Steps:
 % - Copy this file to a new script and save as Process_CTD_hex_[cruise
@@ -53,6 +54,7 @@ datadir='/Users/Andy/Cruises_Research/IWISE/Data/2011/ctd'
 outdir_bin='/Users/Andy/Cruises_Research/ChiPod/Testout'
 outdir_raw='/Users/Andy/Cruises_Research/ChiPod/Testout2'
 figdir='/Users/Andy/Cruises_Research/ChiPod/ctdfigs/'
+
 ChkMkDir(figdir)
 ChkMkDir(outdir_bin)
 ChkMkDir(outdir_raw)

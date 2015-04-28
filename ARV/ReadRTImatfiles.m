@@ -142,7 +142,7 @@ for a=1:Nens
     dd=EnsDat(9);
     hh=EnsDat(10);
     mm=EnsDat(11);
-    ss=EnsDat(12);
+    ss=EnsDat(12) + EnsDat(13)/100;
     dnum=datenum(yr,mo,dd,hh,mm,ss);
     datestr(dnum)   ;
     

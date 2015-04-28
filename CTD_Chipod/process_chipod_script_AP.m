@@ -10,16 +10,18 @@
 %
 % Before running:
 % -This script assumes that CTD data has been processed into mat files and
-% put into folders in some kind of standard form (with ctd_proc2??).
+% put into folders in some kind of standard form (with 'ctd_processing').
 % -CTD data are used for two purposes: (1) the 24Hz data is used to compute
 % dp/dt and compare with chipod acceleration to find the time offset . (2)
 % lower resolution (here 1m) N^2 and dTdz are needed to compute chi.
 % -Chipod data files need to be downloaded and saved as well.
 %
 % Instructions to run:
-% 1) Modify paths for your computer and cruise
-% 2) Modify chipod info for your cruise
-% 3) Run!
+% 1) Copy this file and add your cruise name to the end of the filename.
+% Note - I have tried to put *** where you need to change paths in file
+% 2) Modify paths for your computer and cruise
+% 3) Modify chipod info for your cruise
+% 4) Run!
 %
 % OUTPUT:
 % Saves a file for each cast and chipod with:
@@ -50,7 +52,7 @@
 %  other cruises.
 %
 % Started with 'process_chipod_script_june_ttide_V2.m' on 24 Mar 2015 and
-% modified from there. A. Pickering
+% modified from there. A. Pickering - apickering@coas.oregonstate.edu
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
@@ -59,26 +61,32 @@ clear ; close all ; clc
 tstart=tic;
 
 %~~~~ Modify these paths for your cruise/computer ~~~~
-% ~~ Paths for Andy's laptop
+
+% *** path for 'mixingsoftware' ***
 mixpath='/Users/Andy/Cruises_Research/mixingsoftware/'
+
 cd (fullfile(mixpath,'CTD_Chipod'))
 addpath(fullfile(mixpath,'general')) % makelen.m in /general is needed
 addpath(fullfile(mixpath,'marlcham')) % for integrate.m
 addpath(fullfile(mixpath,'adcp')) % need for mergefields_jn.m in load_chipod_data
-% Path where ctd data are located (already processed into mat files). There
-% should be a folder in it called /24Hz
+
+% *** Path where ctd data are located (already processed into mat files). There
+% should be a folder within it called '24Hz'
 CTD_path='/Users/Andy/Dropbox/TTIDE_OBSERVATIONS/scienceparty_share/TTIDE-RR1501/data/ctd_processed/'
-% Path where chipod data are located
+
+% *** Path where chipod data are located
 chi_data_path='/Users/Andy/Cruises_Research/Tasmania/Data/Chipod_CTD/'
-% path where processed chipod data will be saved
+
+% *** path where processed chipod data will be saved
 chi_processed_path='/Users/Andy/Cruises_Research/Tasmania/Data/Chipod_CTD/Processed/';
+
 % path to save figures to
 fig_path=[chi_processed_path 'figures/'];
 ChkMkDir(fig_path)
 % ~~~~~~~
 
-
 % Make a list of all ctd files
+% *** replace 'leg1' with name that is in your ctd files ***
 CTD_list=dir([CTD_path  '24hz/' '*_leg1_*.mat']);
 
 % make a text file to print a summary of results to
@@ -125,10 +133,10 @@ for a=1:length(CTD_list)
     clear tlim tmp
     time_range=[min(data2.datenum) max(data2.datenum)];
     
-    % not sure if this will work for other cruises/names ? - AP
+    % ** this might not work for other cruises/names ? - AP **
     cast_suffix_tmp=CTD_list(a).name; % Cast # may be different than file #. JRM
     cast_suffix=cast_suffix_tmp(end-8:end-6);
-        
+    
     % check if this is a towyo, if so skip for now
     clear splitlist
     splitlist=dir([CTD_path '*' cast_suffix '_split*.mat']);
@@ -138,21 +146,22 @@ for a=1:length(CTD_list)
         %~~~ This needs to be modified for each cruise ~~~
         
         for up_down_big=1:2
-          
+            
+            % *** edit this info for your cruise/instruments ***
             short_labs={'up_1012','down_1013','big','down_1010'};
             big_labs={'Ti UpLooker','Ti DownLooker','Unit 1002','Ti Downlooker'};
             
             switch up_down_big
                 case 1
-                    % Specify uplooker path JRM
+                    % Info for an up-looking chipod
                     chi_path=fullfile(chi_data_path,'1012')
-                    az_correction=-1; % -1 if the Ti case is pointed down or up
+                    az_correction=-1; % -1 if the Ti case is pointed up
                     suffix='A1012';
                     isbig=0;
                     cal.coef.T1P=0.097;
                     is_downcast=0;
                 case 2
-                    % Specify downlooker JRM
+                    % Info for a down-looking chipod
                     chi_path=fullfile(chi_data_path,'1013')
                     az_correction=1;
                     suffix='A1013';
@@ -237,7 +246,7 @@ for a=1:length(CTD_list)
                 offset=TimeOffset(data2.datenum(ginds),data2.dpdt_hp(ginds),chidat.datenum,w_from_chipod);
                 
                 % apply correction to chipod time
-                chidat.datenum=chidat.datenum+offset; % 
+                chidat.datenum=chidat.datenum+offset; %
                 chidat.time_offset_correction_used=offset;
                 chidat.fspd=interp1(data2.datenum,-data2.dpdt,chidat.datenum);
                 
@@ -296,7 +305,7 @@ for a=1:length(CTD_list)
                     cal.T2=cal.T1;
                     cal.T2P=cal.T1P;
                 end
-                                
+                
                 do_timeseries_plot=1;
                 if do_timeseries_plot
                     
@@ -463,7 +472,7 @@ for a=1:length(CTD_list)
                     avg.S=interp1(ctd.p(good_inds),ctd.s1(good_inds),avg.P);
                     
                     % note sw_visc not included in newer versions of sw?
-                    addpath  /Users/Andy/Cruises_Research/mixingsoftware/seawater
+                    %                    addpath  /Users/Andy/Cruises_Research/mixingsoftware/seawater
                     % avg.nu=sw_visc(avg.S,avg.T,avg.P);
                     avg.nu=sw_visc_ctdchi(avg.S,avg.T,avg.P);
                     

@@ -6,7 +6,9 @@ function cfg=MakeCtdConfigFromXMLCON(confile)
 % Reads the Seabird .xmlcon CTD configuration file and create a structure
 % 'cfg' with calibration coeffiencients needed to process the raw data.
 %
-% Currently only does temp and cond. (not oxygen etc.)
+% Currently only does temp and cond. (not oxygen etc.). Only tested for a
+% few files, it is possible it won't work on others and we will need to
+% make the code 'smarter'.
 %
 % Modified from ' load_CTD_coefficients' by J. Nash.
 %

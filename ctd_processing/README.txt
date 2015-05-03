@@ -7,7 +7,9 @@ This folder contains Matlab codes to process raw data files from Seabird CTDs th
 
 The starting point for this folder was the folder ctd_proc2 from Jen MacKinnon (Scripps). Many of the core functions within this folder were written by Dan Rudnick and/or Shaun Johnston and/or and Robert Todd. Any pre-existing author credits in codes have been preserved (some files did not have any Author info).
 
-The main reason for putting this in the repository is to have a stable, standard set of processing codes to use for ctd-chipod processing, which requires ctd data.
+The main reason for putting this in the repository is to have a stable, standard set of processing codes to use for ctd-chipod processing, which requires ctd data. 
+
+* Processed ctd data (with N^2 etc.) is likely available on many cruises, but we don’t know yet how the details of the ctd data processing/binning/computing N^2 etc. affect the chi pod computations. Using these standard codes will allow us to compare data from different cruises.*
 
 ~~~~~
 Processing outline:

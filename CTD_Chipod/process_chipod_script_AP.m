@@ -90,10 +90,11 @@ ChkMkDir(fig_path)
 CTD_list=dir([CTD_path  '24hz/' '*_leg1_*.mat']);
 
 % make a text file to print a summary of results to
-if exist(fullfile(chi_processed_path,'Results.txt'),'file')
-    delete(fullfile(chi_processed_path,'Results.txt'))
+txtfname=['Results' datestr(floor(now)) '.txt'];
+if exist(fullfile(chi_processed_path,txtfname),'file')
+    delete(fullfile(chi_processed_path,txtfname))
 end
-fileID= fopen(fullfile(chi_processed_path,'Results.txt'),'a');
+fileID= fopen(fullfile(chi_processed_path,txtfname),'a');
 fprintf(fileID,['Created ' datestr(now) '\n']);
 fprintf(fileID,'CTD path \n');
 fprintf(fileID,[CTD_path '\n']);
@@ -106,7 +107,8 @@ fprintf(fileID,[fig_path '\n \n']);
 
 % we loop through and do processing for each ctd file
 hb=waitbar(0,'Looping through ctd files')
-for a=1:length(CTD_list)
+for a=10:length(CTD_list)
+    
     waitbar(a/length(CTD_list),hb)
     
     clear castname tlim time_range cast_suffix_tmp cast_suffix data2
@@ -234,7 +236,7 @@ for a=1:length(CTD_list)
                 ax1= subplot(211)
                 plot(data2.datenum,data2.dpdt_hp,'b',chidat.datenum,w_from_chipod,'r'),hold on
                 legend('ctd dp/dt','w_{chi}','orientation','horizontal','location','best')
-                title([castname],'interpreter','none')
+                title([castname ' ' short_labs{up_down_big}],'interpreter','none')
                 ylabel('w [m/s]')
                 datetick('x')
                 grid on
@@ -320,7 +322,7 @@ for a=1:length(CTD_list)
                     ylabel('T [\circ C]')
                     xlim(xls)
                     datetick('x')
-                    title(['Cast ' cast_suffix ', ' big_labs{up_down_big} '  ' datestr(time_range(1),'dd-mmm-yyyy HH:MM') '-' datestr(time_range(2),15) ', ' CTD_list(a).name],'interpreter','none')
+                    title(['Cast ' cast_suffix ', ' short_labs{up_down_big} '  ' datestr(time_range(1),'dd-mmm-yyyy HH:MM') '-' datestr(time_range(2),15) ', ' CTD_list(a).name],'interpreter','none')
                     legend('CTD','chi','chi2-.5','location','best')
                     grid on
                     
@@ -365,9 +367,8 @@ for a=1:length(CTD_list)
                 
                 %%% now let's do the computation of chi..
                 
-                % this gives us 1-m CTD data.
-                
-                
+                clear datad_1m datau_1m chi_inds p_max ind_max ctd
+                % this gives us 1-m CTD data.                                
                 if exist([CTD_path castname(1:end-6) '.mat'],'file')
                     load([CTD_path castname(1:end-6) '.mat']);
                     [p_max,ind_max]=max(cal.P);
@@ -391,10 +392,10 @@ for a=1:length(CTD_list)
                     %                     plot(chidat.datenum(chi_inds),chidat.T1P(chi_inds))
                     
                     ctd.s1=interp_missing_data(ctd.s1,100);
-                    ctd.t1=interp_missing_data(ctd.t1,100);
-                    smooth_len=20;
+                    ctd.t1=interp_missing_data(ctd.t1,100);                    
                     
                     % compute N^2 from 1m ctd data with 20 smoothing
+                    smooth_len=20;
                     [bfrq] = sw_bfrq(ctd.s1,ctd.t1,ctd.p,nanmean(ctd.lat)); % JRM removed "vort,p_ave" from outputs
                     ctd.N2=abs(conv2(bfrq,ones(smooth_len,1)/smooth_len,'same')); % smooth once
                     ctd.N2=conv2(ctd.N2,ones(smooth_len,1)/smooth_len,'same'); % smooth twice
@@ -426,22 +427,28 @@ for a=1:length(CTD_list)
                     if doplot
                         figure(3);clf
                         subplot(121)
-                        plot(log10(abs(ctd.N2)),ctd.p),
+                        h20= plot(log10(abs(ctd.N2_20)),ctd.p)
+                        hold on
+                        h50=plot(log10(abs(ctd.N2_50)),ctd.p)
+                        hT=plot(log10(abs(ctd.N2)),ctd.p)
                         xlabel('log_{10}N^2'),ylabel('depth [m]')
                         title(castname,'interpreter','none')
                         grid on
                         axis ij
+                        legend([h20 h50 hT],'20m','50m','largest','location','best')
                         
-                        subplot(122)
-                        plot(log10(abs(ctd.dTdz)),ctd.p) % ,log10(abs(ctd.dTdz2)),ctd.p,log10(abs(ctd.dTdz3)),ctd.p)
+                        subplot(122)                        
+                        plot(log10(abs(ctd.dTdz_20)),ctd.p)
+                        hold on
+                        plot(log10(abs(ctd.dTdz_50)),ctd.p)
+                        plot(log10(abs(ctd.dTdz)),ctd.p)
                         xlabel('dTdz [^{o}Cm^{-1}]'),ylabel('depth [m]')
                         grid on
                         axis ij
                         
                         print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_N2_dTdz'])
                     end
-                    
-                    
+                                        
                     %~~~ now let's do the chi computations:
                     
                     % remove loops in CTD data
@@ -472,7 +479,7 @@ for a=1:length(CTD_list)
                     avg.S=interp1(ctd.p(good_inds),ctd.s1(good_inds),avg.P);
                     
                     % note sw_visc not included in newer versions of sw?
-                    %                    addpath  /Users/Andy/Cruises_Research/mixingsoftware/seawater
+                    %addpath  /Users/Andy/Cruises_Research/mixingsoftware/seawater
                     % avg.nu=sw_visc(avg.S,avg.T,avg.P);
                     avg.nu=sw_visc_ctdchi(avg.S,avg.T,avg.P);
                     
@@ -504,7 +511,7 @@ for a=1:length(CTD_list)
                                     analog_filter_order=4;
                                     analog_filter_freq=50;
                                     tp_power=invert_filt(freq,invert_filt(freq,tp_power,thermistor_filter_order, ...
-                                        thermistor_cutoff_frequency),analog_filter_order,analog_filter_freq);
+                                    thermistor_cutoff_frequency),analog_filter_order,analog_filter_freq);
                                 end
                                 
                                 %try
@@ -539,29 +546,67 @@ for a=1:length(CTD_list)
                     end
                     delete(h)
                     
-                    %~~ Plot chi, KT, and dTdz
+                    %%
+                    %~~~ Plot profiles of chi, KT, and dTdz
                     figure(4);clf
+                    agutwocolumn(1)
+                    wysiwyg
+                    ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.07, 3,2);
                     
-                    subplot(131)
-                    plot(log10(avg.chi1),avg.P),axis ij
-                    xlabel('log_{10}(avg chi)')
-                    ylabel('Depth [m]')
-                    grid on
-                    title(['cast ' cast_suffix])
-                    
-                    subplot(132)
-                    plot(log10(avg.KT1),avg.P),axis ij
-                    xlabel('log_{10}(avg Kt1)')
-                    grid on
-                    title([short_labs{up_down_big}],'interpreter','none')
-                    
-                    subplot(133)
+                    axes(ax(1))
                     plot(log10(abs(avg.dTdz)),avg.P),axis ij
                     grid on
+                    axis tight
                     xlabel('log_{10}(avg dTdz)')
-                    print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_chi_' short_labs{up_down_big} '_avg_chi_KT_dTdz'])
-                    %~~
+                    ylabel('Depth [m]')
+                    title(['cast ' cast_suffix])
+                                        
+                    axes(ax(2))
+                    plot(log10(abs(avg.N2)),avg.P),axis ij
+                    grid on
+                    xlabel('log_{10}(avg N^2)')
+                    axis tight
+                    ytloff
+                    title([short_labs{up_down_big}],'interpreter','none')
+                                                
+                    axes(ax(3))
+                    plot(cal.T1P(chi_inds),cal.P(chi_inds)),axis ij
+                    grid on
+                    xlabel('dT/dt')
+                    axis tight
+                    ytloff
+                    title([short_labs{up_down_big}],'interpreter','none')
+
+                    axes(ax(4))
+                    plot(log10(avg.chi1),avg.P,'.'),axis ij
+                    xlabel('log_{10}(avg chi)')
+                    axis tight
+                    grid on
+                    ylabel('Depth [m]')
+%                    ytloff
                     
+                    axes(ax(5))
+                    plot(log10(avg.KT1),avg.P,'.'),axis ij
+                    axis tight
+                    xlabel('log_{10}(avg Kt1)')
+                    grid on             
+                    ytloff
+                  
+                    axes(ax(6))
+                    plot(log10(avg.eps1),avg.P,'.'),axis ij
+                    axis tight
+                    xlabel('log_{10}(avg eps1)')
+                    grid on             
+                    ytloff
+                    
+                    linkaxes(ax,'y')
+                    %%
+                    print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_chi_' short_labs{up_down_big} '_avg_chi_KT_dTdz'])
+                    
+                    %~~~
+                    
+                    avg.castname=castname;
+                    ctd.castname=castname;
                     avg.MakeInfo=['Made ' datestr(now) ' w/ process_chipod_script_AP.m']
                     ctd.MakeInfo=['Made ' datestr(now) ' w/ process_chipod_script_AP.m']
                     
@@ -576,7 +621,8 @@ for a=1:length(CTD_list)
                     if numel(ngc)>1
                         fprintf(fileID,'Chi computed ')
                     end
-                end
+                    
+                end % if we have binned ctd data
                 
             else
                 disp('no good chi data for this profile');

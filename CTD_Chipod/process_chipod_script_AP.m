@@ -2,6 +2,10 @@
 %
 % process_chipod_script_AP.m
 %
+% ** this is currently a work-in-progress (AP). I am working on T-tide data
+% right now to get it running and fix things. Eventually there will be a
+% general script that can be applied to any cruise.**
+%
 % Script to do CTD-chipod processing.
 %
 % This script is part of CTD_Chipod software folder in the the mixingsoftware github repo.
@@ -105,9 +109,11 @@ fprintf(fileID,[chi_processed_path '\n']);
 fprintf(fileID,'figure path \n');
 fprintf(fileID,[fig_path '\n \n']);
 
+fprintf(fileID,[' \n There are ' num2str(length(CTD_list)) ' CTD files' ])
+
 % we loop through and do processing for each ctd file
 hb=waitbar(0,'Looping through ctd files')
-for a=10:length(CTD_list)
+for a=1:length(CTD_list)
     
     waitbar(a/length(CTD_list),hb)
     
@@ -144,8 +150,13 @@ for a=10:length(CTD_list)
     splitlist=dir([CTD_path '*' cast_suffix '_split*.mat']);
     if size(splitlist,1)==0 % not a towyo, continue processing
         
-        %~~~ Info for chipods deployed on CTD is entered here ~~
+        % load chipod info
+        addpath /Users/Andy/Cruises_Research/Tasmania/
+        Chipod_Deploy_Info_TTIDE
+        
+        %~~~ Enter Info for chipods deployed on CTD  ~~
         %~~~ This needs to be modified for each cruise ~~~
+        
         
         for up_down_big=1:2
             
@@ -153,41 +164,27 @@ for a=10:length(CTD_list)
             short_labs={'up_1012','down_1013','big','down_1010'};
             big_labs={'Ti UpLooker','Ti DownLooker','Unit 1002','Ti Downlooker'};
             
+%            chipod_SNs={'1012','1013'}
+            
             switch up_down_big
-                case 1
-                    % Info for an up-looking chipod
-                    chi_path=fullfile(chi_data_path,'1012')
-                    az_correction=-1; % -1 if the Ti case is pointed up
-                    suffix='A1012';
-                    isbig=0;
-                    cal.coef.T1P=0.097;
-                    is_downcast=0;
+                case 1                    
+                    % new AP 4 May
+                    whSN='SN1012'
                 case 2
-                    % Info for a down-looking chipod
-                    chi_path=fullfile(chi_data_path,'1013')
-                    az_correction=1;
-                    suffix='A1013';
-                    isbig=0;
-                    cal.coef.T1P=0.097;
-                    is_downcast=1;
-                case 3 % For now not doing big Chi
-                    chi_path='../data/A16S/Chipod_CTD/';az_correction=1;
-                    suffix='1002';
-                    isbig=1;
-                    cal.coef.T1P=0.105;
-                    cal.coef.T2P=0.105;
-                    is_downcast=0;
-                case 4
-                    % another downlooker
-                    chi_path=fullfile(chi_data_path,'1010')
-                    az_correction=1;
-                    suffix='A1010';
-                    isbig=0;
-                    cal.coef.T1P=0.097;
-                    is_downcast=1;
+                    % new AP 4 May
+                    whSN='SN1013'
             end
             
-            fprintf(fileID,[ ' \n ' short_labs{up_down_big} ])
+            this_chi_info=ChiInfo.(whSN)
+            clear chi_path az_correction suffix isbig cal is_downcast
+            chi_path=fullfile(chi_data_path,this_chi_info.loggerSN)
+            suffix=this_chi_info.suffix
+            isbig=this_chi_info.isbig
+            cal=this_chi_info.cal
+            is_downcast=this_chi_info.is_downcast
+            az_correction=this_chi_info.az_correction
+            
+            fprintf(fileID,[ ' \n \n ' short_labs{up_down_big} ])
             
             d.time_range=datestr(time_range); % Time range of cast
             
@@ -214,7 +211,7 @@ for a=10:length(CTD_list)
                 %%% First we'll compute fallspeed from dp/dz and compare this to chipod's
                 %%% AZ to get the time offset.
                 
-                fprintf(fileID,' Found good chi file ')
+                fprintf(fileID,[' Found good chi file: ' chidat.chi_files{:}])
                 
                 % low-passed p
                 data2.p_lp=conv2(medfilt1(data2.p),hanning(30)/sum(hanning(30)),'same');
@@ -368,7 +365,7 @@ for a=10:length(CTD_list)
                 %%% now let's do the computation of chi..
                 
                 clear datad_1m datau_1m chi_inds p_max ind_max ctd
-                % this gives us 1-m CTD data.                                
+                % this gives us 1-m CTD data.
                 if exist([CTD_path castname(1:end-6) '.mat'],'file')
                     load([CTD_path castname(1:end-6) '.mat']);
                     [p_max,ind_max]=max(cal.P);
@@ -392,7 +389,7 @@ for a=10:length(CTD_list)
                     %                     plot(chidat.datenum(chi_inds),chidat.T1P(chi_inds))
                     
                     ctd.s1=interp_missing_data(ctd.s1,100);
-                    ctd.t1=interp_missing_data(ctd.t1,100);                    
+                    ctd.t1=interp_missing_data(ctd.t1,100);
                     
                     % compute N^2 from 1m ctd data with 20 smoothing
                     smooth_len=20;
@@ -437,7 +434,7 @@ for a=10:length(CTD_list)
                         axis ij
                         legend([h20 h50 hT],'20m','50m','largest','location','best')
                         
-                        subplot(122)                        
+                        subplot(122)
                         plot(log10(abs(ctd.dTdz_20)),ctd.p)
                         hold on
                         plot(log10(abs(ctd.dTdz_50)),ctd.p)
@@ -448,7 +445,7 @@ for a=10:length(CTD_list)
                         
                         print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_N2_dTdz'])
                     end
-                                        
+                    
                     %~~~ now let's do the chi computations:
                     
                     % remove loops in CTD data
@@ -511,7 +508,7 @@ for a=10:length(CTD_list)
                                     analog_filter_order=4;
                                     analog_filter_freq=50;
                                     tp_power=invert_filt(freq,invert_filt(freq,tp_power,thermistor_filter_order, ...
-                                    thermistor_cutoff_frequency),analog_filter_order,analog_filter_freq);
+                                        thermistor_cutoff_frequency),analog_filter_order,analog_filter_freq);
                                 end
                                 
                                 %try
@@ -546,7 +543,7 @@ for a=10:length(CTD_list)
                     end
                     delete(h)
                     
-                    %%
+                    %
                     %~~~ Plot profiles of chi, KT, and dTdz
                     figure(4);clf
                     agutwocolumn(1)
@@ -560,7 +557,7 @@ for a=10:length(CTD_list)
                     xlabel('log_{10}(avg dTdz)')
                     ylabel('Depth [m]')
                     title(['cast ' cast_suffix])
-                                        
+                    
                     axes(ax(2))
                     plot(log10(abs(avg.N2)),avg.P),axis ij
                     grid on
@@ -568,39 +565,39 @@ for a=10:length(CTD_list)
                     axis tight
                     ytloff
                     title([short_labs{up_down_big}],'interpreter','none')
-                                                
+                    
                     axes(ax(3))
                     plot(cal.T1P(chi_inds),cal.P(chi_inds)),axis ij
                     grid on
                     xlabel('dT/dt')
                     axis tight
                     ytloff
-                    title([short_labs{up_down_big}],'interpreter','none')
-
+                    %title([short_labs{up_down_big}],'interpreter','none')
+                    
                     axes(ax(4))
                     plot(log10(avg.chi1),avg.P,'.'),axis ij
                     xlabel('log_{10}(avg chi)')
                     axis tight
                     grid on
                     ylabel('Depth [m]')
-%                    ytloff
+                    %                    ytloff
                     
                     axes(ax(5))
                     plot(log10(avg.KT1),avg.P,'.'),axis ij
                     axis tight
                     xlabel('log_{10}(avg Kt1)')
-                    grid on             
+                    grid on
                     ytloff
-                  
+                    
                     axes(ax(6))
                     plot(log10(avg.eps1),avg.P,'.'),axis ij
                     axis tight
                     xlabel('log_{10}(avg eps1)')
-                    grid on             
+                    grid on
                     ytloff
                     
                     linkaxes(ax,'y')
-                    %%
+                    %
                     print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_chi_' short_labs{up_down_big} '_avg_chi_KT_dTdz'])
                     
                     %~~~

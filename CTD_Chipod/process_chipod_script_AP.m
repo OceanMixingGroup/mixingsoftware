@@ -156,16 +156,13 @@ for a=1:length(CTD_list)
         
         %~~~ Enter Info for chipods deployed on CTD  ~~
         %~~~ This needs to be modified for each cruise ~~~
-        
-        
-        for up_down_big=1:2
+                
+        for up_down_big=4%1:2
             
             % *** edit this info for your cruise/instruments ***
-            short_labs={'up_1012','down_1013','big','down_1010'};
+            short_labs={'up_1012','down_1013','1002','up_102'};
             big_labs={'Ti UpLooker','Ti DownLooker','Unit 1002','Ti Downlooker'};
-            
-%            chipod_SNs={'1012','1013'}
-            
+                        
             switch up_down_big
                 case 1                    
                     % new AP 4 May
@@ -173,6 +170,12 @@ for a=1:length(CTD_list)
                 case 2
                     % new AP 4 May
                     whSN='SN1013'
+                case 3
+                    % new AP 4 May
+                    whSN='SN1002'
+                case 4
+                    % new AP 4 May
+                    whSN='SN102'
             end
             
             this_chi_info=ChiInfo.(whSN)
@@ -202,8 +205,20 @@ for a=1:length(CTD_list)
                 load(processed_file)
             else
                 disp('loading chipod data')
+                
+                % RTC on 102 was 5 hours 6mins behind for files 1-16?
+                if strcmp(whSN,'SN102') && time_range(1)<datenum(2015,1,22,18,0,0)
+                % need to look at shifted time range
+                time_range_fix=time_range-(7/24)-(6/86400);
+                chidat=load_chipod_data(chi_path,time_range_fix,suffix,isbig);
+                % correct the time in chipod data
+                chidat.datenum=chidat.datenum+(7/24)+(6/86400); 
+                else
                 chidat=load_chipod_data(chi_path,time_range,suffix,isbig);
+                end
+                
                 save(processed_file,'chidat')
+                
             end
             %
             
@@ -511,8 +526,6 @@ for a=1:length(CTD_list)
                                         thermistor_cutoff_frequency),analog_filter_order,analog_filter_freq);
                                 end
                                 
-                                %try
-                                
                                 % [chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,avg.fspd(n),avg.nu(n),...
                                 %  avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
                                 %  % AP 27 Mar - fspd needs to be positive?
@@ -520,10 +533,6 @@ for a=1:length(CTD_list)
                                 %    above function call
                                 [chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,abs(avg.fspd(n)),avg.nu(n),...
                                     avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
-                                %catch
-                                %	chi1=NaN;
-                                %	epsil1=NaN;
-                                %end
                                 
                                 avg.chi1(n)=chi1(1);
                                 avg.eps1(n)=epsil1(1);
@@ -572,7 +581,6 @@ for a=1:length(CTD_list)
                     xlabel('dT/dt')
                     axis tight
                     ytloff
-                    %title([short_labs{up_down_big}],'interpreter','none')
                     
                     axes(ax(4))
                     plot(log10(avg.chi1),avg.P,'.'),axis ij
@@ -580,7 +588,6 @@ for a=1:length(CTD_list)
                     axis tight
                     grid on
                     ylabel('Depth [m]')
-                    %                    ytloff
                     
                     axes(ax(5))
                     plot(log10(avg.KT1),avg.P,'.'),axis ij
@@ -609,8 +616,6 @@ for a=1:length(CTD_list)
                     
                     chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
                     ChkMkDir(chi_processed_path_avg)
-                    %processed_file=[chi_processed_path 'chi_' short_labs{up_down_big} '/avg/avg_' ...
-                    %cast_suffix '_' short_labs{up_down_big} '.mat'];
                     processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' short_labs{up_down_big} '.mat']);
                     save(processed_file,'avg','ctd')
                     

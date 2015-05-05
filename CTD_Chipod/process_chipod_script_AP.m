@@ -117,7 +117,7 @@ fprintf(fileID,[' \n There are ' num2str(length(CTD_list)) ' CTD files' ])
 
 hb=waitbar(0,'Looping through ctd files')
 
-for a=1:length(CTD_list)
+for a=5%1:length(CTD_list)
     
     waitbar(a/length(CTD_list),hb)
     
@@ -127,9 +127,9 @@ for a=1:length(CTD_list)
     fprintf(fileID,[' \n \n ~' castname ])
     
     %load CTD profile
-    load([CTD_path '24hz/' castname])
-    % 24Hz data loaded here is in a structure 'CTD_24hz'
-    
+    load([CTD_path '24hz/' castname])   
+    % 24Hz data loaded here is in a structure 'data2'
+    CTD_24hz=data2;clear data2
     % Sometimes the time needs to be converted from computer time into matlab (datenum?) time.
     % Time will be converted when CTD time is more than 5 years bigger than now.
     % JRM
@@ -161,7 +161,7 @@ for a=1:length(CTD_list)
         %~~~ Enter Info for chipods deployed on CTD  ~~
         %~~~ This needs to be modified for each cruise ~~~
         
-        for up_down_big=5%1:2
+        for up_down_big=2%1:2
             
             % *** edit this info for your cruise/instruments ***
             short_labs={'up_1012','down_1013','1002','up_102','SN1010'};
@@ -250,104 +250,29 @@ for a=1:length(CTD_list)
             %~
             
             
+            chidat.Info=this_chi_info;
+            
+            chidat.cal=this_chi_info.cal;
+            
             if length(chidat.datenum)>1000
-                %%% First we'll compute fallspeed from dp/dz and compare this to chipod's
-                %%% AZ to get the time offset.
+
+                [CTD_raw chidat]=AlignAndCalibrateChipodCTD(CTD_24hz,chidat,az_correction,cal,1)
                 
-                fprintf(fileID,[' Found good chi file: ' chidat.chi_files{:}])
-                
-                % low-passed p
-                CTD_24hz.p_lp=conv2(medfilt1(CTD_24hz.p),hanning(30)/sum(hanning(30)),'same');
-                CTD_24hz.dpdt=gradient(CTD_24hz.p_lp,nanmedian(diff(CTD_24hz.datenum*86400)));
-                CTD_24hz.dpdt(CTD_24hz.dpdt>10)=mean(CTD_24hz.dpdt); % JRM added to remove large spike spikes in dpdt
-                
-                % high-passed dpdt
-                CTD_24hz.dpdt_hp=CTD_24hz.dpdt-conv2(CTD_24hz.dpdt,hanning(750)/sum(hanning(750)),'same');
-                CTD_24hz.dpdt_hp(abs(CTD_24hz.dpdt_hp)>2)=mean(CTD_24hz.dpdt_hp); % JRM added to remove large spike spikes in dpdt_hp
-                
-                %~ AP - compute chipod w by integrating z-accelertion?
-                %chidat.AZ_hp=filter_series(chidat.AX,100,'h.02');
-                tmp=az_correction*9.8*(chidat.AZ-median(chidat.AZ)); tmp(abs(tmp)>10)=0;
-                tmp2=tmp-conv2(tmp,hanning(3000)/sum(hanning(3000)),'same');
-                w_from_chipod=cumsum(tmp2*nanmedian(diff(chidat.datenum*86400)));
-                
-                % here's the plot:
-                figure(1);clf
-                ax1= subplot(211)
-                plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'b',chidat.datenum,w_from_chipod,'r'),hold on
-                legend('ctd dp/dt','w_{chi}','orientation','horizontal','location','best')
-                title([castname ' ' short_labs{up_down_big}],'interpreter','none')
-                ylabel('w [m/s]')
-                datetick('x')
-                grid on
-                
-                % find profile inds (ctd profile 'starts' at 10m )
-                ginds=get_profile_inds(CTD_24hz.p,10);
-                
-                % find time offset between ctd and chipod data (by matching w)
-                offset=TimeOffset(CTD_24hz.datenum(ginds),CTD_24hz.dpdt_hp(ginds),chidat.datenum,w_from_chipod);
-                
-                % apply correction to chipod time
-                chidat.datenum=chidat.datenum+offset; %
-                chidat.time_offset_correction_used=offset;
-                chidat.fspd=interp1(CTD_24hz.datenum,-CTD_24hz.dpdt,chidat.datenum);
-                
-                ax2=subplot(212)
-                plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'b',chidat.datenum,w_from_chipod,'g')
-                legend('ctd dp/dt','corrected w_{chi}','orientation','horizontal','location','best')
-                grid on
-                datetick('x')
-                ylabel('w [m/s]')
-                
-                linkaxes([ax1 ax2])
-                print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_w_TimeOffset'])
-                
-                %%% Now we'll calibrate T by comparison to the CTD.
-                cal.datenum=chidat.datenum;
-                cal.P=interp1(CTD_24hz.datenum,CTD_24hz.p_lp,chidat.datenum);
-                cal.T_CTD=interp1(CTD_24hz.datenum,CTD_24hz.t1,chidat.datenum);
-                cal.fspd=chidat.fspd;
-                
-                [cal.coef.T1,cal.T1]=get_T_calibration(CTD_24hz.datenum(ginds),CTD_24hz.t1(ginds),chidat.datenum,chidat.T1);
-                
-                % check if T calibration is ok
-                clear out2 err pvar
-                out2=interp1(chidat.datenum,cal.T1,CTD_24hz.datenum(ginds));
-                err=out2-CTD_24hz.t1(ginds);
-                pvar=100* (1-(nanvar(err)/nanvar(CTD_24hz.t1(ginds))) );
+            print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_w_TimeOffset'])
+%                 % check if T calibration is ok
+
+clear out2 err pvar
+%                out2=interp1(chidat.datenum,chidat.cal.T1,CTD_24hz.datenum(ginds));
+                out2=interp1(chidat.datenum,chidat.cal.T1,CTD_24hz.datenum);
+                err=out2-CTD_24hz.t1;
+                pvar=100* (1-(nanvar(err)/nanvar(CTD_24hz.t1)) );
                 if pvar<50
                     disp('Warning T calibration not good')
                     fprintf(fileID,' *T calibration not good* ')
                 end
+                
                 %
-                
-                %%% And now we apply our calibration for DTdt.
-                cal.T1P=calibrate_chipod_dtdt(chidat.T1P,cal.coef.T1P,chidat.T1,cal.coef.T1);
-                
-                test_dtdt=0; %%% this does a digital differentiation to determine whether the differentiator time constant is correct.
-                if test_dtdt
-                    dt=median(diff(chidat.datenum))*3600*24;
-                    cal.dTdt_dig=[0 ; diff(cal.T1)/dt];
-                    oset=min(chidat.datenum);
-                    plot(chidat.datenum-oset,cal.dTdt_dig,chidat.datenum-oset,cal.T1P);
-                    paus, ax=axis
-                    ginds2=find((chidat.datenum-oset)>ax(1) & (chidat.datenum-oset)<ax(2));
-                    [p,f]=fast_psd(cal.T1P(ginds2),256,100);
-                    [p2,f]=fast_psd(cal.dTdt_dig(ginds2),256,100);
-                    figure(4)
-                    loglog(f,p2,f,p);
-                end
-                
-                
-                if isbig
-                    % big chipods have 2 sensors?
-                    [cal.coef.T2,cal.T2]=get_T_calibration(CTD_24hz.datenum(ginds),CTD_24hz.t1(ginds),chidat.datenum,chidat.T2);
-                    cal.T2P=calibrate_chipod_dtdt(chidat.T2P,cal.coef.T2P,chidat.T2,cal.coef.T2);
-                else
-                    cal.T2=cal.T1;
-                    cal.T2P=cal.T1P;
-                end
-                
+                ginds=1:length(CTD_24hz.p);
                 do_timeseries_plot=1;
                 if do_timeseries_plot
                     
@@ -358,7 +283,10 @@ for a=1:length(CTD_list)
                     clf
                     
                     h(1)=subplot(411);
-                    plot(CTD_24hz.datenum(ginds),CTD_24hz.t1(ginds),chidat.datenum,cal.T1,chidat.datenum,cal.T2-.5)
+                    plot(CTD_24hz.datenum(ginds),CTD_24hz.t1(ginds))
+                    hold on
+                    plot(chidat.datenum,chidat.cal.T1)
+                    plot(chidat.datenum,chidat.cal.T2-.5)
                     ylabel('T [\circ C]')
                     xlim(xls)
                     datetick('x')
@@ -374,9 +302,12 @@ for a=1:length(CTD_list)
                     grid on
                     
                     h(3)=subplot(413);
-                    plot(chidat.datenum,cal.T1P-.01,chidat.datenum,cal.T2P+.01)
-                    ylabel('dTdt [K/s]')
+                    plot(chidat.datenum,chidat.cal.T1P-.01)
+                    hold on
+                    plot(chidat.datenum,chidat.cal.T2P+.01)
+                    ylabel('dT/dt [K/s]')
                     xlim(xls)
+                    ylim(10*[-1 1])
                     datetick('x')
                     grid on
                     
@@ -411,7 +342,7 @@ for a=1:length(CTD_list)
                 % this gives us 1-m CTD data.
                 if exist([CTD_path castname(1:end-6) '.mat'],'file')
                     load([CTD_path castname(1:end-6) '.mat']);
-                    [p_max,ind_max]=max(cal.P);
+                    [p_max,ind_max]=max(chidat.cal.P);
                     if is_downcast
                         fallspeed_correction=-1;
                         ctd=datad_1m;
@@ -420,7 +351,7 @@ for a=1:length(CTD_list)
                     else
                         fallspeed_correction=1;
                         ctd=datau_1m;
-                        chi_inds=[ind_max:length(cal.P)];
+                        chi_inds=[ind_max:length(chidat.cal.P)];
                         sort_dir='ascend';
                     end
                     
@@ -497,7 +428,7 @@ for a=1:length(CTD_list)
                     [datau2,bad_inds] = ctd_rmdepthloops(CTD_24hz,extra_z,wthresh);
                     tmp=ones(size(datau2.p));
                     tmp(bad_inds)=0;
-                    cal.is_good_data=interp1(datau2.datenum,tmp,cal.datenum,'nearest');
+                    chidat.cal.is_good_data=interp1(datau2.datenum,tmp,chidat.cal.datenum,'nearest');
                     %
                     
                     %%% Now we'll do the main looping through of the data.
@@ -510,8 +441,8 @@ for a=1:length(CTD_list)
                     for n=1:length(tfields)
                         avg.(tfields{n})=NaN*ones(size(todo_inds));
                     end
-                    avg.datenum=cal.datenum(todo_inds+(nfft/2)); % This is the mid-value of the bin
-                    avg.P=cal.P(todo_inds+(nfft/2));
+                    avg.datenum=chidat.cal.datenum(todo_inds+(nfft/2)); % This is the mid-value of the bin
+                    avg.P=chidat.cal.P(todo_inds+(nfft/2));
                     good_inds=find(~isnan(ctd.p));
                     avg.N2=interp1(ctd.p(good_inds),ctd.N2(good_inds),avg.P);
                     avg.dTdz=interp1(ctd.p(good_inds),ctd.dTdz(good_inds),avg.P);
@@ -526,17 +457,17 @@ for a=1:length(CTD_list)
                     % avg.tdif=sw_tdif(avg.S,avg.T,avg.P);
                     avg.tdif=sw_tdif_ctdchi(avg.S,avg.T,avg.P);
                     
-                    avg.samplerate=1./nanmedian(diff(cal.datenum))/24/3600;
+                    avg.samplerate=1./nanmedian(diff(chidat.cal.datenum))/24/3600;
                     
                     h = waitbar(0,['Computing chi for cast ' cast_suffix]);
                     for n=1:length(todo_inds)
                         clear inds
                         inds=todo_inds(n)-1+[1:nfft];
                         
-                        if all(cal.is_good_data(inds)==1)
-                            avg.fspd(n)=mean(cal.fspd(inds));
+                        if all(chidat.cal.is_good_data(inds)==1)
+                            avg.fspd(n)=mean(chidat.cal.fspd(inds));
                             
-                            [tp_power,freq]=fast_psd(cal.T1P(inds),nfft,avg.samplerate);
+                            [tp_power,freq]=fast_psd(chidat.cal.T1P(inds),nfft,avg.samplerate);
                             avg.TP1var(n)=sum(tp_power)*nanmean(diff(freq));
                             
                             if avg.TP1var(n)>1e-4
@@ -599,7 +530,7 @@ for a=1:length(CTD_list)
                     title([short_labs{up_down_big}],'interpreter','none')
                     
                     axes(ax(3))
-                    plot(cal.T1P(chi_inds),cal.P(chi_inds)),axis ij
+                    plot(chidat.cal.T1P(chi_inds),chidat.cal.P(chi_inds)),axis ij
                     grid on
                     xlabel('dT/dt')
                     axis tight

@@ -121,29 +121,29 @@ for a=1:length(CTD_list)
     
     waitbar(a/length(CTD_list),hb)
     
-    clear castname tlim time_range cast_suffix_tmp cast_suffix data2
+    clear castname tlim time_range cast_suffix_tmp cast_suffix CTD_24hz
     castname=CTD_list(a).name;
     
     fprintf(fileID,[' \n \n ~' castname ])
     
     %load CTD profile
     load([CTD_path '24hz/' castname])
-    % 24Hz data loaded here is in a structure 'data2'
+    % 24Hz data loaded here is in a structure 'CTD_24hz'
     
     % Sometimes the time needs to be converted from computer time into matlab (datenum?) time.
     % Time will be converted when CTD time is more than 5 years bigger than now.
     % JRM
     tlim=now+5*365;
-    if data2.time > tlim
+    if CTD_24hz.time > tlim
         % jen didn't save us a real 24 hz time.... so create timeseries. JRM
         % from data record
         %disp('test!!!!!!!!!!')
-        tmp=linspace(data2.time(1),data2.time(end),length(data2.time));
-        data2.datenum=tmp'/24/3600+datenum([1970 1 1 0 0 0]);
+        tmp=linspace(CTD_24hz.time(1),CTD_24hz.time(end),length(CTD_24hz.time));
+        CTD_24hz.datenum=tmp'/24/3600+datenum([1970 1 1 0 0 0]);
     end
     
     clear tlim tmp
-    time_range=[min(data2.datenum) max(data2.datenum)];
+    time_range=[min(CTD_24hz.datenum) max(CTD_24hz.datenum)];
     
     % ** this might not work for other cruises/names ? - AP **
     cast_suffix_tmp=CTD_list(a).name; % Cast # may be different than file #. JRM
@@ -257,13 +257,13 @@ for a=1:length(CTD_list)
                 fprintf(fileID,[' Found good chi file: ' chidat.chi_files{:}])
                 
                 % low-passed p
-                data2.p_lp=conv2(medfilt1(data2.p),hanning(30)/sum(hanning(30)),'same');
-                data2.dpdt=gradient(data2.p_lp,nanmedian(diff(data2.datenum*86400)));
-                data2.dpdt(data2.dpdt>10)=mean(data2.dpdt); % JRM added to remove large spike spikes in dpdt
+                CTD_24hz.p_lp=conv2(medfilt1(CTD_24hz.p),hanning(30)/sum(hanning(30)),'same');
+                CTD_24hz.dpdt=gradient(CTD_24hz.p_lp,nanmedian(diff(CTD_24hz.datenum*86400)));
+                CTD_24hz.dpdt(CTD_24hz.dpdt>10)=mean(CTD_24hz.dpdt); % JRM added to remove large spike spikes in dpdt
                 
                 % high-passed dpdt
-                data2.dpdt_hp=data2.dpdt-conv2(data2.dpdt,hanning(750)/sum(hanning(750)),'same');
-                data2.dpdt_hp(abs(data2.dpdt_hp)>2)=mean(data2.dpdt_hp); % JRM added to remove large spike spikes in dpdt_hp
+                CTD_24hz.dpdt_hp=CTD_24hz.dpdt-conv2(CTD_24hz.dpdt,hanning(750)/sum(hanning(750)),'same');
+                CTD_24hz.dpdt_hp(abs(CTD_24hz.dpdt_hp)>2)=mean(CTD_24hz.dpdt_hp); % JRM added to remove large spike spikes in dpdt_hp
                 
                 %~ AP - compute chipod w by integrating z-accelertion?
                 %chidat.AZ_hp=filter_series(chidat.AX,100,'h.02');
@@ -274,7 +274,7 @@ for a=1:length(CTD_list)
                 % here's the plot:
                 figure(1);clf
                 ax1= subplot(211)
-                plot(data2.datenum,data2.dpdt_hp,'b',chidat.datenum,w_from_chipod,'r'),hold on
+                plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'b',chidat.datenum,w_from_chipod,'r'),hold on
                 legend('ctd dp/dt','w_{chi}','orientation','horizontal','location','best')
                 title([castname ' ' short_labs{up_down_big}],'interpreter','none')
                 ylabel('w [m/s]')
@@ -282,18 +282,18 @@ for a=1:length(CTD_list)
                 grid on
                 
                 % find profile inds (ctd profile 'starts' at 10m )
-                ginds=get_profile_inds(data2.p,10);
+                ginds=get_profile_inds(CTD_24hz.p,10);
                 
                 % find time offset between ctd and chipod data (by matching w)
-                offset=TimeOffset(data2.datenum(ginds),data2.dpdt_hp(ginds),chidat.datenum,w_from_chipod);
+                offset=TimeOffset(CTD_24hz.datenum(ginds),CTD_24hz.dpdt_hp(ginds),chidat.datenum,w_from_chipod);
                 
                 % apply correction to chipod time
                 chidat.datenum=chidat.datenum+offset; %
                 chidat.time_offset_correction_used=offset;
-                chidat.fspd=interp1(data2.datenum,-data2.dpdt,chidat.datenum);
+                chidat.fspd=interp1(CTD_24hz.datenum,-CTD_24hz.dpdt,chidat.datenum);
                 
                 ax2=subplot(212)
-                plot(data2.datenum,data2.dpdt_hp,'b',chidat.datenum,w_from_chipod,'g')
+                plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'b',chidat.datenum,w_from_chipod,'g')
                 legend('ctd dp/dt','corrected w_{chi}','orientation','horizontal','location','best')
                 grid on
                 datetick('x')
@@ -304,17 +304,17 @@ for a=1:length(CTD_list)
                 
                 %%% Now we'll calibrate T by comparison to the CTD.
                 cal.datenum=chidat.datenum;
-                cal.P=interp1(data2.datenum,data2.p_lp,chidat.datenum);
-                cal.T_CTD=interp1(data2.datenum,data2.t1,chidat.datenum);
+                cal.P=interp1(CTD_24hz.datenum,CTD_24hz.p_lp,chidat.datenum);
+                cal.T_CTD=interp1(CTD_24hz.datenum,CTD_24hz.t1,chidat.datenum);
                 cal.fspd=chidat.fspd;
                 
-                [cal.coef.T1,cal.T1]=get_T_calibration(data2.datenum(ginds),data2.t1(ginds),chidat.datenum,chidat.T1);
+                [cal.coef.T1,cal.T1]=get_T_calibration(CTD_24hz.datenum(ginds),CTD_24hz.t1(ginds),chidat.datenum,chidat.T1);
                 
                 % check if T calibration is ok
                 clear out2 err pvar
-                out2=interp1(chidat.datenum,cal.T1,data2.datenum(ginds));
-                err=out2-data2.t1(ginds);
-                pvar=100* (1-(nanvar(err)/nanvar(data2.t1(ginds))) );
+                out2=interp1(chidat.datenum,cal.T1,CTD_24hz.datenum(ginds));
+                err=out2-CTD_24hz.t1(ginds);
+                pvar=100* (1-(nanvar(err)/nanvar(CTD_24hz.t1(ginds))) );
                 if pvar<50
                     disp('Warning T calibration not good')
                     fprintf(fileID,' *T calibration not good* ')
@@ -341,7 +341,7 @@ for a=1:length(CTD_list)
                 
                 if isbig
                     % big chipods have 2 sensors?
-                    [cal.coef.T2,cal.T2]=get_T_calibration(data2.datenum(ginds),data2.t1(ginds),chidat.datenum,chidat.T2);
+                    [cal.coef.T2,cal.T2]=get_T_calibration(CTD_24hz.datenum(ginds),CTD_24hz.t1(ginds),chidat.datenum,chidat.T2);
                     cal.T2P=calibrate_chipod_dtdt(chidat.T2P,cal.coef.T2P,chidat.T2,cal.coef.T2);
                 else
                     cal.T2=cal.T1;
@@ -351,14 +351,14 @@ for a=1:length(CTD_list)
                 do_timeseries_plot=1;
                 if do_timeseries_plot
                     
-                    xls=[min(data2.datenum(ginds)) max(data2.datenum(ginds))];
+                    xls=[min(CTD_24hz.datenum(ginds)) max(CTD_24hz.datenum(ginds))];
                     figure(2);clf
                     agutwocolumn(1)
                     wysiwyg
                     clf
                     
                     h(1)=subplot(411);
-                    plot(data2.datenum(ginds),data2.t1(ginds),chidat.datenum,cal.T1,chidat.datenum,cal.T2-.5)
+                    plot(CTD_24hz.datenum(ginds),CTD_24hz.t1(ginds),chidat.datenum,cal.T1,chidat.datenum,cal.T2-.5)
                     ylabel('T [\circ C]')
                     xlim(xls)
                     datetick('x')
@@ -367,7 +367,7 @@ for a=1:length(CTD_list)
                     grid on
                     
                     h(2)=subplot(412);
-                    plot(data2.datenum(ginds),data2.p(ginds));
+                    plot(CTD_24hz.datenum(ginds),CTD_24hz.p(ginds));
                     ylabel('P [dB]')
                     xlim(xls)
                     datetick('x')
@@ -494,7 +494,7 @@ for a=1:length(CTD_list)
                     % remove loops in CTD data
                     extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
                     wthresh = 0.4;
-                    [datau2,bad_inds] = ctd_rmdepthloops(data2,extra_z,wthresh);
+                    [datau2,bad_inds] = ctd_rmdepthloops(CTD_24hz,extra_z,wthresh);
                     tmp=ones(size(datau2.p));
                     tmp(bad_inds)=0;
                     cal.is_good_data=interp1(datau2.datenum,tmp,cal.datenum,'nearest');

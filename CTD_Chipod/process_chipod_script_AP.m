@@ -87,7 +87,7 @@ chi_processed_path='/Users/Andy/Cruises_Research/Tasmania/Data/Chipod_CTD/Proces
 % path to save figures to
 fig_path=[chi_processed_path 'figures/'];
 ChkMkDir(fig_path)
-% ~~~~~~~
+% ~~~~~~
 
 % Make a list of all ctd files
 % *** replace 'leg1' with name that is in your ctd files ***
@@ -95,9 +95,11 @@ CTD_list=dir([CTD_path  '24hz/' '*_leg1_*.mat']);
 
 % make a text file to print a summary of results to
 txtfname=['Results' datestr(floor(now)) '.txt'];
+
 if exist(fullfile(chi_processed_path,txtfname),'file')
     delete(fullfile(chi_processed_path,txtfname))
 end
+
 fileID= fopen(fullfile(chi_processed_path,txtfname),'a');
 fprintf(fileID,['Created ' datestr(now) '\n']);
 fprintf(fileID,'CTD path \n');
@@ -112,7 +114,9 @@ fprintf(fileID,[fig_path '\n \n']);
 fprintf(fileID,[' \n There are ' num2str(length(CTD_list)) ' CTD files' ])
 
 % we loop through and do processing for each ctd file
+
 hb=waitbar(0,'Looping through ctd files')
+
 for a=1:length(CTD_list)
     
     waitbar(a/length(CTD_list),hb)
@@ -156,36 +160,33 @@ for a=1:length(CTD_list)
         
         %~~~ Enter Info for chipods deployed on CTD  ~~
         %~~~ This needs to be modified for each cruise ~~~
-                
-        for up_down_big=4%1:2
+        
+        for up_down_big=5%1:2
             
             % *** edit this info for your cruise/instruments ***
-            short_labs={'up_1012','down_1013','1002','up_102'};
-            big_labs={'Ti UpLooker','Ti DownLooker','Unit 1002','Ti Downlooker'};
-                        
+            short_labs={'up_1012','down_1013','1002','up_102','SN1010'};
+            big_labs={'Ti UpLooker','Ti DownLooker','Unit 1002','Ti Downlooker','1010'};
+            
             switch up_down_big
-                case 1                    
-                    % new AP 4 May
+                case 1
                     whSN='SN1012'
                 case 2
-                    % new AP 4 May
                     whSN='SN1013'
                 case 3
-                    % new AP 4 May
-                    whSN='SN1002'
+                    whSN='SN1002' % this is a big chipod
+                    whbig=1
                 case 4
-                    % new AP 4 May
                     whSN='SN102'
+                case 5
+                    whSN='SN1010'
             end
             
-            this_chi_info=ChiInfo.(whSN)
+            this_chi_info=ChiInfo.(whSN);
             clear chi_path az_correction suffix isbig cal is_downcast
-            chi_path=fullfile(chi_data_path,this_chi_info.loggerSN)
-            suffix=this_chi_info.suffix
-            isbig=this_chi_info.isbig
-            cal=this_chi_info.cal
-            is_downcast=this_chi_info.is_downcast
-            az_correction=this_chi_info.az_correction
+            chi_path=fullfile(chi_data_path,this_chi_info.loggerSN);
+            suffix=this_chi_info.suffix;
+            isbig=this_chi_info.isbig;
+            cal=this_chi_info.cal;
             
             fprintf(fileID,[ ' \n \n ' short_labs{up_down_big} ])
             
@@ -200,27 +201,54 @@ for a=1:length(CTD_list)
             % filename for processed chipod data (will check if already exists)
             processed_file=fullfile(chi_processed_path_specific,['cast_' cast_suffix '_' short_labs{up_down_big} '.mat']);
             
-            % Load chipod data
+            %~~ Load chipod data
             if  0 % exist(processed_file,'file') %commented for now becasue some files were made but contain no data
                 load(processed_file)
             else
                 disp('loading chipod data')
                 
-                % RTC on 102 was 5 hours 6mins behind for files 1-16?
+                %~ For Ttide SN102, RTC on 102 was 5 hours 6mins behind for files 1-16?
                 if strcmp(whSN,'SN102') && time_range(1)<datenum(2015,1,22,18,0,0)
-                % need to look at shifted time range
-                time_range_fix=time_range-(7/24)-(6/86400);
-                chidat=load_chipod_data(chi_path,time_range_fix,suffix,isbig);
-                % correct the time in chipod data
-                chidat.datenum=chidat.datenum+(7/24)+(6/86400); 
+                    % need to look at shifted time range
+                    time_range_fix=time_range-(7/24)-(6/86400);
+                    chidat=load_chipod_data(chi_path,time_range_fix,suffix,isbig);
+                    % correct the time in chipod data
+                    chidat.datenum=chidat.datenum+(7/24)+(6/86400);
                 else
-                chidat=load_chipod_data(chi_path,time_range,suffix,isbig);
+                    chidat=load_chipod_data(chi_path,time_range,suffix,isbig);
                 end
                 
                 save(processed_file,'chidat')
                 
             end
-            %
+            
+            %~ Moved this info here. For some chipods, this info changes
+            % during deployment, so we will wire that in here for now...
+            clear is_downcast az_correction
+            
+            
+            %~ for T-tide SN1010, sensor was swapped and switched from up
+            %to down at chipod file 25
+            if strcmp(whSN,'SN1010')
+                
+                if chidat.datenum(1)>datenum(2015,1,25) % **check this, approximate **
+                    % dowlooking
+                    is_downcast=1;
+                    az_correction=1;
+                    this_chi_info.sensorSN='13-02D'
+                else
+                    % uplooking
+                    is_downcast=0;
+                    az_correction=-1;
+                    this_chi_info.sensorSN='11-23D'
+                end
+                
+            else
+                is_downcast=this_chi_info.is_downcast;
+                az_correction=this_chi_info.az_correction;
+            end
+            %~
+            
             
             if length(chidat.datenum)>1000
                 %%% First we'll compute fallspeed from dp/dz and compare this to chipod's
@@ -526,11 +554,6 @@ for a=1:length(CTD_list)
                                         thermistor_cutoff_frequency),analog_filter_order,analog_filter_freq);
                                 end
                                 
-                                % [chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,avg.fspd(n),avg.nu(n),...
-                                %  avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
-                                %  % AP 27 Mar - fspd needs to be positive?
-                                %  wasn't working for downcasts before with
-                                %    above function call
                                 [chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,abs(avg.fspd(n)),avg.nu(n),...
                                     avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
                                 
@@ -604,7 +627,7 @@ for a=1:length(CTD_list)
                     ytloff
                     
                     linkaxes(ax,'y')
-                    %
+                    
                     print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_chi_' short_labs{up_down_big} '_avg_chi_KT_dTdz'])
                     
                     %~~~
@@ -644,6 +667,5 @@ delete(hb)
 telapse=toc(tstart)
 fprintf(fileID,['\n Processing took ' num2str(telapse/60) ' mins to run'])
 
-%
 %
 %%

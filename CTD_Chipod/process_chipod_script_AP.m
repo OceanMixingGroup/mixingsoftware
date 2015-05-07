@@ -101,14 +101,14 @@ if exist(fullfile(chi_processed_path,txtfname),'file')
 end
 
 fileID= fopen(fullfile(chi_processed_path,txtfname),'a');
-fprintf(fileID,['Created ' datestr(now) '\n']);
-fprintf(fileID,'CTD path \n');
+fprintf(fileID,['\n \n Created ' datestr(now) '\n']);
+fprintf(fileID,'\n CTD path \n');
 fprintf(fileID,[CTD_path '\n']);
-fprintf(fileID,'Chipod data path \n');
+fprintf(fileID,'\n Chipod data path \n');
 fprintf(fileID,[chi_data_path '\n']);
-fprintf(fileID,'Chipod processed path \n');
+fprintf(fileID,'\n Chipod processed path \n');
 fprintf(fileID,[chi_processed_path '\n']);
-fprintf(fileID,'figure path \n');
+fprintf(fileID,'\n figure path \n');
 fprintf(fileID,[fig_path '\n \n']);
 
 fprintf(fileID,[' \n There are ' num2str(length(CTD_list)) ' CTD files' ])
@@ -117,7 +117,9 @@ fprintf(fileID,[' \n There are ' num2str(length(CTD_list)) ' CTD files' ])
 
 hb=waitbar(0,'Looping through ctd files')
 
-for a=5:10%1:length(CTD_list)
+for a=1:10%:10%1:length(CTD_list)
+    
+    close all
     
     waitbar(a/length(CTD_list),hb)
     
@@ -162,17 +164,19 @@ for a=5:10%1:length(CTD_list)
         %~~~ Enter Info for chipods deployed on CTD  ~~
         %~~~ This needs to be modified for each cruise ~~~
         
-        for up_down_big=1%1:2
+        for up_down_big=[1 2 4 5]
+            
+            close all
             
             % *** edit this info for your cruise/instruments ***
-            short_labs={'up_1012','down_1013','1002','up_102','SN1010'};
+            short_labs={'SN1012','SN1013','SN1002','SN102','SN1010'};
             big_labs={'Ti UpLooker','Ti DownLooker','Unit 1002','Ti Downlooker','1010'};
             
             switch up_down_big
                 case 1
-                    whSN='SN1012'
+                    whSN='SN1012' % uplooker
                 case 2
-                    whSN='SN1013'
+                    whSN='SN1013' % downlooker
                 case 3
                     whSN='SN1002' % this is a big chipod
                     whbig=1
@@ -233,18 +237,20 @@ for a=5:10%1:length(CTD_list)
                 
                 if chidat.datenum(1)>datenum(2015,1,25) % **check this, approximate **
                     % dowlooking
-                    is_downcast=1;
+                    %                   is_downcast=1;
+                    this_chi_info.InstDir='down'
                     az_correction=1;
                     this_chi_info.sensorSN='13-02D'
                 else
                     % uplooking
-                    is_downcast=0;
+                    %                    is_downcast=0;
+                    this_chi_info.InstDir='up'
                     az_correction=-1;
                     this_chi_info.sensorSN='11-23D'
                 end
                 
             else
-                is_downcast=this_chi_info.is_downcast;
+                %is_downcast=this_chi_info.is_downcast;
                 az_correction=this_chi_info.az_correction;
             end
             %~
@@ -260,7 +266,7 @@ for a=5:10%1:length(CTD_list)
                 
                 print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_w_TimeOffset'])
                 
-                % check if T calibration is ok                
+                % check if T calibration is ok
                 clear out2 err pvar
                 %out2=interp1(chidat.datenum,chidat.cal.T1,CTD_24hz.datenum(ginds));
                 out2=interp1(chidat.datenum,chidat.cal.T1,CTD_24hz.datenum);
@@ -337,296 +343,501 @@ for a=5:10%1:length(CTD_list)
                 end
                 
                 
-                %~~~
-                % * should save these data here now ?
-                
-                %~~~
+               
                 
                 %%% now let's do the computation of chi..
                 
                 clear datad_1m datau_1m chi_inds p_max ind_max ctd
-                % this gives us 1-m CTD data.
+                
+                % load 1-m CTD data.
                 if exist([CTD_path castname(1:end-6) '.mat'],'file')
                     load([CTD_path castname(1:end-6) '.mat']);
                     
                     % find max p from chi (which is really just P from CTD)
                     [p_max,ind_max]=max(chidat.cal.P);
                     
-                    
                     %~ break up chi into down and up casts
                     
+                    % upcast
                     chi_up=struct();
                     chi_up.datenum=chidat.cal.datenum(ind_max:length(chidat.cal.P));
                     chi_up.P=chidat.cal.P(ind_max:length(chidat.cal.P));
                     chi_up.T1P=chidat.cal.T1P(ind_max:length(chidat.cal.P));
                     chi_up.fspd=chidat.cal.fspd(ind_max:length(chidat.cal.P));
-                    
+                    chi_up.castdir='up'
+                    chi_up.Info=this_chi_info;
+
+                    % downcast
                     chi_dn=struct();
                     chi_dn.datenum=chidat.cal.datenum(1:ind_max);
                     chi_dn.P=chidat.cal.P(1:ind_max);
                     chi_dn.T1P=chidat.cal.T1P(1:ind_max);
                     chi_dn.fspd=chidat.cal.fspd(1:ind_max);
+                    chi_dn.castdir='down'
+                    chi_dn.Info=this_chi_info;
                     %~
                     
-                    %break
                     
-                    if is_downcast
+                     %~~~
+                     % save these data here now ?
+                    clear fname_dn fname_up
+                    fname_dn=fullfile(chi_processed_path_specific,['cast_' cast_suffix '_' short_labs{up_down_big} '_downcast.mat']);
+                    save(fname_dn,'chi_dn')
+                    fname_up=fullfile(chi_processed_path_specific,['cast_' cast_suffix '_' short_labs{up_down_big} '_upcast.mat']);
+                    save(fname_up,'chi_up')
+                     %~~~
+                    
+                     
+                    %~~
+                    do_downcast=1
+                    do_upcast=1
+                    
+                    if do_downcast==1
                         fallspeed_correction=-1;
                         ctd=datad_1m;
-                        chi_inds=[1:ind_max];
-                        sort_dir='descend';
-                    else
+                        %chi_inds=[1:ind_max];
+                        %sort_dir='descend';
+                        
+                        chi_todo_now=chi_dn;
+                        
+                        
+                        %~~~
+                        ctd.s1=interp_missing_data(ctd.s1,100);
+                        ctd.t1=interp_missing_data(ctd.t1,100);
+                        
+                        % compute N^2 from 1m ctd data with 20 smoothing
+                        smooth_len=20;
+                        [bfrq] = sw_bfrq(ctd.s1,ctd.t1,ctd.p,nanmean(ctd.lat)); % JRM removed "vort,p_ave" from outputs
+                        ctd.N2=abs(conv2(bfrq,ones(smooth_len,1)/smooth_len,'same')); % smooth once
+                        ctd.N2=conv2(ctd.N2,ones(smooth_len,1)/smooth_len,'same'); % smooth twice
+                        ctd.N2_20=ctd.N2([1:end end]);
+                        
+                        % compute dTdz from 1m ctd data with 20m smoothing
+                        tmp1=sw_ptmp(ctd.s1,ctd.t1,ctd.p,1000);
+                        ctd.dTdz=[0 ; abs(conv2(diff(tmp1),ones(smooth_len,1)/smooth_len,'same'))./diff(ctd.p)];
+                        ctd.dTdz_20=conv2(ctd.dTdz,ones(smooth_len,1)/smooth_len,'same');
+                        
+                        % compute N^2 from 1m ctd data with 50m smoothing
+                        smooth_len=50;
+                        [bfrq] = sw_bfrq(ctd.s1,ctd.t1,ctd.p,nanmean(ctd.lat)); %JRM removed "vort,p_ave" from outputs
+                        ctd.N2=abs(conv2(bfrq,ones(smooth_len,1)/smooth_len,'same')); % smooth once
+                        ctd.N2=conv2(ctd.N2,ones(smooth_len,1)/smooth_len,'same'); % smooth twice
+                        ctd.N2_50=ctd.N2([1:end end]);
+                        
+                        % compute dTdz from 1m ctd data with 50m smoothing
+                        tmp1=sw_ptmp(ctd.s1,ctd.t1,ctd.p,1000);
+                        ctd.dTdz=[0 ; abs(conv2(diff(tmp1),ones(smooth_len,1)/smooth_len,'same'))./diff(ctd.p)];
+                        ctd.dTdz_50=conv2(ctd.dTdz,ones(smooth_len,1)/smooth_len,'same');
+                        
+                        % pick max dTdz and N^2 from these two?
+                        ctd.dTdz=max(ctd.dTdz_50,ctd.dTdz_20);
+                        ctd.N2=max(ctd.N2_50,ctd.N2_20);
+                        
+                        %~~ plot N2 and dTdz
+                        doplot=1;
+                        if doplot
+                            figure(3);clf
+                            subplot(121)
+                            h20= plot(log10(abs(ctd.N2_20)),ctd.p)
+                            hold on
+                            h50=plot(log10(abs(ctd.N2_50)),ctd.p)
+                            hT=plot(log10(abs(ctd.N2)),ctd.p)
+                            xlabel('log_{10}N^2'),ylabel('depth [m]')
+                            title(castname,'interpreter','none')
+                            grid on
+                            axis ij
+                            legend([h20 h50 hT],'20m','50m','largest','location','best')
+                            
+                            subplot(122)
+                            plot(log10(abs(ctd.dTdz_20)),ctd.p)
+                            hold on
+                            plot(log10(abs(ctd.dTdz_50)),ctd.p)
+                            plot(log10(abs(ctd.dTdz)),ctd.p)
+                            xlabel('dTdz [^{o}Cm^{-1}]'),ylabel('depth [m]')
+                            title([chi_todo_now.castdir 'cast'])
+                            grid on
+                            axis ij
+                            
+                            %                            print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_N2_dTdz'])
+                            print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_N2_dTdz'])
+                        end
+                        
+                        %~~~ now let's do the chi computations:
+                        
+                        % remove loops in CTD data
+                        extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
+                        wthresh = 0.4;
+                        [datau2,bad_inds] = ctd_rmdepthloops(CTD_24hz,extra_z,wthresh);
+                        tmp=ones(size(datau2.p));
+                        tmp(bad_inds)=0;
+                        %                    chidat.cal.is_good_data=interp1(datau2.datenum,tmp,chidat.cal.datenum,'nearest');
+                        
+                        % new AP
+                        chi_todo_now.is_good_data=interp1(datau2.datenum,tmp,chi_todo_now.datenum,'nearest');
+                        %
+                        figure(55);clf
+                        plot(chi_todo_now.datenum,chi_todo_now.P)
+                        pause(1)
+                        
+                        %%% Now we'll do the main looping through of the data.
+                        clear avg
+                        % make a structure 'avg' will will contain the results
+                        % of chi computed in overlapping windows
+                        avg=struct();
+                        nfft=128;
+                        
+                        % AP - for new up/down separated chi structures
+                        todo_inds=1:nfft/2:(length(chi_todo_now.datenum)-nfft);
+                        todo_inds=todo_inds(:);
+                        
+                        tfields={'datenum','P','N2','dTdz','fspd','T','S','P','theta','sigma',...
+                            'chi1','eps1','chi2','eps2','KT1','KT2','TP1var','TP2var'};
+                        for n=1:length(tfields)
+                            avg.(tfields{n})=NaN*ones(size(todo_inds));
+                        end
+                        
+                        % new AP
+                        avg.datenum=chi_todo_now.datenum(todo_inds+(nfft/2));% This is the mid-value of the bin
+                        avg.P=chi_todo_now.P(todo_inds+(nfft/2));
+                        
+                        %avg.datenum=chidat.cal.datenum(todo_inds+(nfft/2)); % This is the mid-value of the bin
+                        %avg.P=chidat.cal.P(todo_inds+(nfft/2));
+                        good_inds=find(~isnan(ctd.p));
+                        
+                        % interpolate ctd data to same pressures as chipod
+                        avg.N2=interp1(ctd.p(good_inds),ctd.N2(good_inds),avg.P);
+                        avg.dTdz=interp1(ctd.p(good_inds),ctd.dTdz(good_inds),avg.P);
+                        avg.T=interp1(ctd.p(good_inds),ctd.t1(good_inds),avg.P);
+                        avg.S=interp1(ctd.p(good_inds),ctd.s1(good_inds),avg.P);
+                        
+                        % note sw_visc not included in newer versions of sw?
+                        % avg.nu=sw_visc(avg.S,avg.T,avg.P);
+                        avg.nu=sw_visc_ctdchi(avg.S,avg.T,avg.P);
+                        % avg.tdif=sw_tdif(avg.S,avg.T,avg.P);
+                        avg.tdif=sw_tdif_ctdchi(avg.S,avg.T,avg.P);
+                        
+                        avg.samplerate=1./nanmedian(diff(chi_todo_now.datenum))/24/3600;
+                        
+                        % compute chi in overlapping windows
+                        avg=ComputeChi_for_CTDprofile(avg,nfft,chi_todo_now,todo_inds)
+                        
+                        %
+                        %~~~ Plot profiles of chi, KT, and dTdz
+                        figure(4);clf
+                        agutwocolumn(1)
+                        wysiwyg
+                        ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.07, 3,2);
+                        
+                        axes(ax(1))
+                        plot(log10(abs(avg.dTdz)),avg.P),axis ij
+                        grid on
+                        axis tight
+                        xlabel('log_{10}(avg dTdz)')
+                        ylabel('Depth [m]')
+                        title(['cast ' cast_suffix])
+                        
+                        axes(ax(2))
+                        plot(log10(abs(avg.N2)),avg.P),axis ij
+                        grid on
+                        xlabel('log_{10}(avg N^2)')
+                        axis tight
+                        ytloff
+                        title([short_labs{up_down_big}],'interpreter','none')
+                        
+                        axes(ax(3))
+                        %                    plot(chidat.cal.T1P(chi_inds),chidat.cal.P(chi_inds)),axis ij
+                        plot(chi_todo_now.T1P,chi_todo_now.P),axis ij
+                        grid on
+                        xlabel('dT/dt')
+                        axis tight
+                        ytloff
+                        
+                        axes(ax(4))
+                        plot(log10(avg.chi1),avg.P,'.'),axis ij
+                        xlabel('log_{10}(avg chi)')
+                        axis tight
+                        grid on
+                        ylabel('Depth [m]')
+                        
+                        axes(ax(5))
+                        plot(log10(avg.KT1),avg.P,'.'),axis ij
+                        axis tight
+                        xlabel('log_{10}(avg Kt1)')
+                        grid on
+                        ytloff
+                        
+                        axes(ax(6))
+                        plot(log10(avg.eps1),avg.P,'.'),axis ij
+                        %                    xlim([-11 -4])
+                        axis tight
+                        xlabel('log_{10}(avg eps1)')
+                        grid on
+                        ytloff
+                        
+                        linkaxes(ax,'y')
+                        
+                        print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' short_labs{up_down_big} '_avg_chi_KT_dTdz_V2'])
+                        
+                        %~~~
+                        avg.castname=castname;
+                        avg.castdir=chi_todo_now.castdir;
+                        avg.Info=this_chi_info
+                        ctd.castname=castname;
+                        
+                        avg.castname=castname;
+                        ctd.castname=castname;
+                        avg.MakeInfo=['Made ' datestr(now) ' w/ process_chipod_script_AP.m']
+                        ctd.MakeInfo=['Made ' datestr(now) ' w/ process_chipod_script_AP.m']
+                        
+                        chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
+                        ChkMkDir(chi_processed_path_avg)
+                        processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' short_labs{up_down_big} '.mat']);
+                        %                    processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' short_labs{up_down_big} '.mat']);
+                        save(processed_file,'avg','ctd')
+                        %~~~
+                        
+                        ngc=find(~isnan(avg.chi1));
+                        if numel(ngc)>1
+                            fprintf(fileID,'\n Chi computed for downcast ')
+                            fprintf(fileID,['\n ' processed_file])
+                        end
+                        
+                        
+                    end % do_downcast
+                    
+                    
+                    
+                    
+                    
+                    if do_upcast==1
+                        clear avg ctd chi_todo_now
                         fallspeed_correction=1;
                         ctd=datau_1m;
-                        chi_inds=[ind_max:length(chidat.cal.P)];
-                        sort_dir='ascend';
-                    end
-                    
-                    % this plot for diagnostics to see if we are picking
-                    % right half of profile (up/down)
-                    %figure(99);clf
-                    %plot(chidat.datenum,chidat.T1P)
-                    % hold on
-                    % plot(chidat.datenum(chi_inds),chidat.T1P(chi_inds))
-                    
-                    ctd.s1=interp_missing_data(ctd.s1,100);
-                    ctd.t1=interp_missing_data(ctd.t1,100);
-                    
-                    % compute N^2 from 1m ctd data with 20 smoothing
-                    smooth_len=20;
-                    [bfrq] = sw_bfrq(ctd.s1,ctd.t1,ctd.p,nanmean(ctd.lat)); % JRM removed "vort,p_ave" from outputs
-                    ctd.N2=abs(conv2(bfrq,ones(smooth_len,1)/smooth_len,'same')); % smooth once
-                    ctd.N2=conv2(ctd.N2,ones(smooth_len,1)/smooth_len,'same'); % smooth twice
-                    ctd.N2_20=ctd.N2([1:end end]);
-                    
-                    % compute dTdz from 1m ctd data with 20m smoothing
-                    tmp1=sw_ptmp(ctd.s1,ctd.t1,ctd.p,1000);
-                    ctd.dTdz=[0 ; abs(conv2(diff(tmp1),ones(smooth_len,1)/smooth_len,'same'))./diff(ctd.p)];
-                    ctd.dTdz_20=conv2(ctd.dTdz,ones(smooth_len,1)/smooth_len,'same');
-                    
-                    % compute N^2 from 1m ctd data with 50m smoothing
-                    smooth_len=50;
-                    [bfrq] = sw_bfrq(ctd.s1,ctd.t1,ctd.p,nanmean(ctd.lat)); %JRM removed "vort,p_ave" from outputs
-                    ctd.N2=abs(conv2(bfrq,ones(smooth_len,1)/smooth_len,'same')); % smooth once
-                    ctd.N2=conv2(ctd.N2,ones(smooth_len,1)/smooth_len,'same'); % smooth twice
-                    ctd.N2_50=ctd.N2([1:end end]);
-                    
-                    % compute dTdz from 1m ctd data with 50m smoothing
-                    tmp1=sw_ptmp(ctd.s1,ctd.t1,ctd.p,1000);
-                    ctd.dTdz=[0 ; abs(conv2(diff(tmp1),ones(smooth_len,1)/smooth_len,'same'))./diff(ctd.p)];
-                    ctd.dTdz_50=conv2(ctd.dTdz,ones(smooth_len,1)/smooth_len,'same');
-                    
-                    % pick max dTdz and N^2 from these two?
-                    ctd.dTdz=max(ctd.dTdz_50,ctd.dTdz_20);
-                    ctd.N2=max(ctd.N2_50,ctd.N2_20);
-                    
-                    %~~ plot N2 and dTdz
-                    doplot=1;
-                    if doplot
-                        figure(3);clf
-                        subplot(121)
-                        h20= plot(log10(abs(ctd.N2_20)),ctd.p)
-                        hold on
-                        h50=plot(log10(abs(ctd.N2_50)),ctd.p)
-                        hT=plot(log10(abs(ctd.N2)),ctd.p)
-                        xlabel('log_{10}N^2'),ylabel('depth [m]')
-                        title(castname,'interpreter','none')
-                        grid on
-                        axis ij
-                        legend([h20 h50 hT],'20m','50m','largest','location','best')
+                        %                        chi_inds=[ind_max:length(chidat.cal.P)];
+                        %                       sort_dir='ascend';
+                        chi_todo_now=chi_up;
                         
-                        subplot(122)
-                        plot(log10(abs(ctd.dTdz_20)),ctd.p)
-                        hold on
-                        plot(log10(abs(ctd.dTdz_50)),ctd.p)
-                        plot(log10(abs(ctd.dTdz)),ctd.p)
-                        xlabel('dTdz [^{o}Cm^{-1}]'),ylabel('depth [m]')
-                        grid on
-                        axis ij
+                        %~~~~
+                        ctd.s1=interp_missing_data(ctd.s1,100);
+                        ctd.t1=interp_missing_data(ctd.t1,100);
                         
-                        print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_N2_dTdz'])
-                    end
+                        % compute N^2 from 1m ctd data with 20 smoothing
+                        smooth_len=20;
+                        [bfrq] = sw_bfrq(ctd.s1,ctd.t1,ctd.p,nanmean(ctd.lat)); % JRM removed "vort,p_ave" from outputs
+                        ctd.N2=abs(conv2(bfrq,ones(smooth_len,1)/smooth_len,'same')); % smooth once
+                        ctd.N2=conv2(ctd.N2,ones(smooth_len,1)/smooth_len,'same'); % smooth twice
+                        ctd.N2_20=ctd.N2([1:end end]);
+                        
+                        % compute dTdz from 1m ctd data with 20m smoothing
+                        tmp1=sw_ptmp(ctd.s1,ctd.t1,ctd.p,1000);
+                        ctd.dTdz=[0 ; abs(conv2(diff(tmp1),ones(smooth_len,1)/smooth_len,'same'))./diff(ctd.p)];
+                        ctd.dTdz_20=conv2(ctd.dTdz,ones(smooth_len,1)/smooth_len,'same');
+                        
+                        % compute N^2 from 1m ctd data with 50m smoothing
+                        smooth_len=50;
+                        [bfrq] = sw_bfrq(ctd.s1,ctd.t1,ctd.p,nanmean(ctd.lat)); %JRM removed "vort,p_ave" from outputs
+                        ctd.N2=abs(conv2(bfrq,ones(smooth_len,1)/smooth_len,'same')); % smooth once
+                        ctd.N2=conv2(ctd.N2,ones(smooth_len,1)/smooth_len,'same'); % smooth twice
+                        ctd.N2_50=ctd.N2([1:end end]);
+                        
+                        % compute dTdz from 1m ctd data with 50m smoothing
+                        tmp1=sw_ptmp(ctd.s1,ctd.t1,ctd.p,1000);
+                        ctd.dTdz=[0 ; abs(conv2(diff(tmp1),ones(smooth_len,1)/smooth_len,'same'))./diff(ctd.p)];
+                        ctd.dTdz_50=conv2(ctd.dTdz,ones(smooth_len,1)/smooth_len,'same');
+                        
+                        % pick max dTdz and N^2 from these two?
+                        ctd.dTdz=max(ctd.dTdz_50,ctd.dTdz_20);
+                        ctd.N2=max(ctd.N2_50,ctd.N2_20);
+                        
+                        %~~ plot N2 and dTdz
+                        doplot=1;
+                        if doplot
+                            figure(3);clf
+                            subplot(121)
+                            h20= plot(log10(abs(ctd.N2_20)),ctd.p)
+                            hold on
+                            h50=plot(log10(abs(ctd.N2_50)),ctd.p)
+                            hT=plot(log10(abs(ctd.N2)),ctd.p)
+                            xlabel('log_{10}N^2'),ylabel('depth [m]')
+                            title(castname,'interpreter','none')
+                            grid on
+                            axis ij
+                            legend([h20 h50 hT],'20m','50m','largest','location','best')
+                            
+                            subplot(122)
+                            plot(log10(abs(ctd.dTdz_20)),ctd.p)
+                            hold on
+                            plot(log10(abs(ctd.dTdz_50)),ctd.p)
+                            plot(log10(abs(ctd.dTdz)),ctd.p)
+                            xlabel('dTdz [^{o}Cm^{-1}]'),ylabel('depth [m]')
+                            grid on
+                            axis ij
+                            
+                            %                            print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_N2_dTdz'])
+                            print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_N2_dTdz'])
+                        end
+                        
+                        %~~~ now let's do the chi computations:
+                        
+                        % remove loops in CTD data
+                        extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
+                        wthresh = 0.4;
+                        [datau2,bad_inds] = ctd_rmdepthloops(CTD_24hz,extra_z,wthresh);
+                        tmp=ones(size(datau2.p));
+                        tmp(bad_inds)=0;
+                        %                    chidat.cal.is_good_data=interp1(datau2.datenum,tmp,chidat.cal.datenum,'nearest');
+                        
+                        % new AP
+                        chi_todo_now.is_good_data=interp1(datau2.datenum,tmp,chi_todo_now.datenum,'nearest');
+                        %
+                        figure(55);clf
+                        plot(chi_todo_now.datenum,chi_todo_now.P)
+                        pause(1)
+                        
+                        %%% Now we'll do the main looping through of the data.
+                        clear avg
+                        % make a structure 'avg' will will contain the results
+                        % of chi computed in overlapping windows
+                        avg=struct();
+                        nfft=128;
+                        
+                        % AP - for new up/down separated chi structures
+                        todo_inds=1:nfft/2:(length(chi_todo_now.datenum)-nfft);
+                        todo_inds=todo_inds(:);
+                        
+                        tfields={'datenum','P','N2','dTdz','fspd','T','S','P','theta','sigma',...
+                            'chi1','eps1','chi2','eps2','KT1','KT2','TP1var','TP2var'};
+                        for n=1:length(tfields)
+                            avg.(tfields{n})=NaN*ones(size(todo_inds));
+                        end
+                        
+                        % new AP
+                        avg.datenum=chi_todo_now.datenum(todo_inds+(nfft/2));% This is the mid-value of the bin
+                        avg.P=chi_todo_now.P(todo_inds+(nfft/2));
+                        
+                        %avg.datenum=chidat.cal.datenum(todo_inds+(nfft/2)); % This is the mid-value of the bin
+                        %avg.P=chidat.cal.P(todo_inds+(nfft/2));
+                        good_inds=find(~isnan(ctd.p));
+                        
+                        % interpolate ctd data to same pressures as chipod
+                        avg.N2=interp1(ctd.p(good_inds),ctd.N2(good_inds),avg.P);
+                        avg.dTdz=interp1(ctd.p(good_inds),ctd.dTdz(good_inds),avg.P);
+                        avg.T=interp1(ctd.p(good_inds),ctd.t1(good_inds),avg.P);
+                        avg.S=interp1(ctd.p(good_inds),ctd.s1(good_inds),avg.P);
+                        
+                        % note sw_visc not included in newer versions of sw?
+                        % avg.nu=sw_visc(avg.S,avg.T,avg.P);
+                        avg.nu=sw_visc_ctdchi(avg.S,avg.T,avg.P);
+                        % avg.tdif=sw_tdif(avg.S,avg.T,avg.P);
+                        avg.tdif=sw_tdif_ctdchi(avg.S,avg.T,avg.P);
+                        
+                        avg.samplerate=1./nanmedian(diff(chi_todo_now.datenum))/24/3600;
+                        
+                        % compute chi in overlapping windows
+                        avg=ComputeChi_for_CTDprofile(avg,nfft,chi_todo_now,todo_inds)
+                        
+                        %
+                        %~~~ Plot profiles of chi, KT, and dTdz
+                        figure(4);clf
+                        agutwocolumn(1)
+                        wysiwyg
+                        ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.07, 3,2);
+                        
+                        axes(ax(1))
+                        plot(log10(abs(avg.dTdz)),avg.P),axis ij
+                        grid on
+                        axis tight
+                        xlabel('log_{10}(avg dTdz)')
+                        ylabel('Depth [m]')
+                        title(['cast ' cast_suffix])
+                        
+                        axes(ax(2))
+                        plot(log10(abs(avg.N2)),avg.P),axis ij
+                        grid on
+                        xlabel('log_{10}(avg N^2)')
+                        axis tight
+                        ytloff
+                        title([short_labs{up_down_big}],'interpreter','none')
+                        
+                        axes(ax(3))
+                        %                    plot(chidat.cal.T1P(chi_inds),chidat.cal.P(chi_inds)),axis ij
+                        plot(chi_todo_now.T1P,chi_todo_now.P),axis ij
+                        grid on
+                        xlabel('dT/dt')
+                        axis tight
+                        ytloff
+                        
+                        axes(ax(4))
+                        plot(log10(avg.chi1),avg.P,'.'),axis ij
+                        xlabel('log_{10}(avg chi)')
+                        axis tight
+                        grid on
+                        ylabel('Depth [m]')
+                        
+                        axes(ax(5))
+                        plot(log10(avg.KT1),avg.P,'.'),axis ij
+                        axis tight
+                        xlabel('log_{10}(avg Kt1)')
+                        grid on
+                        ytloff
+                        
+                        axes(ax(6))
+                        plot(log10(avg.eps1),avg.P,'.'),axis ij
+                        %xlim([-11 -4])
+                        axis tight
+                        xlabel('log_{10}(avg eps1)')
+                        grid on
+                        ytloff
+                        
+                        linkaxes(ax,'y')
+                        print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' short_labs{up_down_big} '_avg_chi_KT_dTdz_V2'])
+                        % print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_chi_' short_labs{up_down_big} '_avg_chi_KT_dTdz_V2'])
+                        
+                        %~~~
+                        
+                        % *** save chi_todo_now here also (so we can look
+                        % at T1P etc. after)
+                        
+                        avg.castname=castname;
+                        avg.castdir=chi_todo_now.castdir;
+                        avg.Info=this_chi_info
+                        ctd.castname=castname;
+                        avg.MakeInfo=['Made ' datestr(now) ' w/ process_chipod_script_AP.m']
+                        ctd.MakeInfo=['Made ' datestr(now) ' w/ process_chipod_script_AP.m']
+                        
+                        chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
+                        ChkMkDir(chi_processed_path_avg)
+                        processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' short_labs{up_down_big} '.mat']);
+                        % processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' short_labs{up_down_big} '.mat']);
+                        save(processed_file,'avg','ctd')
+                        
+                        ngc=find(~isnan(avg.chi1));
+                        if numel(ngc)>1
+                            fprintf(fileID,'\n Chi computed for upcast ')
+                            fprintf(fileID,['\n ' processed_file])
+                        end
+                        %~~~~
+                    end % do_upcast
                     
-                    %~~~ now let's do the chi computations:
-                    
-                    % remove loops in CTD data
-                    extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
-                    wthresh = 0.4;
-                    [datau2,bad_inds] = ctd_rmdepthloops(CTD_24hz,extra_z,wthresh);
-                    tmp=ones(size(datau2.p));
-                    tmp(bad_inds)=0;
-                    chidat.cal.is_good_data=interp1(datau2.datenum,tmp,chidat.cal.datenum,'nearest');
-                    
-                    % new AP
-                    chi_up.is_good_data=interp1(datau2.datenum,tmp,chi_up.datenum,'nearest');
+                    %                    if is_downcast
+                    %                         fallspeed_correction=-1;
+                    %                         ctd=datad_1m;
+                    %                         chi_inds=[1:ind_max];
+                    %                         sort_dir='descend';
                     %
-                    
-                    %%% Now we'll do the main looping through of the data.
-                    clear avg
-                    % make a structure 'avg' will will contain the results
-                    % of chi computed in overlapping windows
-                    avg=struct();
-                    nfft=128;
-                    
-                    % AP - for new up/down separated chi structures
-                    todo_inds=1:nfft/2:(length(chi_up.datenum)-nfft);
-                    todo_inds=todo_inds(:);
-
-                    % original
-                    %todo_inds=chi_inds(1:nfft/2:(length(chi_inds)-nfft))';
-                    
-                    
-                    %  plot(chidat.datenum(todo_inds),chidat.T1P(todo_inds))
-                    tfields={'datenum','P','N2','dTdz','fspd','T','S','P','theta','sigma',...
-                        'chi1','eps1','chi2','eps2','KT1','KT2','TP1var','TP2var'};
-                    for n=1:length(tfields)
-                        avg.(tfields{n})=NaN*ones(size(todo_inds));
-                    end
-                    
-                    % new AP
-                    avg.datenum=chi_up.datenum(todo_inds+(nfft/2));% This is the mid-value of the bin
-                    avg.P=chi_up.P(todo_inds+(nfft/2));
-                    
-                    %avg.datenum=chidat.cal.datenum(todo_inds+(nfft/2)); % This is the mid-value of the bin
-                    %avg.P=chidat.cal.P(todo_inds+(nfft/2));
-                    good_inds=find(~isnan(ctd.p));
-                    
-                    % interpolate ctd data to same pressures as chipod
-                    avg.N2=interp1(ctd.p(good_inds),ctd.N2(good_inds),avg.P);
-                    avg.dTdz=interp1(ctd.p(good_inds),ctd.dTdz(good_inds),avg.P);
-                    avg.T=interp1(ctd.p(good_inds),ctd.t1(good_inds),avg.P);
-                    avg.S=interp1(ctd.p(good_inds),ctd.s1(good_inds),avg.P);
-                    
-                    % note sw_visc not included in newer versions of sw?
-                    % avg.nu=sw_visc(avg.S,avg.T,avg.P);
-                    avg.nu=sw_visc_ctdchi(avg.S,avg.T,avg.P);                    
-                    % avg.tdif=sw_tdif(avg.S,avg.T,avg.P);
-                    avg.tdif=sw_tdif_ctdchi(avg.S,avg.T,avg.P);
-                    
-                    avg.samplerate=1./nanmedian(diff(chidat.cal.datenum))/24/3600;
-                                        
-                    % will replace below with new function?
-                    avg=ComputeChi_for_CTDprofile(avg,nfft,chi_up,todo_inds)
-                    
-%                     h = waitbar(0,['Computing chi for cast ' cast_suffix]);
-%                     for n=1:length(todo_inds)
-%                         clear inds
-%                         inds=todo_inds(n)-1+[1:nfft];
-%                         
-%                         if all(chidat.cal.is_good_data(inds)==1)
-%                             avg.fspd(n)=mean(chidat.cal.fspd(inds));
-%                             
-%                             [tp_power,freq]=fast_psd(chidat.cal.T1P(inds),nfft,avg.samplerate);
-%                             avg.TP1var(n)=sum(tp_power)*nanmean(diff(freq));
-%                             
-%                             if avg.TP1var(n)>1e-4
-%                                 
-%                                 % not sure what this is for...
-%                                 fixit=0;
-%                                 if fixit
-%                                     trans_fcn=0;
-%                                     trans_fcn1=0;
-%                                     thermistor_filter_order=2;
-%                                     thermistor_cutoff_frequency=32;
-%                                     analog_filter_order=4;
-%                                     analog_filter_freq=50;
-%                                     tp_power=invert_filt(freq,invert_filt(freq,tp_power,thermistor_filter_order, ...
-%                                         thermistor_cutoff_frequency),analog_filter_order,analog_filter_freq);
-%                                 end
-%                                 
-%                                 [chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,abs(avg.fspd(n)),avg.nu(n),...
-%                                     avg.tdif(n),avg.dTdz(n),'nsqr',avg.N2(n));
-%                                 
-%                                 avg.chi1(n)=chi1(1);
-%                                 avg.eps1(n)=epsil1(1);
-%                                 avg.KT1(n)=0.5*chi1(1)/avg.dTdz(n)^2;
-%                                 
-%                             else
-%                                 %disp('fail2')
-%                             end
-%                         else
-%                             % disp('fail1')
-%                         end
-%                         
-%                         if ~mod(n,10)
-%                             waitbar(n/length(todo_inds),h);
-%                         end
-%                         
-%                     end
-%                     delete(h)
-%                     
+                    %                         chi_todo_now=chi_dn;
                     %
-                    %~~~ Plot profiles of chi, KT, and dTdz
-                    figure(4);clf
-                    agutwocolumn(1)
-                    wysiwyg
-                    ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.07, 3,2);
+                    %                     else
+                    %                         fallspeed_correction=1;
+                    %                         ctd=datau_1m;
+                    %                         chi_inds=[ind_max:length(chidat.cal.P)];
+                    %                         sort_dir='ascend';
+                    %                         chi_todo_now=chi_up;
+                    %                     end
                     
-                    axes(ax(1))
-                    plot(log10(abs(avg.dTdz)),avg.P),axis ij
-                    grid on
-                    axis tight
-                    xlabel('log_{10}(avg dTdz)')
-                    ylabel('Depth [m]')
-                    title(['cast ' cast_suffix])
                     
-                    axes(ax(2))
-                    plot(log10(abs(avg.N2)),avg.P),axis ij
-                    grid on
-                    xlabel('log_{10}(avg N^2)')
-                    axis tight
-                    ytloff
-                    title([short_labs{up_down_big}],'interpreter','none')
                     
-                    axes(ax(3))
-                    plot(chidat.cal.T1P(chi_inds),chidat.cal.P(chi_inds)),axis ij
-                    grid on
-                    xlabel('dT/dt')
-                    axis tight
-                    ytloff
                     
-                    axes(ax(4))
-                    plot(log10(avg.chi1),avg.P,'.'),axis ij
-                    xlabel('log_{10}(avg chi)')
-                    axis tight
-                    grid on
-                    ylabel('Depth [m]')
-                    
-                    axes(ax(5))
-                    plot(log10(avg.KT1),avg.P,'.'),axis ij
-                    axis tight
-                    xlabel('log_{10}(avg Kt1)')
-                    grid on
-                    ytloff
-                    
-                    axes(ax(6))
-                    plot(log10(avg.eps1),avg.P,'.'),axis ij
-%                    xlim([-11 -4])
-                    axis tight
-                    xlabel('log_{10}(avg eps1)')
-                    grid on
-                    ytloff
-                    
-                    linkaxes(ax,'y')
-                    
-                    print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_chi_' short_labs{up_down_big} '_avg_chi_KT_dTdz_V2'])
-                    
-                    %~~~
-                    
-                    avg.castname=castname;
-                    ctd.castname=castname;
-                    avg.MakeInfo=['Made ' datestr(now) ' w/ process_chipod_script_AP.m']
-                    ctd.MakeInfo=['Made ' datestr(now) ' w/ process_chipod_script_AP.m']
-                    
-                    chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
-                    ChkMkDir(chi_processed_path_avg)
-                    processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' short_labs{up_down_big} '.mat']);
-                    save(processed_file,'avg','ctd')
-                    
-                    ngc=find(~isnan(avg.chi1));
-                    if numel(ngc)>1
-                        fprintf(fileID,'Chi computed ')
-                    end
                     
                 end % if we have binned ctd data
                 
@@ -646,7 +857,7 @@ end % each CTD file
 delete(hb)
 
 telapse=toc(tstart)
-fprintf(fileID,['\n Processing took ' num2str(telapse/60) ' mins to run'])
+fprintf(fileID,['\n \n Done! \n Processing took ' num2str(telapse/60) ' mins to run'])
 
 %
 %%

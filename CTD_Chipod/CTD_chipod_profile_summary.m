@@ -1,4 +1,4 @@
-function ax=CTD_chipod_profile_summary(avg,chi_todo_now)
+function ax=CTD_chipod_profile_summary(avg,chi_todo_now,TP)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % function h=CTD_chipod_profile_summary(avg,chi_todo_now)
@@ -29,8 +29,8 @@ ytloff
 %title([short_labs{up_down_big}],'interpreter','none')
 
 axes(ax(3))
-%                    plot(chidat.cal.T1P(chi_inds),chidat.cal.P(chi_inds)),axis ij
-plot(chi_todo_now.T1P,chi_todo_now.P),axis ij
+%plot(chidat.cal.T1P(chi_inds),chidat.cal.P(chi_inds)),axis ij
+plot(TP,chi_todo_now.P),axis ij
 grid on
 xlabel('dT/dt')
 axis tight

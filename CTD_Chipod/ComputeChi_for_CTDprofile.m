@@ -1,14 +1,15 @@
-function avg=ComputeChi_for_CTDprofile(avg,nfft,chidata,todo_inds)
+function avg=ComputeChi_for_CTDprofile(avg,nfft,fspd,TP,good_inds,todo_inds)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % ComputeChi_for_CTDprofile.m
 %
 % INPUT
-% avg: Structure with fields:
-%   fspd
-%   T1P
-%
-% nfft: # points to use in overlapping windows
+% avg      :
+% fspd     : 
+% TP       : Temperature derivative signal from chipod (T prime)
+% nfft     : # points to use in overlapping windows
+% good_inds:
+% todo_inds:
 %
 % Copied from part of process_chipod_script_AP.m
 %
@@ -24,14 +25,19 @@ for n=1:length(todo_inds)
     inds=todo_inds(n)-1+[1:nfft];
     
     %    if all(chidat.cal.is_good_data(inds)==1)
-    if all(chidata.is_good_data(inds)==1)
+    %if all(chidata.is_good_data(inds)==1)
+        if all(good_inds(inds)==1)
         %avg.fspd(n)=mean(chidat.cal.fspd(inds));
-        avg.fspd(n)=mean(chidata.fspd(inds)); % AP
+%        avg.fspd(n)=mean(chidata.fspd(inds)); % AP
+        avg.fspd(n)=mean(fspd(inds)); % AP
         
         %         [tp_power,freq]=fast_psd(chidat.cal.T1P(inds),nfft,avg.samplerate);
         %         avg.TP1var(n)=sum(tp_power)*nanmean(diff(freq));
         
-        [tp_power,freq]=fast_psd(chidata.T1P(inds),nfft,avg.samplerate);
+%        [tp_power,freq]=fast_psd(chidata.T1P(inds),nfft,avg.samplerate);
+ %       avg.TP1var(n)=sum(tp_power)*nanmean(diff(freq));
+        
+                [tp_power,freq]=fast_psd(TP(inds),nfft,avg.samplerate);
         avg.TP1var(n)=sum(tp_power)*nanmean(diff(freq));
         
         if avg.TP1var(n)>1e-4

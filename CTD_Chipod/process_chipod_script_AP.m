@@ -117,7 +117,7 @@ fprintf(fileID,[' \n There are ' num2str(length(CTD_list)) ' CTD files' ]);
 
 hb=waitbar(0,'Looping through ctd files')
 
-for a=146%1:length(CTD_list)
+for a=1:20%:length(CTD_list)
     
     close all
     
@@ -164,7 +164,7 @@ for a=146%1:length(CTD_list)
         %~~~ Enter Info for chipods deployed on CTD  ~~
         %~~~ This needs to be modified for each cruise ~~~
         
-        for up_down_big=3%[1 2 4 5]
+        for up_down_big=[1 2 4 5]
             
             close all
             
@@ -276,7 +276,7 @@ for a=146%1:length(CTD_list)
                     pvar=100* (1-(nanvar(err)/nanvar(CTD_24hz.t1)) );
                     if pvar<50
                         disp('Warning T calibration not good')
-                        fprintf(fileID,' *T calibration not good* ')
+                        fprintf(fileID,' *T calibration not good* ');
                     end
                     
                     %
@@ -454,6 +454,7 @@ for a=146%1:length(CTD_list)
                             datetick('x')
                             %                       
                             
+                            
                             %%% Now we'll do the main looping through of the data.
                             clear avg nfft todo_inds
                             nfft=128;                            
@@ -468,10 +469,10 @@ for a=146%1:length(CTD_list)
                             
                             good_chi_inds=chi_todo_now.is_good_data;
                             %~ compute chi in overlapping windows
-                            %avg=ComputeChi_for_CTDprofile(avg,nfft,chi_todo_now,todo_inds)
                             avg=ComputeChi_for_CTDprofile(avg,nfft,fspd,TP,good_chi_inds,todo_inds)
                             
-                            ax=CTD_chipod_profile_summary(avg,chi_todo_now)
+%                            ax=CTD_chipod_profile_summary(avg,chi_todo_now)
+                            ax=CTD_chipod_profile_summary(avg,chi_todo_now,TP)
                             axes(ax(1))
                             title(['cast ' cast_suffix])
                             axes(ax(2))
@@ -493,7 +494,6 @@ for a=146%1:length(CTD_list)
                             chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
                             ChkMkDir(chi_processed_path_avg)
                             processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' short_labs{up_down_big} '.mat']);
-                            %                    processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' short_labs{up_down_big} '.mat']);
                             save(processed_file,'avg','ctd')
                             %~~~
                             
@@ -502,6 +502,77 @@ for a=146%1:length(CTD_list)
                                 fprintf(fileID,'\n Chi computed for downcast ');
                                 fprintf(fileID,['\n ' processed_file]);
                             end
+                            
+                            
+                            % for 'big' chipods, do 2nd sensor also
+                            if isbig==1
+                            clear ctd chi_todo_now
+                            fallspeed_correction=-1;
+                            ctd=datad_1m;                            
+                            chi_todo_now=chi_dn;
+                            
+                            % AP May 11 - replace with function
+                            ctd=Compute_N2_dTdz_forChi(ctd)
+                                
+                            % remove loops in CTD data
+                            extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
+                            wthresh = 0.4;
+                            [datau2,bad_inds] = ctd_rmdepthloops(CTD_24hz,extra_z,wthresh);
+                            tmp=ones(size(datau2.p));
+                            tmp(bad_inds)=0;
+                                                        
+                            % new AP
+                            chi_todo_now.is_good_data=interp1(datau2.datenum,tmp,chi_todo_now.datenum,'nearest');
+                            %
+                            figure(55);clf
+                            plot(chi_todo_now.datenum,chi_todo_now.P)
+                            datetick('x')
+                            %                       
+                            
+                            
+                            %%% Now we'll do the main looping through of the data.
+                            clear avg nfft todo_inds
+                            nfft=128;                            
+                            [avg todo_inds]=Prepare_Avg_for_ChiCalc(nfft,chi_todo_now,ctd);
+                                                        
+                            clear TP fspd good_chi_inds
+                            fspd=chi_todo_now.fspd;
+
+                            %~ Use SECOND sensor
+                            TP=chi_todo_now.T2P;
+                            %~
+                            
+                            good_chi_inds=chi_todo_now.is_good_data;
+                            %~ compute chi in overlapping windows
+                            avg=ComputeChi_for_CTDprofile(avg,nfft,fspd,TP,good_chi_inds,todo_inds)
+                            
+                            ax=CTD_chipod_profile_summary(avg,chi_todo_now,TP)
+                            axes(ax(1))
+                            title(['cast ' cast_suffix])
+                            axes(ax(2))
+                            title([short_labs{up_down_big}],'interpreter','none')
+                            
+                            print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' short_labs{up_down_big} '_Sens2_avg_chi_KT_dTdz_V2'])
+                            
+                            %~~~
+                            avg.castname=castname;
+                            avg.castdir=chi_todo_now.castdir;
+                            avg.Info=this_chi_info
+                            ctd.castname=castname;
+                            
+                            avg.castname=castname;
+                            ctd.castname=castname;
+                            avg.MakeInfo=['Made ' datestr(now) ' w/ process_chipod_script_AP.m']
+                            ctd.MakeInfo=['Made ' datestr(now) ' w/ process_chipod_script_AP.m']
+                            
+                            chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
+                            ChkMkDir(chi_processed_path_avg)
+                            processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' short_labs{up_down_big} '_Sens2.mat']);
+                            save(processed_file,'avg','ctd')
+
+                            fprintf(fileID,['\n Chi computed for 2nd sensor on Big \n ' processed_file]);
+                            
+                            end % isbig
                             
                             
                         end % do_downcast
@@ -581,8 +652,8 @@ for a=146%1:length(CTD_list)
                             
                             
                             %~~~ Plot profiles of chi, KT, and dTdz
-                            
-                            ax=CTD_chipod_profile_summary(avg,chi_todo_now)
+                            ax=CTD_chipod_profile_summary(avg,chi_todo_now,TP)
+                           % ax=CTD_chipod_profile_summary(avg,chi_todo_now)
                             axes(ax(1))
                             title(['cast ' cast_suffix])
                             axes(ax(2))
@@ -615,6 +686,78 @@ for a=146%1:length(CTD_list)
                                 fprintf(fileID,['\n ' processed_file]);
                             end
                             %~~~~
+                            
+                            
+                            %~ for 'big' chipods, do 2nd sensor also
+                            if isbig==1
+                            clear ctd chi_todo_now
+                            fallspeed_correction=1;
+                            ctd=datau_1m;
+                            chi_todo_now=chi_up;
+                            
+                            % AP May 11 - replace with function
+                            ctd=Compute_N2_dTdz_forChi(ctd)
+                                
+                            % remove loops in CTD data
+                            extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
+                            wthresh = 0.4;
+                            [datau2,bad_inds] = ctd_rmdepthloops(CTD_24hz,extra_z,wthresh);
+                            tmp=ones(size(datau2.p));
+                            tmp(bad_inds)=0;
+                                                        
+                            % new AP
+                            chi_todo_now.is_good_data=interp1(datau2.datenum,tmp,chi_todo_now.datenum,'nearest');
+                            %
+                            figure(55);clf
+                            plot(chi_todo_now.datenum,chi_todo_now.P)
+                            datetick('x')
+                            %                       
+                            
+                            
+                            %%% Now we'll do the main looping through of the data.
+                            clear avg nfft todo_inds
+                            nfft=128;                            
+                            [avg todo_inds]=Prepare_Avg_for_ChiCalc(nfft,chi_todo_now,ctd);
+                                                        
+                            clear TP fspd good_chi_inds
+                            fspd=chi_todo_now.fspd;
+
+                            %~ Use SECOND sensor
+                            TP=chi_todo_now.T2P;
+                            %~
+                            
+                            good_chi_inds=chi_todo_now.is_good_data;
+                            %~ compute chi in overlapping windows
+                            avg=ComputeChi_for_CTDprofile(avg,nfft,fspd,TP,good_chi_inds,todo_inds)
+                            
+                            ax=CTD_chipod_profile_summary(avg,chi_todo_now,TP)
+                            axes(ax(1))
+                            title(['cast ' cast_suffix])
+                            axes(ax(2))
+                            title([short_labs{up_down_big}],'interpreter','none')
+                            
+                            print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' short_labs{up_down_big} '_Sens2_avg_chi_KT_dTdz_V2'])
+                            
+                            %~~~
+                            avg.castname=castname;
+                            avg.castdir=chi_todo_now.castdir;
+                            avg.Info=this_chi_info
+                            ctd.castname=castname;
+                            
+                            avg.castname=castname;
+                            ctd.castname=castname;
+                            avg.MakeInfo=['Made ' datestr(now) ' w/ process_chipod_script_AP.m']
+                            ctd.MakeInfo=['Made ' datestr(now) ' w/ process_chipod_script_AP.m']
+                            
+                            chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
+                            ChkMkDir(chi_processed_path_avg)
+                            processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' short_labs{up_down_big} '_Sens2.mat']);
+                            save(processed_file,'avg','ctd')
+
+                            fprintf(fileID,['\n Chi computed for 2nd sensor on Big \n' processed_file]);
+                            
+                            end % isbig
+
                         end % do_upcast
                         
                     end % if we have binned ctd data
@@ -632,7 +775,7 @@ for a=146%1:length(CTD_list)
         end % each chipod on rosette (up_down_big)
         
     else
-        fprintf(fileID,' Cast is a towyo, skipping ')
+        fprintf(fileID,' Cast is a towyo, skipping ');
     end % if not towyo
     
 end % each CTD file

@@ -3,15 +3,27 @@ function [avg todo_inds]=Prepare_Avg_for_ChiCalc(nfft,chi_todo_now,ctd)
 %
 % function avg=Prepare_Avg_for_ChiCalc(nfft,chi_todo_now,ctd)
 %
+% Prepare for chi calculation (see ComputeChi_for_CTDprofile.m).
+%
+%INPUT
+% nfft          : # points to use for chi calculation
+% chi_todo_now  : Chipod data to do calculation for.(Required fields are
+% datenum,P
+% ctd           : CTD data to do calculation for. (Required fields are
+% datenum,p,N2,dTdz,t1,s1).
+%
+% OUTPUT
+% avg           : Structure where chi results go.
+% todo_inds     : Indices of chipod data to do caluclation for (depends on
+% nfft).
 %
 % May 11, 2015 - A. Pickering - apickering@coas.oregonstate.edu
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
-% make a structure 'avg' will will contain the results
+% make a structure 'avg' that will contain the results
 % of chi computed in overlapping windows
 clear avg
 avg=struct();
-%nfft=128;
 
 % AP - for new up/down separated chi structures
 todo_inds=1:nfft/2:(length(chi_todo_now.datenum)-nfft);

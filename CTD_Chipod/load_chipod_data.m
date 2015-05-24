@@ -9,7 +9,7 @@ function big=load_chipod_data(the_path,time_range,suffix,isbig)
 % INPUT
 % the_path   : Path to folder containing chipod data files
 % time_range : Time range of ctd profile (datenum)
-% suffix     : Suffix for chipod filenames
+% suffix     : Suffix for chipod filenames (usually the chipod SN)
 % isbig      : Specify if 'big' chipod (data structure is different)
 %
 % OUTPUT
@@ -54,7 +54,7 @@ for a=1:nfiles
         
         % we've got the right file, so let's load it.
         fname=fullfile(the_path,the_files(a).name);
-        disp('found a file')
+        %        disp('found a file')
         
         % save the filename
         fnamelist{fcount}=the_files(a).name;

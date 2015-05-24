@@ -1,4 +1,4 @@
-function [CTD_24hz chidat]=AlignAndCalibrateChipodCTD(CTD_24hz,chidat,az_correction,cal,makeplot)
+function [CTD_24hz chidat]=AlignAndCalibrateChipodCTD(CTD_24hz,chidat,az_correction,makeplot)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % function [CTD_raw chidat]=AlignAndCalibrateChipodCTD.m
@@ -9,8 +9,10 @@ function [CTD_24hz chidat]=AlignAndCalibrateChipodCTD(CTD_24hz,chidat,az_correct
 % temperature and temp. derivative.
 %
 % INPUT
-% CTD_24hz  : 24hz CTD data (includes downcast and upcast)
-% chidat    : Chipod data for this period.
+% CTD_24hz       : 24hz CTD data (includes downcast and upcast)
+% chidat         : Chipod data for this period.
+% az_correction  :
+% makeplot       : option to make figure
 %
 % OUTPUT
 % CTD_24hz  : Same, w/ dp/dt added
@@ -48,7 +50,7 @@ w_from_chipod=cumsum(tmp2*nanmedian(diff(chidat.datenum*86400)));
 if makeplot==1
 % plot:
 figure(1);clf
-ax1= subplot(211)
+ax1= subplot(211);
 plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'b',chidat.datenum,w_from_chipod,'r'),hold on
 legend('ctd dp/dt','w_{chi}','orientation','horizontal','location','best')
 %title([castname ' ' short_labs{up_down_big}],'interpreter','none')
@@ -73,7 +75,7 @@ chidat.time_offset_correction_used=offset;
 chidat.fspd=interp1(CTD_24hz.datenum,-CTD_24hz.dpdt,chidat.datenum);
 
 if makeplot==1
-ax2=subplot(212)
+ax2=subplot(212);
 plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'b',chidat.datenum,w_from_chipod,'g')
 legend('ctd dp/dt','corrected w_{chi}','orientation','horizontal','location','best')
 title(['time offset=' num2str(offset*86440) 's'])
@@ -96,19 +98,19 @@ chidat.cal.fspd=chidat.fspd;
 % Apply our calibration for DTdt.
 chidat.cal.T1P=calibrate_chipod_dtdt(chidat.T1P,chidat.cal.coef.T1P,chidat.T1,chidat.cal.coef.T1);
 
-test_dtdt=0; %%% this does a digital differentiation to determine whether the differentiator time constant is correct.
-if test_dtdt
-    dt=median(diff(chidat.datenum))*3600*24;
-    cal.dTdt_dig=[0 ; diff(cal.T1)/dt];
-    oset=min(chidat.datenum);
-    plot(chidat.datenum-oset,cal.dTdt_dig,chidat.datenum-oset,cal.T1P);
-    paus, ax=axis
-    ginds2=find((chidat.datenum-oset)>ax(1) & (chidat.datenum-oset)<ax(2));
-    [p,f]=fast_psd(cal.T1P(ginds2),256,100);
-    [p2,f]=fast_psd(cal.dTdt_dig(ginds2),256,100);
-    figure(4)
-    loglog(f,p2,f,p);
-end
+% test_dtdt=0; %%% this does a digital differentiation to determine whether the differentiator time constant is correct.
+% if test_dtdt
+%     dt=median(diff(chidat.datenum))*3600*24;
+%     cal.dTdt_dig=[0 ; diff(cal.T1)/dt];
+%     oset=min(chidat.datenum);
+%     plot(chidat.datenum-oset,cal.dTdt_dig,chidat.datenum-oset,cal.T1P);
+%     paus, ax=axis
+%     ginds2=find((chidat.datenum-oset)>ax(1) & (chidat.datenum-oset)<ax(2));
+%     [p,f]=fast_psd(cal.T1P(ginds2),256,100);
+%     [p2,f]=fast_psd(cal.dTdt_dig(ginds2),256,100);
+%     figure(4)
+%     loglog(f,p2,f,p);
+% end
 
 
 if chidat.Info.isbig

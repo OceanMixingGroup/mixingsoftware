@@ -3,21 +3,26 @@ function avg=ComputeChi_for_CTDprofile(avg,nfft,fspd,TP,good_inds,todo_inds)
 %
 % ComputeChi_for_CTDprofile.m
 %
+% Do calculation of chi for a ctd profile. Uses a sliding window (size
+% controlled by nfft). Prepare_Avg_for_ChiCalc.m should be called before
+% this function.
+%
+% See also Prepare_Avg_for_ChiCalc.m
+%
 % INPUT
-% avg      :
-% fspd     : 
-% TP       : Temperature derivative signal from chipod (T prime)
-% nfft     : # points to use in overlapping windows
-% good_inds:
-% todo_inds:
+% avg       : Structure made w Prepare_Avg_for_ChiCalc.m
+% nfft      : # points to use in fft
+% fspd      : Speed of flow past chipod 
+% TP        : Temperature derivative signal from chipod (T prime)
+% nfft      : # points to use in overlapping windows
+% good_inds : Indices of good data (excludes depth loops in CTD)
+% todo_inds : Indices to do computation on (see Prepare_Avg_for_ChiCalc).
 %
 % Copied from part of process_chipod_script_AP.m
 %
 % May 5, 2015 - A. Pickering - apickering@coas.oregonstate.edu
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
-
-%~~
 
 h = waitbar(0,['Computing chi ']);
 for n=1:length(todo_inds)
@@ -75,4 +80,6 @@ for n=1:length(todo_inds)
     
 end
 delete(h)
+
+return
 %%

@@ -1,6 +1,6 @@
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% process_chipod_script_AP.m
+% process_chipod_script_Ttide_AP.m
 %
 % ** this is currently a work-in-progress (AP). I am working on T-tide data
 % right now to get it running and fix things. Eventually there will be a
@@ -36,14 +36,6 @@
 % Writes a text file called 'Results.txt' that summarizes the settings used
 % and the results (whether it found a chipod file, if it had good data etc.
 % for each cast).
-%
-% Dependencies:
-% get_profile_inds.m
-% TimeOffset.m
-% load_chipod_data
-% get_T_calibration
-% calibrate_chipod_dtdt
-% get_chipod_chi
 %
 %
 % Notes/Issues/Todo:
@@ -178,7 +170,7 @@ for a=20%100:length(CTD_list)
             
             % *** edit this info for your cruise/instruments ***
             short_labs={'SN1012','SN1013','SN1002','SN102','SN1010'};
-%            big_labs={'Ti UpLooker','Ti DownLooker','Unit 1002','Ti Downlooker','1010'};
+            %            big_labs={'Ti UpLooker','Ti DownLooker','Unit 1002','Ti Downlooker','1010'};
             
             switch up_down_big
                 case 1
@@ -269,8 +261,7 @@ for a=20%100:length(CTD_list)
                 if length(chidat.datenum)>1000
                     
                     % Alisn and calibrate data
-%                    [CTD_24hz chidat]=AlignAndCalibrateChipodCTD(CTD_24hz,chidat,az_correction,cal,1);                    
-                                        [CTD_24hz chidat]=AlignAndCalibrateChipodCTD(CTD_24hz,chidat,az_correction,1);                    
+                    [CTD_24hz chidat]=AlignAndCalibrateChipodCTD(CTD_24hz,chidat,az_correction,1);
                     print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_w_TimeOffset'])
                     
                     % save again, with time-offset and calibration added
@@ -286,22 +277,19 @@ for a=20%100:length(CTD_list)
                         disp('Warning T calibration not good')
                         fprintf(fileID,' *T calibration not good* ');
                     end
-                    
-                    %
-                    ginds=1:length(CTD_24hz.p);
-                    
+                                        
                     %~~~~
                     do_timeseries_plot=1;
                     if do_timeseries_plot
                         
-                        xls=[min(CTD_24hz.datenum(ginds)) max(CTD_24hz.datenum(ginds))];
+                        xls=[min(CTD_24hz.datenum) max(CTD_24hz.datenum)];
                         figure(2);clf
                         agutwocolumn(1)
                         wysiwyg
                         clf
                         
                         h(1)=subplot(411);
-                        plot(CTD_24hz.datenum(ginds),CTD_24hz.t1(ginds))
+                        plot(CTD_24hz.datenum,CTD_24hz.t1)
                         hold on
                         plot(chidat.datenum,chidat.cal.T1)
                         plot(chidat.datenum,chidat.cal.T2-.5)
@@ -313,7 +301,7 @@ for a=20%100:length(CTD_list)
                         grid on
                         
                         h(2)=subplot(412);
-                        plot(CTD_24hz.datenum(ginds),CTD_24hz.p(ginds));
+                        plot(CTD_24hz.datenum,CTD_24hz.p);
                         ylabel('P [dB]')
                         xlim(xls)
                         datetick('x')
@@ -391,11 +379,12 @@ for a=20%100:length(CTD_list)
                         save(fname_up,'chi_up')
                         %~~~
                         
-                        
                         %~~
                         do_downcast=1;
                         do_upcast=1;
                         
+                        % distance to smooth over for N^2 and dT/dz
+                        z_smooth=50
                         
                         %~~ DOWNCAST
                         if do_downcast==1
@@ -405,56 +394,57 @@ for a=20%100:length(CTD_list)
                             chi_todo_now=chi_dn;
                             
                             % AP May 11 - replace with function
-                            ctd=Compute_N2_dTdz_forChi(ctd);
+                            ctd=Compute_N2_dTdz_forChi(ctd,z_smooth);
                             
                             %~~ plot N2 and dTdz
                             doplot=1;
                             if doplot
                                 figure(3);clf
                                 subplot(121)
-                                h20= plot(log10(abs(ctd.N2_20)),ctd.p);
-                                hold on
-                                h50=plot(log10(abs(ctd.N2_50)),ctd.p);
+                                %plot(log10(abs(ctd.N2_20)),ctd.p);
+                                %hold on
+                                %h50=plot(log10(abs(ctd.N2_50)),ctd.p);
                                 hT=plot(log10(abs(ctd.N2)),ctd.p);
                                 xlabel('log_{10}N^2'),ylabel('depth [m]')
                                 title(castname,'interpreter','none')
                                 grid on
                                 axis ij
-                                legend([h20 h50 hT],'20m','50m','largest','location','best')
+                                %legend([h20 h50 hT],'20m','50m','largest','location','best')
                                 
                                 subplot(122)
-                                plot(log10(abs(ctd.dTdz_20)),ctd.p)
-                                hold on
-                                plot(log10(abs(ctd.dTdz_50)),ctd.p)
+                                %plot(log10(abs(ctd.dTdz_20)),ctd.p)
+                                %hold on
+                                %plot(log10(abs(ctd.dTdz_50)),ctd.p)
                                 plot(log10(abs(ctd.dTdz)),ctd.p)
                                 xlabel('log_{10} dT/dz [^{o}Cm^{-1}]'),ylabel('depth [m]')
                                 title([chi_todo_now.castdir 'cast'])
                                 grid on
                                 axis ij
                                 print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_N2_dTdz'])
+                                
                             end
                             %~~
                             
-                            %~~~ now let's do the chi computations:
+                            %~~~~ now let's do the chi computations:
                             
                             % # points to use for chi calculation
                             nfft=128;
+                            % paramaters for ctd_rmdepthloops
+                            extra_z=2; %
+                            wthresh = 0.4; %
                             
                             % remove loops in CTD data
-                            extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
-                            wthresh = 0.4;
                             [datau2,bad_inds] = ctd_rmdepthloops(CTD_24hz,extra_z,wthresh);
-                            tmp=ones(size(datau2.p));
-                            tmp(bad_inds)=0;
-                            
-                            % new AP
+                            tmp=ones(size(datau2.p)); tmp(bad_inds)=0;
+                            % find good chipod data
                             chi_todo_now.is_good_data=interp1(datau2.datenum,tmp,chi_todo_now.datenum,'nearest');
-                            %
+                            
                             figure(55);clf
                             plot(chi_todo_now.datenum,chi_todo_now.P)
                             axis ij
                             datetick('x')
-                                                        
+                            ylabel('Pressure')
+                            
                             %%% Now we'll do the main looping through of the data.
                             clear avg  todo_inds
                             
@@ -466,11 +456,11 @@ for a=20%100:length(CTD_list)
                             % chipods, only T1P. For big, we will do T1P
                             % and T2P).
                             TP=chi_todo_now.T1P;
-                            %~
                             
                             good_chi_inds=chi_todo_now.is_good_data;
                             %~ compute chi in overlapping windows
                             avg=ComputeChi_for_CTDprofile(avg,nfft,fspd,TP,good_chi_inds,todo_inds);
+                            
                             %~ plot summary figure
                             ax=CTD_chipod_profile_summary(avg,chi_todo_now,TP);
                             axes(ax(1))
@@ -483,6 +473,7 @@ for a=20%100:length(CTD_list)
                             avg.castname=castname;
                             avg.castdir=chi_todo_now.castdir;
                             avg.Info=this_chi_info;
+                            avg.z_smooth=z_smooth;
                             ctd.castname=castname;
                             
                             avg.castname=castname;
@@ -500,7 +491,7 @@ for a=20%100:length(CTD_list)
                             if numel(ngc)>1
                                 fprintf(fileID,'\n Chi computed for downcast ');
                                 fprintf(fileID,['\n ' processed_file]);
-                            end                            
+                            end
                             
                             % for 'big' chipods, do 2nd sensor also
                             if isbig==1
@@ -510,17 +501,15 @@ for a=20%100:length(CTD_list)
                                 ctd=datad_1m;
                                 chi_todo_now=chi_dn;
                                 
-                                % AP May 11 - replace with function
-                                ctd=Compute_N2_dTdz_forChi(ctd);
+                                % Compute N^2 and dT/dz
+                                ctd=Compute_N2_dTdz_forChi(ctd,z_smooth);
                                 
                                 % remove loops in CTD data
-                                extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
-                                wthresh = 0.4;
                                 [datau2,bad_inds] = ctd_rmdepthloops(CTD_24hz,extra_z,wthresh);
                                 tmp=ones(size(datau2.p));
                                 tmp(bad_inds)=0;
                                 
-                                % new AP
+                                %
                                 chi_todo_now.is_good_data=interp1(datau2.datenum,tmp,chi_todo_now.datenum,'nearest');
                                 %
                                 figure(55);clf
@@ -529,7 +518,6 @@ for a=20%100:length(CTD_list)
                                 
                                 %%% Now we'll do the main looping through of the data.
                                 clear avg  todo_inds
-                               % nfft=128;
                                 [avg todo_inds]=Prepare_Avg_for_ChiCalc(nfft,chi_todo_now,ctd);
                                 
                                 clear TP fspd good_chi_inds
@@ -554,6 +542,7 @@ for a=20%100:length(CTD_list)
                                 avg.castname=castname;
                                 avg.castdir=chi_todo_now.castdir;
                                 avg.Info=this_chi_info;
+                                avg.z_smooth=z_smooth;
                                 ctd.castname=castname;
                                 
                                 avg.castname=castname;
@@ -568,10 +557,10 @@ for a=20%100:length(CTD_list)
                                 
                                 fprintf(fileID,['\n Chi computed for 2nd sensor on Big \n ' processed_file]);
                                 
-                            end % isbig                            
+                            end % isbig
                             
-                        end % do_downcast                        
-                                                
+                        end % do_downcast
+                        
                         %~ UPCAST
                         if do_upcast==1
                             
@@ -580,51 +569,36 @@ for a=20%100:length(CTD_list)
                             ctd=datau_1m;
                             chi_todo_now=chi_up;
                             
-                            % AP May 11 - replace with function
-                            ctd=Compute_N2_dTdz_forChi(ctd);
+                            ctd=Compute_N2_dTdz_forChi(ctd,z_smooth);
                             
                             %~~ plot N2 and dTdz
                             doplot=1;
                             if doplot
                                 figure(3);clf
                                 subplot(121)
-                                h20= plot(log10(abs(ctd.N2_20)),ctd.p);
-                                hold on
-                                h50=plot(log10(abs(ctd.N2_50)),ctd.p);
                                 hT=plot(log10(abs(ctd.N2)),ctd.p);
                                 xlabel('log_{10}N^2'),ylabel('depth [m]')
                                 title(castname,'interpreter','none')
                                 grid on
                                 axis ij
-                                legend([h20 h50 hT],'20m','50m','largest','location','best')
                                 
                                 subplot(122)
-                                plot(log10(abs(ctd.dTdz_20)),ctd.p)
-                                hold on
-                                plot(log10(abs(ctd.dTdz_50)),ctd.p)
                                 plot(log10(abs(ctd.dTdz)),ctd.p)
                                 xlabel('log_{10} dT/dz [^{o}Cm^{-1}]'),ylabel('depth [m]')
                                 title([chi_todo_now.castdir 'cast'])
                                 grid on
                                 axis ij
                                 
-                                % print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_N2_dTdz'])
                                 print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_N2_dTdz'])
                             end
                             
-                            %~~~ now let's do the chi computations:
-                            
                             % remove loops in CTD data
-                            extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
-                            wthresh = 0.4;
                             [datau2,bad_inds] = ctd_rmdepthloops(CTD_24hz,extra_z,wthresh);
                             tmp=ones(size(datau2.p));
                             tmp(bad_inds)=0;
-                            %chidat.cal.is_good_data=interp1(datau2.datenum,tmp,chidat.cal.datenum,'nearest');
                             
-                            % new AP
                             chi_todo_now.is_good_data=interp1(datau2.datenum,tmp,chi_todo_now.datenum,'nearest');
-                            %
+                            
                             figure(55);clf
                             plot(chi_todo_now.datenum,chi_todo_now.P)
                             axis ij
@@ -633,7 +607,6 @@ for a=20%100:length(CTD_list)
                             %%% Now we'll do the main looping through of the data.
                             
                             clear avg todo_inds
-%                            nfft=128;
                             [avg todo_inds]=Prepare_Avg_for_ChiCalc(nfft,chi_todo_now,ctd);
                             
                             clear TP fspd good_chi_inds
@@ -641,7 +614,6 @@ for a=20%100:length(CTD_list)
                             TP=chi_todo_now.T1P;
                             good_chi_inds=chi_todo_now.is_good_data;
                             %~ compute chi in overlapping windows
-                            %avg=ComputeChi_for_CTDprofile(avg,nfft,chi_todo_now,todo_inds)
                             avg=ComputeChi_for_CTDprofile(avg,nfft,fspd,TP,good_chi_inds,todo_inds);
                             
                             
@@ -661,6 +633,7 @@ for a=20%100:length(CTD_list)
                             avg.castname=castname;
                             avg.castdir=chi_todo_now.castdir;
                             avg.Info=this_chi_info;
+                            avg.z_smooth=z_smooth;
                             ctd.castname=castname;
                             avg.MakeInfo=['Made ' datestr(now) ' w/ ' this_script_name ];
                             ctd.MakeInfo=['Made ' datestr(now) ' w/ ' this_script_name ];
@@ -668,7 +641,6 @@ for a=20%100:length(CTD_list)
                             chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
                             ChkMkDir(chi_processed_path_avg)
                             processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' short_labs{up_down_big} '.mat']);
-                            % processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' short_labs{up_down_big} '.mat']);
                             save(processed_file,'avg','ctd')
                             
                             ngc=find(~isnan(avg.chi1));
@@ -687,12 +659,9 @@ for a=20%100:length(CTD_list)
                                 ctd=datau_1m;
                                 chi_todo_now=chi_up;
                                 
-                                % AP May 11 - replace with function
-                                ctd=Compute_N2_dTdz_forChi(ctd);
+                                ctd=Compute_N2_dTdz_forChi(ctd,z_smooth);
                                 
                                 % remove loops in CTD data
-                                extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
-                                wthresh = 0.4;
                                 [datau2,bad_inds] = ctd_rmdepthloops(CTD_24hz,extra_z,wthresh);
                                 tmp=ones(size(datau2.p));
                                 tmp(bad_inds)=0;
@@ -703,12 +672,8 @@ for a=20%100:length(CTD_list)
                                 figure(55);clf
                                 plot(chi_todo_now.datenum,chi_todo_now.P)
                                 datetick('x')
-                                %
                                 
-                                
-                                %%% Now we'll do the main looping through of the data.
                                 clear avg todo_inds
-%                                nfft=128;
                                 [avg todo_inds]=Prepare_Avg_for_ChiCalc(nfft,chi_todo_now,ctd);
                                 
                                 clear TP fspd good_chi_inds
@@ -734,6 +699,7 @@ for a=20%100:length(CTD_list)
                                 avg.castname=castname;
                                 avg.castdir=chi_todo_now.castdir;
                                 avg.Info=this_chi_info;
+                                avg.z_smooth=z_smooth;
                                 ctd.castname=castname;
                                 
                                 avg.castname=castname;

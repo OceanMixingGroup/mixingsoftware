@@ -5,10 +5,10 @@ function [avg todo_inds]=Prepare_Avg_for_ChiCalc(nfft,chi_todo_now,ctd)
 %
 % Prepare for chi calculation (see ComputeChi_for_CTDprofile.m).
 %
-%INPUT
+% INPUT
 % nfft          : # points to use for chi calculation
 % chi_todo_now  : Chipod data to do calculation for.(Required fields are
-% datenum,P
+% datenum,P)
 % ctd           : CTD data to do calculation for. (Required fields are
 % datenum,p,N2,dTdz,t1,s1).
 %

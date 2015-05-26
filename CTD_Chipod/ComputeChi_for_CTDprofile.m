@@ -68,10 +68,10 @@ for n=1:length(todo_inds)
             avg.KT1(n)=0.5*chi1(1)/avg.dTdz(n)^2;
             
         else
-            %disp('fail2')
+ %        disp('variance does not exceed threshold')   %
         end
     else
-        % disp('fail1')
+%        disp('not all data good')% 
     end
     
     if ~mod(n,10)

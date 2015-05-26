@@ -1,0 +1,24 @@
+
+* In-progress…*
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CTD-chipod Processing Guide
+
+Created on May 26, 2015
+A. Pickering - apickering@coas.oregonstate.edu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is a guide to processing data from chi pods deployed on CTD rosettes. Processing software is part of the ‘mixingsoftware’ github repo maintained by the OSU ocean mixing group. For latest version, download/sync the mixingsoftware github repo at https://github.com/OceanMixingGroup/mixingsoftware.
+
+
+
+
+(1) CTD Data processing
+
+First, CTD data is required for chi pod processing. See ‘ctd_processing’ folder in mixing software.
+
+(2) Chipod processing
+
+(a) Chipod deployment info
+
+(b) processing script.

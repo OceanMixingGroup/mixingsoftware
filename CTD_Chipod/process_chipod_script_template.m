@@ -329,7 +329,7 @@ for a=20%100:length(CTD_list)
                     chi_up.castdir='up';
                     chi_up.Info=this_chi_info;
                     % 2nd sensor on 'big' chipods
-                    chi_up.T2P=chidat.cal.T1P(ind_max:length(chidat.cal.P));
+                    chi_up.T2P=chidat.cal.T2P(ind_max:length(chidat.cal.P));
                     
                     % downcast
                     chi_dn=struct();

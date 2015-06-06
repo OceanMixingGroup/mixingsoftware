@@ -333,8 +333,7 @@ for a=20%100:length(CTD_list)
                         print('-dpng','-r300',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_T_P_dTdz_fspd.png']);
                     end
                     %~~~~
-                    
-                    
+                                        
                     clear datad_1m datau_1m chi_inds p_max ind_max ctd
                     
                     % load 1-m CTD data.
@@ -355,7 +354,7 @@ for a=20%100:length(CTD_list)
                         chi_up.castdir='up';
                         chi_up.Info=this_chi_info;
                         % 2nd sensor on 'big' chipods
-                        chi_up.T2P=chidat.cal.T1P(ind_max:length(chidat.cal.P));
+                        chi_up.T2P=chidat.cal.T2P(ind_max:length(chidat.cal.P));
                         
                         % downcast
                         chi_dn=struct();

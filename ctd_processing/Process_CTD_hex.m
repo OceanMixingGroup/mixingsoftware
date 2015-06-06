@@ -122,7 +122,7 @@ axis ij
 ylabel('p [db]')
 grid on
 xlabel('temp [^oC]')
-title(ctdlist(icast).name)
+title(ctdlist(icast).name,'interpreter','none')
 
 subplot(122)
 plot(data2.c1,data2.p,data2.c2,data2.p)

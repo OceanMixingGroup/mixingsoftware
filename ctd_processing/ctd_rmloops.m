@@ -56,7 +56,7 @@ else
       wmin=min(-data.w(ilp.start(ii):ilp.stop(ii)));
       overshoot_depth=-1.4*wmin+1.7+1.5; % 1.5 meter more on way up because ctd at bottom of rosette!
       if pmi(ii) == length(data.p)
-	iloop = [iloop; [pmi(ii)]]
+	iloop = [iloop; [pmi(ii)]];
       else
        icont = find(data.p < (pm-overshoot_depth) & [1:np]' > ilp.stop(ii), 1, 'first');
 %       iloop = [iloop; [ilp.start(ii):(icont+max(tmp)) - 1]'];

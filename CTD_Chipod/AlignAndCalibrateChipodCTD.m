@@ -82,7 +82,6 @@ title(['time offset=' num2str(offset*86440) 's'])
 grid on
 datetick('x')
 ylabel('w [m/s]')
-
 linkaxes([ax1 ax2])
 end
 %print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_w_TimeOffset'])
@@ -95,23 +94,37 @@ chidat.cal.fspd=chidat.fspd;
 
 [chidat.cal.coef.T1,chidat.cal.T1]=get_T_calibration(CTD_24hz.datenum(ginds),CTD_24hz.t1(ginds),chidat.datenum,chidat.T1);
 
-% Apply our calibration for DTdt.
-chidat.cal.T1P=calibrate_chipod_dtdt(chidat.T1P,chidat.cal.coef.T1P,chidat.T1,chidat.cal.coef.T1);
+%% Apply our calibration for DTdt.
 
-% test_dtdt=0; %%% this does a digital differentiation to determine whether the differentiator time constant is correct.
-% if test_dtdt
-%     dt=median(diff(chidat.datenum))*3600*24;
-%     cal.dTdt_dig=[0 ; diff(cal.T1)/dt];
-%     oset=min(chidat.datenum);
-%     plot(chidat.datenum-oset,cal.dTdt_dig,chidat.datenum-oset,cal.T1P);
-%     paus, ax=axis
-%     ginds2=find((chidat.datenum-oset)>ax(1) & (chidat.datenum-oset)<ax(2));
-%     [p,f]=fast_psd(cal.T1P(ginds2),256,100);
-%     [p2,f]=fast_psd(cal.dTdt_dig(ginds2),256,100);
-%     figure(4)
-%     loglog(f,p2,f,p);
-% end
+chidat.cal.T1P=calibrate_chipod_dtdt(chidat.T1P , chidat.cal.coef.T1P , chidat.T1 , chidat.cal.coef.T1);
 
+% 
+test_dtdt=1; %%% this does a digital differentiation to determine whether the differentiator time constant is correct.
+if test_dtdt
+    cal=chidat.cal
+    dt=median(diff(chidat.datenum))*3600*24;
+    cal.dTdt_dig=[0 ; diff(cal.T1)/dt];
+    oset=min(chidat.datenum);
+    plot(chidat.datenum-oset,cal.dTdt_dig,chidat.datenum-oset,cal.T1P);
+%    pause 
+    ax=axis
+    ginds2=find((chidat.datenum-oset)>ax(1) & (chidat.datenum-oset)<ax(2));
+    % compute spectrum of analog differentiation
+    [p,f]=fast_psd(cal.T1P(ginds2),256,100);
+    % compute spectrum of digital differentiaton 
+    [p2,f]=fast_psd(cal.dTdt_dig(ginds2),256,100);
+    
+    % plot the two spectra
+    figure(4)
+    loglog(f,p2,f,p,'linewidth',2);
+    axis tight
+    grid on
+    legend('digital','analog','location','best')
+    xlabel('Frequency [hz]')
+    title(['Spectra of dT/dt - \tau =' num2str(chidat.cal.coef.T1P)])
+    ylabel('\Phi_{T_z} [^oC^2/s^{-2}]')
+end
+%%
 
 if chidat.Info.isbig
     % big chipods have 2 sensors?

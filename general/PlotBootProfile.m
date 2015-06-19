@@ -19,6 +19,8 @@ function h=PlotBootProfile(bb,z)
 %%
 
 hax=gca;
+set(hax,'XScale','log');
+set(hax,'YScale','log');
 idg=find(~isnan(bb(:,1)));
 hf=fill([bb(idg,1)' flipud(bb(idg,3))'],[z(idg)' flipud(z(idg))'],0.75*[1 1 1]);
 hf.EdgeColor=[1 1 1];

@@ -18,7 +18,7 @@ First, CTD data is required for chi pod processing. See ‘ctd_processing’ fol
 
 (2) Chipod processing
 
-(a) Chipod deployment info. Copy ‘Chipod_Deploy_Info_template.m’; and rename for your cruise. Enter/edit info for chi pods deployed on your cruise. Note: Sometimes this info might change during the cruise (a sensor needs to be swapped out, or a chi pod is changed to up or down. If this is the case, the best option is probably to put in a special statement in the processing script.
+(a) Chipod deployment info. Copy ‘Chipod_Deploy_Info_template.m’; and rename for your cruise. Enter/edit info for chi pods deployed on your cruise. Note: Sometimes this info might change during the cruise (a sensor needs to be swapped out, or a chi pod is changed to up or down). If this is the case, the best option is probably to put in a special statement in the processing script.
 
 (b) Chipod processing script. Copy ‘’ and rename for your cruise. Edit paths and info for your cruise. Lines of code that need to be modified are indicated by ‘~~~’ in the template.
 

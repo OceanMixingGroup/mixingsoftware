@@ -1,18 +1,18 @@
 function [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
     get_chipod_chi(freq,tp_power,fspd,nu,tdif,dTdz,varargin)
-%
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % function [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
 %    get_chipod_chi(freq,tp_power,fspd,nu,tdif,dTdz,varargin)
 %
-% to compute chi and epsilon from chipod data.  
+% To compute chi and epsilon from chipod data.  
 %
 % Required arguments are:
-% - freq,
-% - the frequencies of tp_spec (corrected temperature gradient [dT/dt] spectrum), 
-% - fallspd (in m/s), 
-% - nu (viscosity),
-% - tdif (thermal diffusivity), 
-% - dTdz (a scalar vertical gradient), 
+% - freq         : frequencies of tp_spec (corrected temperature gradient [dT/dt] spectrum) 
+% - tp_power     : power spectral density of dT/dt
+% - fspd (in m/s): flowspeed past sensor 
+% - nu           : viscosity
+% - tdif         : thermal diffusivity
+% - dTdz         : scalar vertical temperature gradient 
 % - the head structure, and 
 % - this_sensor (the sensor name in the head structure). 
 %
@@ -25,14 +25,15 @@ function [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
 % - n_iterations - the number of times to iterate on epsilon
 % - doplots - whether or not to plot the data.  
 %
-% this routine makes n_iterations estimates of epsilon and chi, through
-% the assumption that K_T=K_\rho, and returns 
-% chi (a vector of chi estimates, where chi(1) is the value on which the
+% This routine makes n_iterations estimates of epsilon and chi, through
+% the assumption that K_T=K_\rho, and returns:
+% -chi (a vector of chi estimates, where chi(1) is the value on which the
 % routine converged, and chi(10) was the first estimate)
-% epsil (a vector of epsilon estimates, where epsil(1) is the converged
+% -epsil (a vector of epsilon estimates, where epsil(1) is the converged
 % value, and epsil(10) was the first estimate
-% k, spec and k_kraich, spec_kraich, both wavenumbers and spectra
+% -k, spec and k_kraich, spec_kraich, both wavenumbers and spectra
 % associated with the final fits.    
+%
 %   $Revision: 1.7 $  $Date: 2011/02/17 22:44:01 $
 %
 % First, you must send the power spectral density calculated as
@@ -40,7 +41,8 @@ function [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
 % And corrected as:    
 % tp_power=invert_filt(freq,invert_filt(freq,tp_power,thermistor_filter_order, ...
 %     thermistor_cutoff_frequency),analog_filter_order,analog_filter_freq);
-    
+%    
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %% get input variables in order
 
 warning off
@@ -78,6 +80,7 @@ if ~exist('doplots','var')
 end
 
 %%
+% convert frequency to wavenumber using fspd 
 k=freq/fspd;
 spec_time=tp_power/fspd^2;% If tp_power is power of dT/dt, than our units are 
                      % K^2/[s^2 Hz]=[K^2/s] we need to

@@ -45,7 +45,4 @@ data.time =  hex2dec(h(:, [87:88 85:86 83:84 81:82]-6));
 
 In the future, will try to modify code to detect this and choose correct size automatically.
 
-- Will try to incorporate a file from JN that reads the xmlcon calibration file, instead of having to manually copy and paste it into cfgloadxxx.m
-
-- 
 

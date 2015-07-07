@@ -333,7 +333,7 @@ c2 = c2(1+N/4:end-N/4);
 m = (i2-N)/N; % number of segments = dof/2
 dof = 2*m; % Number of degrees of freedom (power of 2)
 df = 1/(N*dt); % Frequency resolution at dof degrees of freedom.
-i2,N,m,size(t1)
+%i2,N,m,size(t1);
 At1 = fft(detrend(reshape(t1,N,m)).*...% FFT of each column (segment)
     (window(@triang,N)*ones(1,m)));      % Data are detrended then
 At2 = fft(detrend(reshape(t2,N,m)).*...% windowed.

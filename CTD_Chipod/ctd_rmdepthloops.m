@@ -2,12 +2,13 @@ function [data,loop_inds] = ctd_rmdepthloops(data,extra_z,wthresh)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % function [data,loop_inds] = ctd_rmdepthloops(data,extra_z,wthresh)
 % 
-% Eliminate depth loops in CTD data
+% Eliminate depth loops in CTD data.
 %
 % INPUT
 % data    : Structure with ctd data
 % extra_z : # of extra m to get rid of due to CTD pressure loops.
-% wthresh : Threshold vertical velocity
+% wthresh : Threshold vertical velocity (data bad if w less than this
+% value)
 %
 % OUTPUT
 % data      : CTD data with data during loops (loop_inds) removed.

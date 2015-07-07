@@ -26,13 +26,13 @@ ctd.t1=interp_missing_data(ctd.t1,100);
 %z_smooth=20;
 [bfrq] = sw_bfrq(ctd.s1,ctd.t1,ctd.p,nanmean(ctd.lat)); %
 ctd.N2=abs(conv2(bfrq,ones(z_smooth,1)/z_smooth,'same')); % smooth once
-%ctd.N2=conv2(ctd.N2,ones(z_smooth,1)/z_smooth,'same'); % smooth twice
+ctd.N2=conv2(ctd.N2,ones(z_smooth,1)/z_smooth,'same'); % smooth twice
 ctd.N2=ctd.N2([1:end end]);
 
 % compute dTdz from 1m ctd data 
 tmp1=sw_ptmp(ctd.s1,ctd.t1,ctd.p,1000);
 ctd.dTdz=[0 ; abs(conv2(diff(tmp1),ones(z_smooth,1)/z_smooth,'same'))./diff(ctd.p)];
-%ctd.dTdz=conv2(ctd.dTdz,ones(z_smooth,1)/z_smooth,'same');
+ctd.dTdz=conv2(ctd.dTdz,ones(z_smooth,1)/z_smooth,'same');
 
 % compute N^2 from 1m ctd data with 50m smoothing
 % z_smooth=50;

@@ -33,7 +33,7 @@ for a=2
                 this_name=DD.Name;
                 if isfield(coef,this_name)
                     coef.([this_name '1'])=coef.(this_name);
-                    coef=rmfield(coef,this_name)
+                    coef=rmfield(coef,this_name);
                     this_name=[this_name '2'];
                 end
                 for e=2:2:length(DD.Children)
@@ -51,12 +51,12 @@ for a=2
                                     if ~isempty(FF.Children)
                                         try
                                             if isfield(coef.(this_name).(EE.Name),FF.Name)
-                                                disp(coef.(this_name).(EE.Name))
-                                                FF.name
+                                                disp(coef.(this_name).(EE.Name));
+                                                FF.name;
                                                 paus
                                             end
-                                            coef.(this_name).(EE.Name)
-                                            FF.Name
+                                            coef.(this_name).(EE.Name);
+                                            FF.Name;
                                             coef.(this_name).(EE.Name).(FF.Name)=eval(FF.Children(1).Data);
                                         catch
                                             coef.(this_name).(EE.Name).(FF.Name)=FF.Children(1).Data;

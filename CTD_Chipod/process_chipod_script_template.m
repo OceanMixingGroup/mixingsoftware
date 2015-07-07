@@ -51,30 +51,41 @@ tstart=tic;
 mixpath='/Users/Andy/Cruises_Research/mixingsoftware/'
 
 % cd to CTD_chipod folder and add paths we need
-cd (fullfile(mixpath,'CTD_Chipod'))
+addpath(fullfile(mixpath,'CTD_Chipod'))
 addpath(fullfile(mixpath,'general')) % makelen.m in /general is needed
 addpath(fullfile(mixpath,'marlcham')) % for integrate.m
 addpath(fullfile(mixpath,'adcp')) % need for mergefields_jn.m in load_chipod_data
 
-% *** Path where ctd data are located (already processed into mat files). There
-% should be a folder within it called '24Hz', which contains the raw
-% processed data.
-CTD_path='/Users/Andy/Dropbox/TTIDE_OBSERVATIONS/scienceparty_share/TTIDE-RR1501/data/ctd_processed/'
+% Base directory for processed CTD data
+CTD_out_dir_root='/Users/Andy/Cruises_Research/mixingsoftware/CTD_Chipod/TestData/CTD/Processed/'
 
-% *** Path where chipod data are located
-chi_data_path='/Users/Andy/Cruises_Research/Tasmania/Data/Chipod_CTD/'
+% Folder for processed 24Hz CTD data
+CTD_out_dir_raw=fullfile(CTD_out_dir_root,'raw')
 
-% *** path where processed chipod data will be saved
-chi_processed_path='/Users/Andy/Cruises_Research/Tasmania/Data/Chipod_CTD/Processed/';
+% Folder to save processed and binned (1m) CTD mat files to
+CTD_out_dir_bin=fullfile(CTD_out_dir_root,'binned')
+
+% Folder to save processed figures to
+CTD_out_dir_figs=fullfile(CTD_out_dir_root,'figures')
+
+% Folder where chipod data files are
+%chi_data_path='/Users/Andy/Cruises_Research/ChiPod/IWISE10_And_vmp/Data/Chipod/401/'
+chi_data_path='/Users/Andy/Cruises_Research/mixingsoftware/CTD_Chipod/TestData/Chipod/raw/'
+
+% Folder for processed chipod data
+chi_processed_path='/Users/Andy/Cruises_Research/mixingsoftware/CTD_Chipod/TestData/Chipod/processed/'
+
 
 % path to save figures to
-fig_path=[chi_processed_path 'figures/'];
-ChkMkDir(fig_path)
+chi_fig_path=fullfile(chi_processed_path, 'figures');
+
+ChkMkDir(chi_fig_path)
+%%
 % ~~~~~~
 
 % Make a list of all ctd files
 % *** replace 'leg1' with name that is in your ctd files ***
-CTD_list=dir([CTD_path  '24hz/' '*_leg1_*.mat']);
+CTD_list=dir(fullfile(CTD_out_dir_raw, '*TestData_*.mat'));
 
 % make a text file to print a summary of results to
 txtfname=['Results' datestr(floor(now)) '.txt'];
@@ -87,20 +98,20 @@ fileID= fopen(fullfile(chi_processed_path,txtfname),'a');
 fprintf(fileID,['\n \n CTD-chipod Processing Summary\n']);
 fprintf(fileID,['\n \n Created ' datestr(now) '\n']);
 fprintf(fileID,'\n CTD path \n');
-fprintf(fileID,[CTD_path '\n']);
+fprintf(fileID,[CTD_out_dir_root '\n']);
 fprintf(fileID,'\n Chipod data path \n');
 fprintf(fileID,[chi_data_path '\n']);
 fprintf(fileID,'\n Chipod processed path \n');
 fprintf(fileID,[chi_processed_path '\n']);
 fprintf(fileID,'\n figure path \n');
-fprintf(fileID,[fig_path '\n \n']);
+fprintf(fileID,[chi_fig_path '\n \n']);
 fprintf(fileID,[' \n There are ' num2str(length(CTD_list)) ' CTD files' ]);
 
 % we loop through and do processing for each ctd file
 
 hb=waitbar(0,'Looping through ctd files');
 
-for a=20%100:length(CTD_list)
+for a=1
     
     close all
     
@@ -112,13 +123,11 @@ for a=20%100:length(CTD_list)
     fprintf(fileID,[' \n \n ~' castname ]);
     
     %load CTD profile
-    load([CTD_path '24hz/' castname])
+    load(fullfile(CTD_out_dir_raw, castname))
     % 24Hz data loaded here is in a structure named 'data2'
     CTD_24hz=data2;clear data2
     CTD_24hz.ctd_file=castname;
-    % Sometimes the time needs to be converted from computer time into matlab (datenum?) time.
-    % Time will be converted when CTD time is more than 5 years bigger than now.
-    % JRM
+    % Sometimes the 24hz ctd time needs to be converted from computer time into matlab (datenum?) time.
     tlim=now+5*365;
     if CTD_24hz.time > tlim
         tmp=linspace(CTD_24hz.time(1),CTD_24hz.time(end),length(CTD_24hz.time));
@@ -131,33 +140,22 @@ for a=20%100:length(CTD_list)
     % ** this might not work for other cruises/names ? - AP **
     cast_suffix_tmp=CTD_list(a).name; % Cast # may be different than file #. JRM
     cast_suffix=cast_suffix_tmp(end-8:end-6);
-    
-    
-    % load chipod info
-    addpath /Users/Andy/Cruises_Research/Tasmania/
-    Chipod_Deploy_Info_TTIDE
+        
+    % load chipod deployment info
+    Chipod_Deploy_Info_template
     
     %~~~ Enter Info for chipods deployed on CTD  ~~
     %~~~ This needs to be modified for each cruise ~~~
     
-    for up_down_big=1%[1 2 4 5]
+    for up_down_big=1
         
         close all
-        
-        % *** edit this info for your cruise/instruments ***
-        short_labs={'SN1012','SN1013','SN1002','SN102','SN1010'};
-        
+                
         switch up_down_big
             case 1
                 whSN='SN1012'; %
             case 2;
-                whSN='SN1013' ;% 
-            case 3
-                whSN='SN1002'; %
-            case 4
-                whSN='SN102';
-            case 5
-                whSN='SN1010';
+                whSN='SN1002' ;%
         end
         
         this_chi_info=ChiInfo.(whSN);
@@ -167,18 +165,18 @@ for a=20%100:length(CTD_list)
         isbig=this_chi_info.isbig;
         cal=this_chi_info.cal;
         
-        fprintf(fileID,[ ' \n \n ' short_labs{up_down_big} ]);
+        fprintf(fileID,[ ' \n \n ' whSN ]);
         
         d.time_range=datestr(time_range); % Time range of cast
         
-        chi_processed_path_specific=fullfile(chi_processed_path,['chi_' short_labs{up_down_big} ]);
+        chi_processed_path_specific=fullfile(chi_processed_path,['chi_' whSN ]);
         ChkMkDir(chi_processed_path_specific)
         
-        fig_path_specific=fullfile(fig_path,['chi_' short_labs{up_down_big} ]);
-        ChkMkDir(fig_path_specific)
+        chi_fig_path_specific=fullfile(chi_fig_path,['chi_' whSN ]);
+        ChkMkDir(chi_fig_path_specific)
         
         % filename for processed chipod data (will check if already exists)
-        processed_file=fullfile(chi_processed_path_specific,['cast_' cast_suffix '_' short_labs{up_down_big} '.mat']);
+        processed_file=fullfile(chi_processed_path_specific,['cast_' cast_suffix '_' whSN '.mat']);
         
         %~~ Load chipod data
         if  1%~exist(processed_file,'file')
@@ -186,46 +184,14 @@ for a=20%100:length(CTD_list)
             %            else
             disp('loading chipod data')
             
-            %~ *** For Ttide SN102, RTC on 102 was 5 hours 6mins behind for files 1-16?
-            if strcmp(whSN,'SN102') && time_range(1)<datenum(2015,1,22,18,0,0)
-                % need to look at shifted time range
-                time_range_fix=time_range-(7/24)-(6/86400);
-                chidat=load_chipod_data(chi_path,time_range_fix,suffix,isbig);
-                % correct the time in chipod data
-                chidat.datenum=chidat.datenum+(7/24)+(6/86400);
-            else
-                chidat=load_chipod_data(chi_path,time_range,suffix,isbig);
-            end
+            % find and load chipod data for this time range
+            chidat=load_chipod_data(chi_path,time_range,suffix,isbig);
             
             chidat.time_range=time_range;
             chidat.castname=castname;
             save(processed_file,'chidat')
             
-            %~ Moved this info here. For some chipods, this info changes
-            % during deployment, so we will wire that in here for now...
-            clear is_downcast az_correction
-            
-            %~ *** for T-tide SN1010, sensor was swapped and switched from up
-            %to down at chipod file 25
-            if strcmp(whSN,'SN1010')
-                
-                if chidat.datenum(1)>datenum(2015,1,25) % **check this, approximate **
-                    % dowlooking
-                    % is_downcast=1;
-                    this_chi_info.InstDir='down'
-                    az_correction=1;
-                    this_chi_info.sensorSN='13-02D'
-                else
-                    % uplooking
-                    % is_downcast=0;
-                    this_chi_info.InstDir='up'
-                    az_correction=-1;
-                    this_chi_info.sensorSN='11-23D'
-                end
-                
-            else
-                az_correction=this_chi_info.az_correction;
-            end
+            az_correction=this_chi_info.az_correction;
             %~
             
             % carry over chipod info
@@ -233,11 +199,15 @@ for a=20%100:length(CTD_list)
             chidat.cal=this_chi_info.cal;
             
             if length(chidat.datenum)>1000
+                                
+                % Align chipod data with 24Hz CTD data
+                [CTD_24hz chidat]=AlignChipodCTD(CTD_24hz,chidat,az_correction,1);
+                print('-dpng',fullfile(chi_fig_path,['chi_' whSN ],['cast_' cast_suffix '_w_TimeOffset']))
                 
-                % Alisn and calibrate data
-                [CTD_24hz chidat]=AlignAndCalibrateChipodCTD(CTD_24hz,chidat,az_correction,1);
+                % Calibrate T and dT/dt
+                [CTD_24hz chidat]=CalibrateChipodCTD(CTD_24hz,chidat,az_correction,1);
+                print('-dpng',fullfile(chi_fig_path,['chi_' whSN],['cast_' cast_suffix '_w_dTdtSpectraCheck']))
                 
-                print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_w_TimeOffset'])
                 
                 % save again, with time-offset and calibration added
                 save(processed_file,'chidat')
@@ -250,8 +220,18 @@ for a=20%100:length(CTD_list)
                 if pvar<50
                     disp('Warning T calibration not good')
                     fprintf(fileID,' *T calibration not good* ');
-                end                
+                end
                 
+                
+                clear out2 err pvar
+                out2=interp1(chidat.datenum,chidat.cal.T2,CTD_24hz.datenum);
+                err=out2-CTD_24hz.t1;
+                pvar=100* (1-(nanvar(err)/nanvar(CTD_24hz.t1)) );
+                if pvar<50
+                    disp('Warning T2 calibration not good')
+                    fprintf(fileID,' *T2 calibration not good* ');
+                end
+
                 %~~~~
                 do_timeseries_plot=1;
                 if do_timeseries_plot
@@ -270,7 +250,7 @@ for a=20%100:length(CTD_list)
                     ylabel('T [\circ C]')
                     xlim(xls)
                     datetick('x')
-                    title(['Cast ' cast_suffix ', ' short_labs{up_down_big} '  ' datestr(time_range(1),'dd-mmm-yyyy HH:MM') '-' datestr(time_range(2),15) ', ' CTD_list(a).name],'interpreter','none')
+                    title(['Cast ' cast_suffix ', ' whSN '  ' datestr(time_range(1),'dd-mmm-yyyy HH:MM') '-' datestr(time_range(2),15) ', ' CTD_list(a).name],'interpreter','none')
                     legend('CTD','chi','chi2-.5','location','best')
                     grid on
                     
@@ -304,7 +284,7 @@ for a=20%100:length(CTD_list)
                     orient tall
                     pause(.01)
                     
-                    print('-dpng','-r300',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_T_P_dTdz_fspd.png']);
+                    print('-dpng','-r300',fullfile(chi_fig_path,['chi_' whSN ],['cast_' cast_suffix '_T_P_dTdz_fspd.png']));
                 end
                 %~~~~
                 
@@ -312,8 +292,8 @@ for a=20%100:length(CTD_list)
                 clear datad_1m datau_1m chi_inds p_max ind_max ctd
                 
                 % load 1-m CTD data.
-                if exist([CTD_path castname(1:end-6) '.mat'],'file')
-                    load([CTD_path castname(1:end-6) '.mat']);
+                if exist(fullfile(CTD_out_dir_bin,[ castname(1:end-6) '.mat']),'file')
+                    load(fullfile(CTD_out_dir_bin,[ castname(1:end-6) '.mat']));
                     
                     % find max p from chi (which is really just P from CTD)
                     [p_max,ind_max]=max(chidat.cal.P);
@@ -347,9 +327,9 @@ for a=20%100:length(CTD_list)
                     %~~~
                     % save these data here now ?
                     clear fname_dn fname_up
-                    fname_dn=fullfile(chi_processed_path_specific,['cast_' cast_suffix '_' short_labs{up_down_big} '_downcast.mat']);
+                    fname_dn=fullfile(chi_processed_path_specific,['cast_' cast_suffix '_' whSN '_downcast.mat']);
                     save(fname_dn,'chi_dn')
-                    fname_up=fullfile(chi_processed_path_specific,['cast_' cast_suffix '_' short_labs{up_down_big} '_upcast.mat']);
+                    fname_up=fullfile(chi_processed_path_specific,['cast_' cast_suffix '_' whSN '_upcast.mat']);
                     save(fname_up,'chi_up')
                     %~~~
                     
@@ -383,12 +363,12 @@ for a=20%100:length(CTD_list)
                             axis ij
                             
                             subplot(122)
-                             plot(log10(abs(ctd.dTdz)),ctd.p)
+                            plot(log10(abs(ctd.dTdz)),ctd.p)
                             xlabel('log_{10} dT/dz [^{o}Cm^{-1}]'),ylabel('depth [m]')
                             title([chi_todo_now.castdir 'cast'])
                             grid on
                             axis ij
-                            print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_N2_dTdz'])
+                            print('-dpng',fullfile(chi_fig_path,['cast_' cast_suffix '_' chi_todo_now.castdir 'cast_N2_dTdz']))
                         end
                         %~~
                         
@@ -431,8 +411,8 @@ for a=20%100:length(CTD_list)
                         axes(ax(1))
                         title(['cast ' cast_suffix])
                         axes(ax(2))
-                        title([short_labs{up_down_big}],'interpreter','none')
-                        print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' short_labs{up_down_big} '_avg_chi_KT_dTdz_V2'])
+                        title([whSN],'interpreter','none')
+                        print('-dpng',fullfile(chi_fig_path ,['cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' whSN '_avg_chi_KT_dTdz']))
                         
                         %~~~
                         avg.castname=castname;
@@ -447,7 +427,7 @@ for a=20%100:length(CTD_list)
                         
                         chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
                         ChkMkDir(chi_processed_path_avg)
-                        processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' short_labs{up_down_big} '.mat']);
+                        processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' whSN '.mat']);
                         save(processed_file,'avg','ctd')
                         %~~~
                         
@@ -487,7 +467,7 @@ for a=20%100:length(CTD_list)
                             
                             %%% Now we'll do the main looping through of the data.
                             clear avg  todo_inds
-                           % nfft=128;
+                            % nfft=128;
                             [avg todo_inds]=Prepare_Avg_for_ChiCalc(nfft,chi_todo_now,ctd);
                             
                             clear TP fspd good_chi_inds
@@ -505,8 +485,8 @@ for a=20%100:length(CTD_list)
                             axes(ax(1))
                             title(['cast ' cast_suffix])
                             axes(ax(2))
-                            title([short_labs{up_down_big}],'interpreter','none')
-                            print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' short_labs{up_down_big} '_Sens2_avg_chi_KT_dTdz_V2'])
+                            title([whSN],'interpreter','none')
+                            print('-dpng',fullfile(chi_fig_path,['cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' whSN '_Sens2_avg_chi_KT_dTdz']))
                             
                             %~~~
                             avg.castname=castname;
@@ -521,7 +501,7 @@ for a=20%100:length(CTD_list)
                             
                             chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
                             ChkMkDir(chi_processed_path_avg)
-                            processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' short_labs{up_down_big} '_Sens2.mat']);
+                            processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' whSN '_Sens2.mat']);
                             save(processed_file,'avg','ctd')
                             
                             fprintf(fileID,['\n Chi computed for 2nd sensor on Big \n ' processed_file]);
@@ -562,7 +542,7 @@ for a=20%100:length(CTD_list)
                             grid on
                             axis ij
                             
-                            print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_N2_dTdz'])
+                            print('-dpng',fullfile(chi_fig_path,['cast_' cast_suffix '_' chi_todo_now.castdir 'cast_N2_dTdz']))
                         end
                         
                         %~~~
@@ -580,7 +560,7 @@ for a=20%100:length(CTD_list)
                         axis ij
                         datetick('x')
                         
-                        %%% 
+                        %%%
                         
                         clear avg  todo_inds
                         %nfft=128;
@@ -599,8 +579,8 @@ for a=20%100:length(CTD_list)
                         axes(ax(1))
                         title(['cast ' cast_suffix])
                         axes(ax(2))
-                        title([short_labs{up_down_big}],'interpreter','none')
-                        print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' short_labs{up_down_big} '_avg_chi_KT_dTdz_V2'])
+                        title([whSN],'interpreter','none')
+                        print('-dpng',fullfile(chi_fig_path,['cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' whSN '_avg_chi_KT_dTdz']))
                         
                         %~~~
                         
@@ -616,8 +596,8 @@ for a=20%100:length(CTD_list)
                         
                         chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
                         ChkMkDir(chi_processed_path_avg)
-                        processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' short_labs{up_down_big} '.mat']);
-                        % processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' short_labs{up_down_big} '.mat']);
+                        processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' whSN '.mat']);
+                        % processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' whSN '.mat']);
                         save(processed_file,'avg','ctd')
                         
                         ngc=find(~isnan(avg.chi1));
@@ -636,7 +616,7 @@ for a=20%100:length(CTD_list)
                             ctd=datau_1m;
                             chi_todo_now=chi_up;
                             
-                            % 
+                            %
                             ctd=Compute_N2_dTdz_forChi(ctd,z_smooth);
                             
                             % remove loops in CTD data
@@ -673,8 +653,8 @@ for a=20%100:length(CTD_list)
                             axes(ax(1))
                             title(['cast ' cast_suffix])
                             axes(ax(2))
-                            title([short_labs{up_down_big}],'interpreter','none')
-                            print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' short_labs{up_down_big} '_Sens2_avg_chi_KT_dTdz_V2'])
+                            title([whSN],'interpreter','none')
+                            print('-dpng',[chi_fig_path  'chi_' whSN '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' whSN '_Sens2_avg_chi_KT_dTdz_V2'])
                             
                             %~~~
                             avg.castname=castname;
@@ -689,7 +669,7 @@ for a=20%100:length(CTD_list)
                             
                             chi_processed_path_avg=fullfile(chi_processed_path_specific,'avg');
                             ChkMkDir(chi_processed_path_avg)
-                            processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' short_labs{up_down_big} '_Sens2.mat']);
+                            processed_file=fullfile(chi_processed_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' whSN '_Sens2.mat']);
                             save(processed_file,'avg','ctd')
                             
                             fprintf(fileID,['\n Chi computed for 2nd sensor on Big \n' processed_file]);

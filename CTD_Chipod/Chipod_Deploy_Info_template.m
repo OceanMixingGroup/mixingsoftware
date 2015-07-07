@@ -13,21 +13,22 @@
 %%
 
 ChiInfo=struct();
-ChiInfo.Project='TTIDE';
+ChiInfo.Project='Test';
 
 %~~~~~~~~~~~~~~~~~~~
 % Example 'mini' chipod
 %~~~~~~~~~~~~~~~~~~~
-% SN 102
-SN102.loggerSN='102'; % logger serial number
-SN102.pcaseSN='Ti88-4;';
-SN102.sensorSN='11-15C';
-SN102.InstDir='up';
-SN102.InstType='mini';
-SN102.az_correction=-1; % -1 if the Ti case is pointed up
-SN102.suffix='A0102';
-SN102.isbig=0;
-SN102.cal.coef.T1P=0.097;
+%%~~~~~~~~~~~~~~~~~~~
+% SN 1012 
+SN1012.loggerSN='1012'; % logger serial number
+SN1012.pcaseSN='Ti88-3';
+SN1012.sensorSN='11-21D';
+SN1012.InstDir='up';
+SN1012.InstType='mini';
+SN1012.az_correction=-1; % -1 if the Ti case is pointed up
+SN1012.suffix='A1012'; % suffix for data filenames
+SN1012.isbig=0; %
+SN1012.cal.coef.T1P=0.097;
 
 %~~~~~~~~~~~~~~~~~~~
 % Example 'big' chipod
@@ -47,7 +48,7 @@ SN1002.isbig=1;
 SN1002.az_correction=-1; % check this ?
 
 
-ChiInfo.SN102=SN102;
+ChiInfo.SN1012=SN1012;
 ChiInfo.SN1002=SN1002;
-ChiInfo.MakeInfo='Chipod_Deploy_Info_TTIDE.m';
+ChiInfo.MakeInfo='Chipod_Deploy_Info_Template.m';
 %%

@@ -423,14 +423,11 @@ for a=1
                         %~~~ now let's do the chi computations:
                         
                         % remove loops in CTD data
-                        %                         extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
-                        %                         wthresh = 0.4;
                         clear datau2 bad_inds tmp
                         [datau2,bad_inds] = ctd_rmdepthloops(CTD_24hz,extra_z,wthresh);
                         tmp=ones(size(datau2.p));
                         tmp(bad_inds)=0;
                         
-                        % new AP
                         chi_todo_now.is_good_data=interp1(datau2.datenum,tmp,chi_todo_now.datenum,'nearest');
                         %
                         figure(55);clf
@@ -485,8 +482,7 @@ for a=1
                         end
                         
                     end % up,down, T1/T2
-                    
-                    
+                                        
                 end % if we have binned ctd data
                 
             else

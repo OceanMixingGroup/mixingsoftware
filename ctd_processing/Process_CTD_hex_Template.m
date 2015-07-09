@@ -41,31 +41,31 @@ cruise='TS'
 % *** Paths to raw and processed data ***
 
 % Folder with raw CTD data (.hex and .XMLCON files)
-datadir='/Users/Andy/Cruises_Research/IWISE/Data/2011/ctd/'
+CTD_data_dir='/Users/Andy/Cruises_Research/IWISE/Data/2011/ctd/'
 
 % Base directory for all output
-root_dir='/Users/Andy/Cruises_Research/ChiPod/'
+CTD_out_dir_root='/Users/Andy/Cruises_Research/ChiPod/'
 
 % Folder to save processed 24Hz CTD mat files to
-outdir_raw=fullfile(root_dir,'processed','24hz')
+CTD_out_dir_raw=fullfile(CTD_out_dir_root,'processed','24hz')
 
 % Folder to save processed and binned CTD mat files to
-outdir_bin=fullfile(root_dir,'processed','binned')
+CTD_out_dir_bin=fullfile(CTD_out_dir_root,'processed','binned')
 
 % Folder to save figures to
-figdir=fullfile(root_dir,'processed','figures')
+CTD_out_dir_figs=fullfile(CTD_out_dir_root,'processed','figures')
 
 % Check if folders exist, and make new if not
-ChkMkDir(figdir)
-ChkMkDir(outdir_bin)
-ChkMkDir(outdir_raw)
+ChkMkDir(CTD_out_dir_figs)
+ChkMkDir(CTD_out_dir_bin)
+ChkMkDir(CTD_out_dir_raw)
 
 dobin=1;  % bin data
 doascii=0 % option to save data as text file for LADCP processing
 
 %~~~
 % Make list of all ctd files we have
-ctdlist = dirs(fullfile(datadir, [cruise '*.hex']))
+ctdlist = dirs(fullfile(CTD_data_dir, [cruise '*.hex']))
 
 % Loop through each cast
 for icast=1%:length(ctdlist)
@@ -76,10 +76,10 @@ for icast=1%:length(ctdlist)
     
     
     % name of file we are working on now
-    ctdname = fullfile(datadir,ctdlist(icast).name)
+    ctdname = fullfile(CTD_data_dir,ctdlist(icast).name)
     % name for processed matfile
     outname=[sprintf([cruise '_%03d'],icast) '.mat']
-    matname=fullfile(outdir_bin, outname);
+    matname=fullfile(CTD_out_dir_bin, outname);
     disp(['CTD file: ' ctdname])
     %~~~
     
@@ -122,28 +122,10 @@ for icast=1%:length(ctdlist)
     disp('converting:')
     % *** fl, trans, ch4
     data2 = physicalunits(data1, cfg);
-    
-    %~~~
-    figure(1);clf
-    
-    subplot(121)
-    plot(data2.t1,data2.p,data2.t2,data2.p)
-    axis ij
-    ylabel('p [db]')
-    grid on
-    xlabel('temp [^oC]')
-    title(ctdlist(icast).name,'interpreter','none')
-    legend('t1','t2','location','Southeast')
-    
-    subplot(122)
-    plot(data2.c1,data2.p,data2.c2,data2.p)
-    axis ij
-    ylabel('p [db]')
-    grid on
-    xlabel('cond.')
-    legend('c1','c2','location','east')
-    
-    print('-dpng',fullfile(figdir,[ctdlist(icast).name(1:end-4) '_Raw_Temp_Cond_vsP']))
+ 
+    % Plot raw profiles of temp and cond.
+    h=PlotRawCTDprofiles(data2,ctdlist,icast)
+    print('-dpng',fullfile(CTD_out_dir_figs,[ctdlist(icast).name(1:end-4) '_Raw_Temp_Cond_vsP']))
     %~~~
     
     % add correct time to data
@@ -155,7 +137,7 @@ for icast=1%:length(ctdlist)
     
     % output raw data
     disp(['saving: ' matname])
-    matname0 = fullfile(outdir_raw,[outname(1:end - 4) '_0.mat'])
+    matname0 = fullfile(CTD_out_dir_raw,[outname(1:end - 4) '_0.mat'])
     save(matname0, 'data2')
     
     % specify the depth range over which t-c lag fitting is done. For deep
@@ -272,29 +254,8 @@ for icast=1%:length(ctdlist)
     
     %% Plot binned profiles
     
-    figure(3);clf
-    subplot(121)
-    plot(datad_1m.t1,datad_1m.p,'-')
-    hold on
-    plot(datad_1m.t2,datad_1m.p,'--')
-    axis ij
-    grid on
-    xlabel('Temp [^oC]')
-    ylabel('Pressure [db]')
-    title(ctdlist(icast).name,'interpreter','none')
-    legend('t1','t2','location','Southeast')
-    
-    subplot(122)
-    plot(datad_1m.s1,datad_1m.p,'-')
-    hold on
-    plot(datad_1m.s2,datad_1m.p,'--')
-    axis ij
-    grid on
-    xlabel('Sal.')
-    ylabel('Pressure [db]')
-    legend('s1','s2','location','east')
-    
-    print('-dpng',fullfile(figdir,[ctdlist(icast).name(1:end-4) '_binned_Temp_Sal_vsP']))
+    h=PlotBinnedCTDprofiles(datad_1m,datau_1m,ctdlist,icast)
+    print('-dpng',fullfile(CTD_out_dir_figs,[ctdlist(icast).name(1:end-4) '_binned_Temp_Sal_vsP']))
     
     %% save as a text file for use by LADCP processing
     
@@ -313,8 +274,8 @@ for icast=1%:length(ctdlist)
         
         dataout=[sec p t s lat lon];
         ig=find(~isnan(mean(dataout,2))); dataout=dataout(ig,:);
-        %save([outdir_bin outname(1:end-4) '.cnv'],'dataout','-ascii','-tabs')
-        save(fullfile(outdir_bin,[outname(1:end-4) '.cnv']),'dataout','-ascii','-tabs')
+        %save([CTD_out_dir_bin outname(1:end-4) '.cnv'],'dataout','-ascii','-tabs')
+        save(fullfile(CTD_out_dir_bin,[outname(1:end-4) '.cnv']),'dataout','-ascii','-tabs')
     end
     %
     

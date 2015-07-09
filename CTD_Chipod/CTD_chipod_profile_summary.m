@@ -34,6 +34,7 @@ plot(TP,chi_todo_now.P),axis ij
 grid on
 xlabel('dT/dt')
 axis tight
+xlim(3*[-1 1])
 ytloff
 
 axes(ax(4))

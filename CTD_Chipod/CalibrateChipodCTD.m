@@ -101,6 +101,7 @@ if test_dtdt
     dt=median(diff(chidat.datenum))*3600*24;
     cal.dTdt_dig=[0 ; diff(cal.T1)/dt];
     oset=min(chidat.datenum);
+    figure;clf
     plot(chidat.datenum-oset,cal.dTdt_dig,chidat.datenum-oset,cal.T1P);
     %    pause
     ax=axis
@@ -111,7 +112,7 @@ if test_dtdt
     [p2,f]=fast_psd(cal.dTdt_dig(ginds2),256,100);
     
     % plot the two spectra
-    figure(4)
+    figure;clf
     loglog(f,p2,f,p,'linewidth',2);
     axis tight
     grid on
@@ -142,7 +143,7 @@ if chidat.Info.isbig
         [p2,f]=fast_psd(cal.dTdt_dig(ginds2),256,100);
         
         % plot the two spectra
-        figure
+        figure;clf
         loglog(f,p2,f,p,'linewidth',2);
         axis tight
         grid on

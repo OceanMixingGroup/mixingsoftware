@@ -1,4 +1,4 @@
-function big=load_chipod_data(the_path,time_range,suffix,isbig)
+function big=load_chipod_data(the_path,time_range,suffix,isbig,plotit)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % function big=load_chipod_data(the_path,time_range,suffix,isbig)
@@ -11,6 +11,7 @@ function big=load_chipod_data(the_path,time_range,suffix,isbig)
 % time_range : Time range of ctd profile (datenum)
 % suffix     : Suffix for chipod filenames (usually the chipod SN)
 % isbig      : Specify if 'big' chipod (data structure is different)
+% plotit     : Option to plot data
 %
 % OUTPUT
 % big        : Structure with chipod data for this time range
@@ -30,6 +31,11 @@ function big=load_chipod_data(the_path,time_range,suffix,isbig)
 
 if nargin<4
     isbig=1; % presume it is a big chipod
+end
+
+if nargin<5
+    isbig=1; % presume it is a big chipod
+    plotit=0;
 end
 
 
@@ -133,8 +139,8 @@ big.MakeInfo=['Made ' datestr(now) ' w/ ' mfilename ' in ' version];
 % also save name of chi file data is from - AP
 big.chi_files=fnamelist;
 
-doplots=0;
-if doplots
+%doplots=1;
+if plotit==1
     
     figure(77);clf
     ax1=subplot(311)

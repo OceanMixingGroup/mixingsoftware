@@ -10,29 +10,27 @@ function [CTD_24hz chidat]=AlignChipodCTD(CTD_24hz,chidat,az_correction,makeplot
 % INPUT
 % CTD_24hz       : 24hz CTD data (includes downcast and upcast)
 % chidat         : Chipod data for this period.
-% az_correction  :
+% az_correction  : Correction for accelerometer mounted up/down on Rosette
 % makeplot       : option to make figure
 %
 % OUTPUT
 % CTD_24hz  : Same, w/ dp/dt added
 % chidat    : Same, w/ time offset computed and added
+% Also computes fspd (lowpassed dp/dt) and adds to chidat
 %
 % June 14, 2015 - A. Pickering - apickering@coas.oregonstate.edu
-%
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
 if ~exist('makeplot','var')
     makeplot=0
 end
-
-% don't use low-passed p?
-% % low-passed p
+ 
+% % low-passed dp/dt
 CTD_24hz.p_lp=conv2(medfilt1(CTD_24hz.p),hanning(30)/sum(hanning(30)),'same');
 CTD_24hz.dpdt=gradient(CTD_24hz.p_lp,nanmedian(diff(CTD_24hz.datenum*86400)));
 CTD_24hz.dpdt(CTD_24hz.dpdt>10)=mean(CTD_24hz.dpdt); % JRM added to remove large spike spikes in dpdt
 
-% could just highpass isntead of subracting lowpass?
 % Compute high-passed dp/dt (ie vertical velocity of ctd)
 CTD_24hz.dpdt_hp=CTD_24hz.dpdt-conv2(CTD_24hz.dpdt,hanning(750)/sum(hanning(750)),'same');
 CTD_24hz.dpdt_hp(abs(CTD_24hz.dpdt_hp)>2)=mean(CTD_24hz.dpdt_hp); % JRM added to remove large spike spikes in dpdt_hp

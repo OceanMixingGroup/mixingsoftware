@@ -89,10 +89,20 @@ for a=1:nfiles
                 chidat.datenum=counter;
                 chidat.T1=out(:,2);
                 chidat.T1P=out(:,1);
-                chidat.AX=3*out(:,4);
-                chidat.AZ=3*out(:,3);
-                %			plot(chidat.datenum,chidat.T1);
-                %			hold on
+                
+                %~~ Sometimes AX/AZ are wired differently; AZ should always
+                %be larger than AX because it contains g
+                clear A1 A2
+                A1=3*out(:,3);
+                A2=3*out(:,4);
+                if nanmean(A1)>nanmean(A2)
+                    chidat.AX=A2;
+                    chidat.AZ=A1;
+                elseif nanmean(A1)<nanmean(A2)
+                    chidat.AX=A1;
+                    chidat.AZ=A2;
+                end
+                %~~
                 
             end
             big=mergefields_jn(big,chidat,1,1);

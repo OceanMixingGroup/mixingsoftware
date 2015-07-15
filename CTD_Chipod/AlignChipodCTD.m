@@ -39,6 +39,7 @@ CTD_24hz.dpdt_hp(abs(CTD_24hz.dpdt_hp)>2)=mean(CTD_24hz.dpdt_hp); % JRM added to
 tmp=az_correction*9.8*(chidat.AZ-median(chidat.AZ)); tmp(abs(tmp)>10)=0;
 tmp2=tmp-conv2(tmp,hanning(3000)/sum(hanning(3000)),'same');
 w_from_chipod=cumsum(tmp2*nanmedian(diff(chidat.datenum*86400)));
+w_from_chipod=w_from_chipod-nanmean(w_from_chipod); % remove mean
 
 if makeplot==1
 % plot:
@@ -47,6 +48,7 @@ ax1= subplot(2,1,1);
 plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'b',chidat.datenum,w_from_chipod,'r'),hold on
 legend('ctd dp/dt','w_{chi}','orientation','horizontal','location','best')
 %title([castname ' ' short_labs{up_down_big}],'interpreter','none')
+title([chidat.castname ' - SN' chidat.Info.loggerSN ],'interpreter','none')
 ylabel('w [m/s]')
 datetick('x')
 grid on
@@ -54,7 +56,7 @@ end
 
 % Find profile inds for CTD data (ctd profile 'starts' at 10m )
 %ginds=get_profile_inds(CTD_24hz.p,10);
-min_p=10;
+min_p=20;
 inds=find(CTD_24hz.p>min_p);
 ginds=inds(1):inds(end);
 

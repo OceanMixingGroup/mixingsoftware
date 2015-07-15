@@ -9,12 +9,12 @@
 % https://github.com/OceanMixingGroup/mixingsoftware
 %
 % ~~Before running this script:
-% -This script assumes that CTD data has been processed in a standard form
+% - This script assumes that CTD data has been processed in a standard form
 % (see folder 'ctd_processing'). CTD data are used for two purposes: (1) the
 % 24Hz data is used to compute dp/dt and compare with chipod acceleration to
 % find the time offset . (2) lower resolution (here 1m) N^2 and dTdz are
 % needed to compute chi.
-% -Chipod data files need to be downloaded and saved as well. They should
+% - The raw Chipod data files need to be downloaded and saved as well. They should
 % be in folders named by SN (ie /1002)
 %
 % Instructions to run:
@@ -26,10 +26,10 @@
 % 4) Run!
 %
 % OUTPUT:
-% Saves a file for each cast and chipod with:
-% avg
-% ctd
-% Writes a text file called 'Results.txt' that summarizes the settings used
+%  Saves a file for each cast and chipod with:
+% - avg : Structure with estimated chi, epsilon, KT etc.
+% - ctd
+% - Writes a text file called 'Results.txt' that summarizes the settings used
 % and the results (whether it found a chipod file, if it had good data etc.
 % for each cast).
 %
@@ -40,7 +40,7 @@
 
 clear ; close all ; clc
 
-% ***
+% *** To record in output which script was used
 this_script_name='process_chipod_script_template.m'
 
 tstart=tic;
@@ -56,7 +56,7 @@ addpath(fullfile(mixpath,'general')) % makelen.m in /general is needed
 addpath(fullfile(mixpath,'marlcham')) % for integrate.m
 addpath(fullfile(mixpath,'adcp')) % need for mergefields_jn.m in load_chipod_data
 
-% Base directory for processed CTD data
+% *** Base directory for processed CTD data
 CTD_out_dir_root='/Users/Andy/Cruises_Research/mixingsoftware/CTD_Chipod/TestData/CTD/Processed/'
 
 % Folder for processed 24Hz CTD data
@@ -68,23 +68,19 @@ CTD_out_dir_bin=fullfile(CTD_out_dir_root,'binned')
 % Folder to save processed figures to
 CTD_out_dir_figs=fullfile(CTD_out_dir_root,'figures')
 
-% Folder where chipod data files are
-%chi_data_path='/Users/Andy/Cruises_Research/ChiPod/IWISE10_And_vmp/Data/Chipod/401/'
+%*** Folder where chipod data files are
 chi_data_path='/Users/Andy/Cruises_Research/mixingsoftware/CTD_Chipod/TestData/Chipod/raw/'
 
-% Folder for processed chipod data
+%*** Folder for processed chipod data
 chi_processed_path='/Users/Andy/Cruises_Research/mixingsoftware/CTD_Chipod/TestData/Chipod/processed/'
-
 
 % path to save figures to
 chi_fig_path=fullfile(chi_processed_path, 'figures');
-
 ChkMkDir(chi_fig_path)
-%%
-% ~~~~~~
+%
 
 % Make a list of all ctd files
-% *** replace 'leg1' with name that is in your ctd files ***
+% *** replace 'TestData' with name that is in your ctd files ***
 CTD_list=dir(fullfile(CTD_out_dir_raw, '*TestData_*.mat'));
 
 % make a text file to print a summary of results to
@@ -141,7 +137,7 @@ for a=1
     cast_suffix_tmp=CTD_list(a).name; % Cast # may be different than file #. JRM
     cast_suffix=cast_suffix_tmp(end-8:end-6);
     
-    % load chipod deployment info
+    %*** Load chipod deployment info
     Chipod_Deploy_Info_template
     
     %~~~ Enter Info for chipods deployed on CTD  ~~
@@ -179,13 +175,13 @@ for a=1
         processed_file=fullfile(chi_processed_path_specific,['cast_' cast_suffix '_' whSN '.mat']);
         
         %~~ Load chipod data
-        if  1%~exist(processed_file,'file')
+        if  1 %~exist(processed_file,'file')
             %load(processed_file)
             %            else
             disp('loading chipod data')
             
             % find and load chipod data for this time range
-            chidat=load_chipod_data(chi_path,time_range,suffix,isbig);
+            chidat=load_chipod_data(chi_path,time_range,suffix,isbig,1);
             
             chidat.time_range=time_range;
             chidat.castname=castname;
@@ -204,15 +200,18 @@ for a=1
                 [CTD_24hz chidat]=AlignChipodCTD(CTD_24hz,chidat,az_correction,1);
                 print('-dpng',fullfile(chi_fig_path,['chi_' whSN ],['cast_' cast_suffix '_w_TimeOffset']))
                 
+                % zoom in and plot again
+                xlim([nanmin(chidat.datenum) nanmin(chidat.datenum)+100/86400])
+                print('-dpng',fullfile(chi_fig_path,['chi_' whSN ],['cast_' cast_suffix '_w_TimeOffset_Zoom']))
+
                 % Calibrate T and dT/dt
                 [CTD_24hz chidat]=CalibrateChipodCTD(CTD_24hz,chidat,az_correction,1);
                 print('-dpng',fullfile(chi_fig_path,['chi_' whSN],['cast_' cast_suffix '_w_dTdtSpectraCheck']))
-                
-                
+                                
                 % save again, with time-offset and calibration added
                 save(processed_file,'chidat')
                 
-                % check if T calibration is ok
+                % check if T1 calibration is ok
                 clear out2 err pvar
                 out2=interp1(chidat.datenum,chidat.cal.T1,CTD_24hz.datenum);
                 err=out2-CTD_24hz.t1;
@@ -221,8 +220,8 @@ for a=1
                     disp('Warning T calibration not good')
                     fprintf(fileID,' *T calibration not good* ');
                 end
-                
-                
+                    
+                % check if T2 calibration is ok
                 clear out2 err pvar
                 out2=interp1(chidat.datenum,chidat.cal.T2,CTD_24hz.datenum);
                 err=out2-CTD_24hz.t1;
@@ -236,59 +235,16 @@ for a=1
                 do_timeseries_plot=1;
                 if do_timeseries_plot
                     
-                    xls=[min(CTD_24hz.datenum) max(CTD_24hz.datenum)];
-                    figure(2);clf
-                    agutwocolumn(1)
-                    wysiwyg
-                    clf
-                    
-                    h(1)=subplot(411);
-                    plot(CTD_24hz.datenum,CTD_24hz.t1)
-                    hold on
-                    plot(chidat.datenum,chidat.cal.T1)
-                    plot(chidat.datenum,chidat.cal.T2-.5)
-                    ylabel('T [\circ C]')
-                    xlim(xls)
-                    datetick('x')
+                    h=ChiPodTimeseriesPlot(CTD_24hz,chidat)
+                    axes(h(1))
                     title(['Cast ' cast_suffix ', ' whSN '  ' datestr(time_range(1),'dd-mmm-yyyy HH:MM') '-' datestr(time_range(2),15) ', ' CTD_list(a).name],'interpreter','none')
-                    legend('CTD','chi','chi2-.5','location','best')
-                    grid on
-                    
-                    h(2)=subplot(412);
-                    plot(CTD_24hz.datenum,CTD_24hz.p);
-                    ylabel('P [dB]')
-                    xlim(xls)
-                    datetick('x')
-                    grid on
-                    
-                    h(3)=subplot(413);
-                    plot(chidat.datenum,chidat.cal.T1P-.01)
-                    hold on
-                    plot(chidat.datenum,chidat.cal.T2P+.01)
-                    ylabel('dT/dt [K/s]')
-                    xlim(xls)
-                    ylim(10*[-1 1])
-                    datetick('x')
-                    grid on
-                    
-                    h(4)=subplot(414);
-                    plot(chidat.datenum,chidat.fspd)
-                    ylabel('fallspeed [m/s]')
-                    xlim(xls)
-                    ylim(3*[-1 1])
-                    datetick('x')
+                    axes(h(end))
                     xlabel(['Time on ' datestr(time_range(1),'dd-mmm-yyyy')])
-                    grid on
-                    
-                    linkaxes(h,'x');
-                    orient tall
-                    pause(.01)
                     
                     print('-dpng','-r300',fullfile(chi_fig_path,['chi_' whSN ],['cast_' cast_suffix '_T_P_dTdz_fspd.png']));
                 end
                 %~~~~
-                
-                
+                                
                 clear datad_1m datau_1m chi_inds p_max ind_max ctd
                 
                 % load 1-m CTD data.
@@ -357,7 +313,6 @@ for a=1
                             
                             case 1 % downcast T1
                                 clear ctd chi_todo_now
-                                % fallspeed_correction=-1;
                                 ctd=datad_1m;
                                 chi_todo_now=chi_dn;
                                 % ~~ Choose which dT/dt to use (for mini
@@ -368,7 +323,6 @@ for a=1
                                 disp('Doing T1 downcast')
                             case 2 % upcast T1
                                 clear avg ctd chi_todo_now
-                                %fallspeed_correction=1;
                                 ctd=datau_1m;
                                 chi_todo_now=chi_up;
                                 whsens='T1';
@@ -376,7 +330,6 @@ for a=1
                                 disp('Doing T1 upcast')
                             case 3 %downcast T2
                                 clear ctd chi_todo_now
-                                %fallspeed_correction=-1;
                                 ctd=datad_1m;
                                 chi_todo_now=chi_dn;
                                 % ~~ Choose which dT/dt to use (for mini
@@ -387,7 +340,6 @@ for a=1
                                 disp('Doing T2 downcast')
                             case 4 % upcast T2
                                 clear avg ctd chi_todo_now
-                                %                                fallspeed_correction=1;
                                 ctd=datau_1m;
                                 chi_todo_now=chi_up;
                                 TP=chi_todo_now.T2P;
@@ -398,27 +350,6 @@ for a=1
                         
                         % AP May 11 - replace with function
                         ctd=Compute_N2_dTdz_forChi(ctd,z_smooth);
-                        
-                        %~~ plot N2 and dTdz
-                        doplot=1;
-                        if doplot
-                            figure(3);clf
-                            subplot(121)
-                            hT=plot(log10(abs(ctd.N2)),ctd.p);
-                            xlabel('log_{10}N^2'),ylabel('depth [m]')
-                            title(castname,'interpreter','none')
-                            grid on
-                            axis ij
-                            
-                            subplot(122)
-                            plot(log10(abs(ctd.dTdz)),ctd.p)
-                            xlabel('log_{10} dT/dz [^{o}Cm^{-1}]'),ylabel('depth [m]')
-                            title([chi_todo_now.castdir 'cast'])
-                            grid on
-                            axis ij
-                            print('-dpng',fullfile(chi_fig_path,[  'chi_' whSN '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_N2_dTdz']))
-                        end
-                        %~~
                         
                         %~~~ now let's do the chi computations:
                         
@@ -437,8 +368,7 @@ for a=1
                         title(['cast_' cast_suffix '_' chi_todo_now.castdir],'interpreter','none')
                         axis ij
                         datetick('x')
-                        
-                        
+                                                
                         %%% Now we'll do the main looping through of the data.
                         clear avg  todo_inds
                         

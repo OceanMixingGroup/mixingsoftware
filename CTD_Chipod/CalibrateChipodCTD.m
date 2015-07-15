@@ -120,6 +120,8 @@ if test_dtdt
     xlabel('Frequency [hz]')
     title(['Spectra of dT/dt - \tau =' num2str(chidat.cal.coef.T1P)])
     ylabel('\Phi_{T_z} [^oC^2/s^{-2}]')
+    freqline(0)
+    freqline(20)
 end
 %%
 

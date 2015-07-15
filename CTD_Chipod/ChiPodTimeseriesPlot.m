@@ -11,7 +11,7 @@ xls=[min(CTD_24hz.datenum) max(CTD_24hz.datenum)];
 hf=figure(2);clf
 agutwocolumn(1)
 wysiwyg
-ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.08, 1,5);
+ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.03, 1,5);
 
 axes(ax(1))
 %h(1)=subplot(411);
@@ -62,10 +62,9 @@ plot(chidat.datenum,chidat.AZ)
 xlim(xls)
 datetick('x')
 legend('AX','AZ')
+grid on
 
 linkaxes(ax,'x');
-%orient tall
-%pause(.01)
 
 return
 %%

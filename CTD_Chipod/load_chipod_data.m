@@ -16,13 +16,18 @@ function big=load_chipod_data(the_path,time_range,suffix,isbig,plotit)
 % OUTPUT
 % big        : Structure with chipod data for this time range
 %
+% Note: Output from AX and AZ are sometimes wired differently. This program
+% assumes that the one with the larger magnitude is AZ. However, if the
+% unit or board is mounted upside down, AZ will be smaller. Need to check
+% this in AlignChipodCTD.m.
+%
+%
 % Part of CTD_chipod software in OSU 'mixingsoftware' github repository.
 %
 % Dependencies:
 % calls mixingsoftware/adcp/mergefields_jn.m
 % notes:
 %
-% AP 24 Mar - need to increase t_extra to find good chi files?
 %
 % Original - J. Nash, J. Marion?
 % Comments and updates by A. Pickering
@@ -98,6 +103,8 @@ for a=1:nfiles
                 
                 %~~ Sometimes AX/AZ are wired differently; AZ should always
                 %be larger than AX because it contains g
+                % ** Not actually true, AZ<AX if mounted upside down? Need
+                % to look in detail at data to determine correct order
                 clear A1 A2
                 A1=3*out(:,3);
                 A2=3*out(:,4);
@@ -134,42 +141,44 @@ for a=1:length(fnames)
     big.(fnames{a})=big.(fnames{a})(ginds);
 end
 
-
 big.MakeInfo=['Made ' datestr(now) ' w/ ' mfilename ' in ' version];
 % also save name of chi file data is from - AP
 big.chi_files=fnamelist;
 
-%doplots=1;
 if plotit==1
     
-    figure(77);clf
-    ax1=subplot(311)
-    plot(big.datenum,big.T1);
-    title(datestr(mean(chidat.datenum)))
-    ylabel('T1')
-    axis tight
-    xlim(time_range)
-    datetick('x')
-    %    kdatetick
-    
-    ax2=subplot(312)
-    plot(big.datenum,big.T1P);
-    axis tight
-    ylabel('T1P')
-    xlim(time_range)
-    datetick('x')
-    %   kdatetick
-    
-    ax3=subplot(313)
-    plot(big.datenum,big.AX,big.datenum,big.AZ);
-    axis tight
-    ylabel('A')
-    xlim(time_range)
-    legend('Ax','Az','location','best')
-    datetick('x')
-    %  kdatetick
-    linkaxes([ax1 ax2 ax3],'x')
+    if ~isnan(big.datenum)
+        figure(77);clf
+        ax1=subplot(311)
+        plot(big.datenum,big.T1);
+        ylabel('T1')
+        axis tight
+        xlim(time_range)
+        datetick('x')
+        grid on
+        
+        ax2=subplot(312)
+        plot(big.datenum,big.T1P);
+        axis tight
+        ylabel('T1P')
+        xlim(time_range)
+        grid on
+        datetick('x')
+        
+        ax3=subplot(313)
+        plot(big.datenum,big.AX,big.datenum,big.AZ);
+        axis tight
+        ylabel('A')
+        xlim(time_range)
+        legend('Ax','Az','location','best')
+        datetick('x')
+        grid on
+        xlabel(['Time on ' datestr(floor(nanmin(chidat.datenum))) ])
+        linkaxes([ax1 ax2 ax3],'x')
+        
+    else
+        h=figure;
+    end
     
 end
-
 %%

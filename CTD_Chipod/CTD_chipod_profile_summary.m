@@ -18,7 +18,6 @@ grid on
 axis tight
 xlabel('log_{10}(avg dTdz)')
 ylabel('Depth [m]')
-%title(['cast ' cast_suffix])
 
 axes(ax(2))
 plot(log10(abs(avg.N2)),avg.P),axis ij
@@ -26,10 +25,8 @@ grid on
 xlabel('log_{10}(avg N^2)')
 axis tight
 ytloff
-%title([short_labs{up_down_big}],'interpreter','none')
 
 axes(ax(3))
-%plot(chidat.cal.T1P(chi_inds),chidat.cal.P(chi_inds)),axis ij
 plot(TP,chi_todo_now.P),axis ij
 grid on
 xlabel('dT/dt')
@@ -51,9 +48,16 @@ xlabel('log_{10}(avg Kt1)')
 grid on
 ytloff
 
+interval=100;
+clear eps1
+eps1=avg.eps1;
+eps1(isnan(eps1))=1e-11;
 axes(ax(6))
 plot(log10(avg.eps1),avg.P,'.'),axis ij
-%xlim([-11 -4])
+hold on
+[xout ]=BinProfiles(eps1,avg.P,interval,0);
+plot(log10(xout),avg.P)
+xlim([-11 -4])
 axis tight
 xlabel('log_{10}(avg eps1)')
 grid on

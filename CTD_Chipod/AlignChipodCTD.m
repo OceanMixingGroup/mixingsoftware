@@ -45,7 +45,8 @@ if makeplot==1
 % plot:
 figure(1);clf
 ax1= subplot(2,1,1);
-plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'b',chidat.datenum,w_from_chipod,'r'),hold on
+plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'k',chidat.datenum,w_from_chipod,'r'),hold on
+ylim(1*[-1 1])
 legend('ctd dp/dt','w_{chi}','orientation','horizontal','location','best')
 %title([castname ' ' short_labs{up_down_big}],'interpreter','none')
 title([chidat.castname ' - SN' chidat.Info.loggerSN ],'interpreter','none')
@@ -71,7 +72,8 @@ chidat.fspd=interp1(CTD_24hz.datenum,-CTD_24hz.dpdt,chidat.datenum);
 
 if makeplot==1
 ax2=subplot(2,1,2);
-plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'b',chidat.datenum,w_from_chipod,'g')
+plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'k',chidat.datenum,w_from_chipod,'r')
+ylim(1*[-1 1])
 legend('ctd dp/dt','corrected w_{chi}','orientation','horizontal','location','best')
 title(['time offset=' num2str(offset*86440) 's'])
 grid on

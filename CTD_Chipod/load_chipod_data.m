@@ -148,33 +148,86 @@ big.chi_files=fnamelist;
 if plotit==1
     
     if ~isnan(big.datenum)
-        figure(77);clf
-        ax1=subplot(311)
-        plot(big.datenum,big.T1);
-        ylabel('T1')
-        axis tight
-        xlim(time_range)
-        datetick('x')
-        grid on
         
-        ax2=subplot(312)
-        plot(big.datenum,big.T1P);
-        axis tight
-        ylabel('T1P')
-        xlim(time_range)
-        grid on
-        datetick('x')
-        
-        ax3=subplot(313)
-        plot(big.datenum,big.AX,big.datenum,big.AZ);
-        axis tight
-        ylabel('A')
-        xlim(time_range)
-        legend('Ax','Az','location','best')
-        datetick('x')
-        grid on
-        xlabel(['Time on ' datestr(floor(nanmin(chidat.datenum))) ])
-        linkaxes([ax1 ax2 ax3],'x')
+        if isbig==1
+            
+            figure(77);clf
+            agutwocolumn(1)
+            wysiwyg
+            ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.02, 1,4);
+            
+            axes(ax(1))
+            plot(big.datenum,big.T1);
+            hold on
+            plot(big.datenum,big.T2);
+            ylabel('T')
+            xlim(time_range)
+            datetick('x')
+            grid on
+            legend('T1','T2')
+            
+            axes(ax(2))
+            plot(big.datenum,big.T1P);
+            axis tight
+            ylabel('T1P')
+            xlim(time_range)
+            grid on
+            datetick('x')
+            
+            axes(ax(3))
+            plot(big.datenum,big.T2P);
+            axis tight
+            ylabel('T2P')
+            xlim(time_range)
+            grid on
+            datetick('x')
+            
+            axes(ax(4))
+            plot(big.datenum,big.AX,big.datenum,big.AY,big.datenum,big.AZ);
+            axis tight
+            ylabel('A')
+            xlim(time_range)
+            legend('Ax','AY','Az','location','best')
+            datetick('x')
+            grid on
+            xlabel(['Time on ' datestr(floor(nanmin(chidat.datenum))) ])
+            linkaxes(ax,'x')
+            
+            linkaxes([ax(2) ax(3)],'y')
+            
+        else
+            figure(77);clf
+            agutwocolumn(1)
+            wysiwyg
+            ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.02, 1,3);
+            
+            axes(ax(1))
+            plot(big.datenum,big.T1);
+            ylabel('T1')
+            axis tight
+            xlim(time_range)
+            datetick('x')
+            grid on
+            
+            axes(ax(2))
+            plot(big.datenum,big.T1P);
+            axis tight
+            ylabel('T1P')
+            xlim(time_range)
+            grid on
+            datetick('x')
+            
+            axes(ax(3))
+            plot(big.datenum,big.AX,big.datenum,big.AZ);
+            axis tight
+            ylabel('A')
+            xlim(time_range)
+            legend('Ax','Az','location','best')
+            datetick('x')
+            grid on
+            xlabel(['Time on ' datestr(floor(nanmin(chidat.datenum))) ])
+            linkaxes([ax],'x')
+        end
         
     else
         h=figure;

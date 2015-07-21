@@ -55,8 +55,8 @@ eps1(isnan(eps1))=1e-11;
 axes(ax(6))
 plot(log10(avg.eps1),avg.P,'.'),axis ij
 hold on
-[xout ]=BinProfiles(eps1,avg.P,interval,0);
-plot(log10(xout),avg.P)
+%[xout ]=BinProfiles(eps1,avg.P,interval,0);
+%plot(log10(xout),avg.P)
 xlim([-11 -4])
 axis tight
 xlabel('log_{10}(avg eps1)')

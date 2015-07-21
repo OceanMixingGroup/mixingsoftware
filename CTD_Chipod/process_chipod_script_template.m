@@ -378,6 +378,22 @@ for a=1
                         fspd=chi_todo_now.fspd;
                         good_chi_inds=chi_todo_now.is_good_data;
                         
+                        clear ib_loop Nloop
+                        ib_loop=find(chi_todo_now.is_good_data==0);
+                        Nloop=length(ib_loop);
+                        fprintf(fileID,['\n  ' num2str(round(Nloop/length(chi_todo_now.datenum)*100)) ' percent of points removed for depth loops ']);
+                        
+                        
+                        %~~ plot histogram of avg.P to see if we have good
+                        %data in each bin
+                        figure
+                        hi=histogram(avg.P,0:10:nanmax(avg.P))
+                        hi.Orientation='Horizontal';axis ij;
+                        ylabel('P [db]')
+                        xlabel('# good data windows')
+                        title([whSN ' cast ' cast_suffix ' - ' chi_todo_now.castdir 'cast'])
+                        print('-dpng',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' whsens '_avgPhist']))
+                        
                         %~ compute chi in overlapping windows
                         avg=ComputeChi_for_CTDprofile(avg,nfft,fspd,TP,good_chi_inds,todo_inds);
                         %~ plot summary figure

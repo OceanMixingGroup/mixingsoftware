@@ -34,31 +34,37 @@ axis tight
 xlim(3*[-1 1])
 ytloff
 
+interval=50;
+
 axes(ax(4))
-plot(log10(avg.chi1),avg.P,'.'),axis ij
+plot(log10(avg.chi1),avg.P,'.','color',0.5*[1 1 1]),axis ij
+hold on
+[xout ]=BinProfiles(avg.chi1,avg.P,interval,0);
+plot(log10(xout),avg.P,'k','linewidth',3)
 xlabel('log_{10}(avg chi)')
 axis tight
+xlim([-12 -5])
 grid on
 ylabel('Depth [m]')
 
 axes(ax(5))
-plot(log10(avg.KT1),avg.P,'.'),axis ij
+plot(log10(avg.KT1),avg.P,'.','color',0.5*[1 1 1]),axis ij
+hold on
+[xout ]=BinProfiles(avg.KT1,avg.P,interval,0);
+plot(log10(xout),avg.P,'k','linewidth',3)
 axis tight
+xlim([-8 -1])
 xlabel('log_{10}(avg Kt1)')
 grid on
 ytloff
 
-interval=100;
-clear eps1
-eps1=avg.eps1;
-eps1(isnan(eps1))=1e-11;
 axes(ax(6))
-plot(log10(avg.eps1),avg.P,'.'),axis ij
+plot(log10(avg.eps1),avg.P,'.','color',0.5*[1 1 1]),axis ij
 hold on
-%[xout ]=BinProfiles(eps1,avg.P,interval,0);
-%plot(log10(xout),avg.P)
-xlim([-11 -4])
+[xout ]=BinProfiles(avg.eps1,avg.P,interval,0);
+plot(log10(xout),avg.P,'k','linewidth',3)
 axis tight
+xlim([-11 -4])
 xlabel('log_{10}(avg eps1)')
 grid on
 ytloff

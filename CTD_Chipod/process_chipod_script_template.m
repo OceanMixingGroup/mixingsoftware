@@ -382,8 +382,7 @@ for a=1
                         ib_loop=find(chi_todo_now.is_good_data==0);
                         Nloop=length(ib_loop);
                         fprintf(fileID,['\n  ' num2str(round(Nloop/length(chi_todo_now.datenum)*100)) ' percent of points removed for depth loops ']);
-                        
-                        
+                                                
                         %~~ plot histogram of avg.P to see if we have good
                         %data in each bin
                         figure

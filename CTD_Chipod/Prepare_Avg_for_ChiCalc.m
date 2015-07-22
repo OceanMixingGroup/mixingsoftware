@@ -30,7 +30,7 @@ todo_inds=1:nfft/2:(length(chi_todo_now.datenum)-nfft);
 todo_inds=todo_inds(:);
 
 tfields={'datenum','P','N2','dTdz','fspd','T','S','P','theta','sigma',...
-    'chi1','eps1','chi2','eps2','KT1','KT2','TP1var','TP2var'};
+    'chi1','eps1','KT1','TP1var'};
 for n=1:length(tfields)
     avg.(tfields{n})=NaN*ones(size(todo_inds));
 end

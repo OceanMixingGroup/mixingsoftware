@@ -3,10 +3,13 @@ function ax=CTD_chipod_profile_summary(avg,chi_todo_now,TP)
 %
 % function h=CTD_chipod_profile_summary(avg,chi_todo_now)
 %
+% 
 %
+% A. Pickering - apickering@coas.oregonstate.edu
 %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
+
 figure;clf
 agutwocolumn(1)
 wysiwyg

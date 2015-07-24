@@ -56,7 +56,7 @@ hold on
 [xout ]=BinProfiles(avg.KT1,avg.P,interval,0);
 plot(log10(xout),avg.P,'k','linewidth',3)
 axis tight
-xlim([-8 -1])
+xlim([-9 -1])
 xlabel('log_{10}(avg Kt1)')
 grid on
 ytloff
@@ -67,7 +67,7 @@ hold on
 [xout ]=BinProfiles(avg.eps1,avg.P,interval,0);
 plot(log10(xout),avg.P,'k','linewidth',3)
 axis tight
-xlim([-11 -4])
+xlim([-12 -4])
 xlabel('log_{10}(avg eps1)')
 grid on
 ytloff

@@ -51,19 +51,29 @@ if test_dtdt
     cal=chidat.cal
     dt=median(diff(chidat.datenum))*3600*24;
     cal.dTdt_dig=[0 ; diff(cal.T1)/dt];
-    oset=min(chidat.datenum);
+%    oset=min(chidat.datenum);
     figure;clf
-    plot(chidat.datenum-oset,cal.dTdt_dig,chidat.datenum-oset,cal.T1P);
+    subplot(211)
+    plot(chidat.datenum,cal.dTdt_dig,chidat.datenum,cal.T1P);
+    ylim(5*[-1 1])
+%    gridxy
+    datetick('x')
     %    pause
-    ax=axis
-    ginds2=find((chidat.datenum-oset)>ax(1) & (chidat.datenum-oset)<ax(2));
+%    ax=axis
+%    ginds2=find((chidat.datenum-oset)>ax(1) & (chidat.datenum-oset)<ax(2));
+lim1=chidat.datenum(round(length(chidat.datenum)/3));
+lim2=chidat.datenum(round(length(chidat.datenum)/2));
+    ginds2=find( (chidat.datenum)>lim1 & (chidat.datenum)<lim2 );
+    vline(lim1,'b--')
+    vline(lim2,'b--')
     % compute spectrum of analog differentiation
     [p,f]=fast_psd(cal.T1P(ginds2),256,100);
     % compute spectrum of digital differentiaton
     [p2,f]=fast_psd(cal.dTdt_dig(ginds2),256,100);
     
     % plot the two spectra
-    figure;clf
+%    figure;clf
+    subplot(212)
     loglog(f,p2,f,p,'linewidth',2);
     axis tight
     grid on

@@ -18,17 +18,23 @@ axes(ax(1))
 plot(CTD_24hz.datenum,CTD_24hz.t1)
 hold on
 plot(chidat.datenum,chidat.cal.T1)
+if chidat.Info.isbig
 plot(chidat.datenum,chidat.cal.T2-.5)
+legend('CTD','chi','chi2-.5','location','best')
+else
+    legend('CTD','chi','location','best')
+end
 ylabel('T [\circ C]')
 xlim(xls)
 datetick('x')
 %title(['Cast ' cast_suffix ', ' whSN '  ' datestr(time_range(1),'dd-mmm-yyyy HH:MM') '-' datestr(time_range(2),15) ', ' CTD_list(a).name],'interpreter','none')
-legend('CTD','chi','chi2-.5','location','best')
+
 grid on
 
 axes(ax(2))
 %h(2)=subplot(412);
 plot(CTD_24hz.datenum,CTD_24hz.p);
+axis ij
 ylabel('P [dB]')
 xlim(xls)
 datetick('x')
@@ -38,7 +44,9 @@ axes(ax(3))
 %h(3)=subplot(413);
 plot(chidat.datenum,chidat.cal.T1P-.01)
 hold on
+if chidat.Info.isbig
 plot(chidat.datenum,chidat.cal.T2P+.01)
+end
 ylabel('dT/dt [K/s]')
 xlim(xls)
 ylim(10*[-1 1])

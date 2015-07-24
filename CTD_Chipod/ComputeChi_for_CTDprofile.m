@@ -40,7 +40,7 @@ for n=1:length(todo_inds)
         [tp_power,freq]=fast_psd(TP(inds),nfft,avg.samplerate);
         avg.TP1var(n)=sum(tp_power)*nanmean(diff(freq));
         
-        if avg.TP1var(n)>1e-4
+%        if avg.TP1var(n)>1e-4
             
             % apply filter correction for sensor response?
             fixit=0;
@@ -63,9 +63,9 @@ for n=1:length(todo_inds)
             avg.eps1(n)=epsil1(1);
             avg.KT1(n)=0.5*chi1(1)/avg.dTdz(n)^2;
             
-        else
+       % else
            %         disp('variance does not exceed threshold')   %
-        end
+       % end
     else
          %       disp('not all data good')%
     end

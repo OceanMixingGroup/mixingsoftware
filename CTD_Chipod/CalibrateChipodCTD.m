@@ -51,18 +51,18 @@ if test_dtdt
     cal=chidat.cal
     dt=median(diff(chidat.datenum))*3600*24;
     cal.dTdt_dig=[0 ; diff(cal.T1)/dt];
-%    oset=min(chidat.datenum);
+    %    oset=min(chidat.datenum);
     figure;clf
     subplot(211)
     plot(chidat.datenum,cal.dTdt_dig,chidat.datenum,cal.T1P);
     ylim(5*[-1 1])
-%    gridxy
+    %    gridxy
     datetick('x')
     %    pause
-%    ax=axis
-%    ginds2=find((chidat.datenum-oset)>ax(1) & (chidat.datenum-oset)<ax(2));
-lim1=chidat.datenum(round(length(chidat.datenum)/3));
-lim2=chidat.datenum(round(length(chidat.datenum)/2));
+    %    ax=axis
+    %    ginds2=find((chidat.datenum-oset)>ax(1) & (chidat.datenum-oset)<ax(2));
+    lim1=chidat.datenum(round(length(chidat.datenum)/3));
+    lim2=chidat.datenum(round(length(chidat.datenum)/2));
     ginds2=find( (chidat.datenum)>lim1 & (chidat.datenum)<lim2 );
     vline(lim1,'b--')
     vline(lim2,'b--')
@@ -72,7 +72,7 @@ lim2=chidat.datenum(round(length(chidat.datenum)/2));
     [p2,f]=fast_psd(cal.dTdt_dig(ginds2),256,100);
     
     % plot the two spectra
-%    figure;clf
+    %    figure;clf
     subplot(212)
     loglog(f,p2,f,p,'linewidth',2);
     axis tight
@@ -87,12 +87,12 @@ end
 %%
 
 if chidat.Info.isbig
-    % big chipods have 2 sensors?
+    % big chipods have 2 sensors
     [chidat.cal.coef.T2,chidat.cal.T2]=get_T_calibration(CTD_24hz.datenum(ginds),CTD_24hz.t1(ginds),chidat.datenum,chidat.T2);
     chidat.cal.T2P=calibrate_chipod_dtdt(chidat.T2P,chidat.cal.coef.T2P,chidat.T2,chidat.cal.coef.T2);
     
     if test_dtdt
-        cal=chidat.cal
+        cal=chidat.cal;
         dt=median(diff(chidat.datenum))*3600*24;
         cal.dTdt_dig=[0 ; diff(cal.T2)/dt];
         oset=min(chidat.datenum);

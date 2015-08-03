@@ -36,9 +36,10 @@ plot(TP,chi_todo_now.P),axis ij
 grid on
 xlabel('dT/dt')
 axis tight
-xlim(3*[-1 1])
+xlim(1.5*[-1 1])
 ytloff
 ylim([0 nanmax(avg.P)])
+gridxy
 
 %interval=50;
 minobs=3
@@ -65,7 +66,7 @@ hold on
 [dataout zout] = binprofile(avg.KT1,avg.P, 0, 10, nanmax(avg.P),minobs);
 plot(log10(dataout),zout,'k')
 axis tight
-xlim([-9 -1])
+xlim([-9 0])
 xlabel('log_{10}(avg Kt1)')
 grid on
 ytloff
@@ -78,7 +79,7 @@ hold on
 [dataout zout] = binprofile(avg.eps1,avg.P, 0, 10, nanmax(avg.P),minobs);
 plot(log10(dataout),zout,'k')
 axis tight
-xlim([-12 -4])
+xlim([-12 -2])
 xlabel('log_{10}(avg eps1)')
 grid on
 ytloff

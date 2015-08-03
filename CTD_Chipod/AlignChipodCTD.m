@@ -33,7 +33,9 @@ CTD_24hz.dpdt(CTD_24hz.dpdt>10)=mean(CTD_24hz.dpdt); % JRM added to remove large
 
 % Compute high-passed dp/dt (ie vertical velocity of ctd)
 CTD_24hz.dpdt_hp=CTD_24hz.dpdt-conv2(CTD_24hz.dpdt,hanning(750)/sum(hanning(750)),'same');
-CTD_24hz.dpdt_hp(abs(CTD_24hz.dpdt_hp)>2)=mean(CTD_24hz.dpdt_hp); % JRM added to remove large spike spikes in dpdt_hp
+%CTD_24hz.dpdt_hp(abs(CTD_24hz.dpdt_hp)>2)=nan;%mean(CTD_24hz.dpdt_hp); % JRM added to remove large spike spikes in dpdt_hp
+CTD_24hz.dpdt_hp(abs(CTD_24hz.dpdt_hp)>2*nanstd(CTD_24hz.dpdt_hp))=nan;
+CTD_24hz.dpdt_hp=NANinterp(CTD_24hz.dpdt_hp);
 
 % Compute chipod w by integrating z-accelertion
 tmp=az_correction*9.8*(chidat.AZ-median(chidat.AZ)); tmp(abs(tmp)>10)=0;

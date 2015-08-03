@@ -1,4 +1,4 @@
-function d = hex_read(ctdname)
+function d = hex_read(ctdname,nhdrlines)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % function d = hex_read(ctdname)
@@ -9,21 +9,29 @@ function d = hex_read(ctdname)
 % Original code from Jen MacKinnon in 'ctd_proc2' folder.
 % Added to 'ctd_processing' folder by A. Pickering
 %
+% July 31, 2015 - A. Pickering - add nhdrlines optional input. For cruises
+% where .hdr files not saved, just manually specify # of header lines.
+%
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
-hdrname = [ctdname(1:end - 4) '.hdr'];
-%disp(['loading: ' hdrname])
-fid = fopen(hdrname);
 
-% figure out how many lines in header
-nhdrlines = 0;
-while 1
-    tline = fgetl(fid);
-    if ~ischar(tline), break, end
-    %disp(tline)
-    nhdrlines = nhdrlines + 1;
+if ~exist('nhdrlines','var')
+    
+    hdrname = [ctdname(1:end - 4) '.hdr'];
+    %disp(['loading: ' hdrname])
+    fid = fopen(hdrname);
+    
+    % figure out how many lines in header
+    nhdrlines = 0;
+    while 1
+        tline = fgetl(fid);
+        if ~ischar(tline), break, end
+        %disp(tline)
+        nhdrlines = nhdrlines + 1;
+    end
+    fclose(fid);
+    
 end
-fclose(fid);
 
 %disp(['loading: ' ctdname])
 

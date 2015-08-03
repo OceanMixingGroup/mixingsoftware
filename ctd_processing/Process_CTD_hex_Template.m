@@ -72,6 +72,10 @@ for icast=1%:length(ctdlist)
     
     close all
     
+    clear data1 data2 data3 data4 data5 data6 data7 
+    clear ctdname outname matname confile cfg d
+
+    
     disp('=============================================================')
     
     
@@ -98,6 +102,7 @@ for icast=1%:length(ctdlist)
     data1 = hex_parse(d);
     
     % check for modcount errors
+    clear dmc mmc fmc 
     dmc = diff(data1.modcount);
     mmc = mod(dmc, 256);
     %figure; plot(mmc); title('mod diff modcount')
@@ -108,6 +113,7 @@ for icast=1%:length(ctdlist)
     end
     
     % check for time errors
+    clear dt ds np mds
     dt = data1.time(end) - data1.time(1); % total time range of cast (seconds?)
     ds = dt*24; % # expected samples at 24Hz ?
     np = length(data1.p); % # samples
@@ -115,6 +121,7 @@ for icast=1%:length(ctdlist)
     if abs(mds) >= 24; disp(['Warning: ' num2str(mds) ' difference in time scans']); end
     
     % time is discretized
+    clear nt time0
     nt=length(data1.time);
     time0=data1.time(1):1/24:data1.time(end);
     

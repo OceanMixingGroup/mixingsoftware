@@ -39,10 +39,13 @@ Known Issues and To-Dos:
 
 data.time =  hex2dec(h(:, [87:88 85:86 83:84 81:82]));
 
-or
+to:
 
 data.time =  hex2dec(h(:, [87:88 85:86 83:84 81:82]-6));
 
-In the future, will try to modify code to detect this and choose correct size automatically.
+The second option is now hardwired in hex_parse_v2.m, so we don’t have to keep editing the function for different cruises.
+
+
+
 
 

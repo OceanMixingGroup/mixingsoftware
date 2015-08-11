@@ -1,4 +1,7 @@
+function Ensembles=ReadRTI(fullFileName)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%
+% function Ensembles=ReadRTI(fullfilename)
 %
 % ReadRTI.m
 %
@@ -50,7 +53,7 @@
 % 
 %
 %%
-clear;close all;clc
+%clear;close all;clc
 
 % Display a waitbar
 % Not showing a waitbar will improve processing time
@@ -66,8 +69,10 @@ isWaitbar = 1;
 % Display a dialog to select a file
 %fullFileName = uigetfile('*.*', 'Select an ensemble file');
 
-folder='/Users/Andy/Dropbox/ARV/oregon_coast_2015_04_30/ADCP/A0000010/'
-fullFileName=fullfile(folder,'01470000000000000000000000000175_A0000010_1.ENS')
+%folder='/Users/Andy/Dropbox/ARV/oregon_coast_2015_04_30/ADCP/A0000010/'
+%fullFileName=fullfile(folder,'01470000000000000000000000000175_A0000010_1.ENS')
+%folder='/Users/Andy/Dropbox/ARV/Yaquina_2015_08_10/ADCP/RTI/'
+%fullFileName=fullfile(folder,'A0000013.ENS')
 
 % Open the file
 fid = fopen(fullFileName);

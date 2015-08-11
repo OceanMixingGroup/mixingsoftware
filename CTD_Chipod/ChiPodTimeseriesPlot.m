@@ -21,6 +21,7 @@ end
 %
 axes(ax(1))
 plot(CTD_24hz.datenum,CTD_24hz.p,'k');
+ylim([0 nanmax(CTD_24hz.p)])
 axis ij
 ylabel('P [dB]')
 xlim(xls)

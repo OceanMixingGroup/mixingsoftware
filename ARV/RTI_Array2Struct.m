@@ -61,9 +61,30 @@ whfreq=num2str(sysfreq1)
 Nt=Nens1
 Nz=Nbins1
 EmptyMat=nan*ones(Nz,Nt);
+
+% earth velocities
 Vel.(['F' whfreq 'kHz']).u=EmptyMat;
 Vel.(['F' whfreq 'kHz']).v=EmptyMat;
 Vel.(['F' whfreq 'kHz']).w=EmptyMat;
+
+
+% beam velocities
+Vel.(['F' whfreq 'kHz']).bm1=EmptyMat;
+Vel.(['F' whfreq 'kHz']).bm2=EmptyMat;
+Vel.(['F' whfreq 'kHz']).bm3=EmptyMat;
+Vel.(['F' whfreq 'kHz']).bm4=EmptyMat;
+
+% beam correlations
+Vel.(['F' whfreq 'kHz']).corr1=EmptyMat;
+Vel.(['F' whfreq 'kHz']).corr2=EmptyMat;
+Vel.(['F' whfreq 'kHz']).corr3=EmptyMat;
+Vel.(['F' whfreq 'kHz']).corr4=EmptyMat;
+
+% beam amplitudes
+Vel.(['F' whfreq 'kHz']).amp1=EmptyMat;
+Vel.(['F' whfreq 'kHz']).amp2=EmptyMat;
+Vel.(['F' whfreq 'kHz']).amp3=EmptyMat;
+Vel.(['F' whfreq 'kHz']).amp4=EmptyMat;
 
 Vel.(['F' whfreq 'kHz']).dnum=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).pitch=nan*ones(1,Nt);
@@ -94,6 +115,24 @@ Vel.(['F' whfreq 'kHz']).u=EmptyMat;
 Vel.(['F' whfreq 'kHz']).v=EmptyMat;
 Vel.(['F' whfreq 'kHz']).w=EmptyMat;
 
+% beam velocities
+Vel.(['F' whfreq 'kHz']).bm1=EmptyMat;
+Vel.(['F' whfreq 'kHz']).bm2=EmptyMat;
+Vel.(['F' whfreq 'kHz']).bm3=EmptyMat;
+Vel.(['F' whfreq 'kHz']).bm4=EmptyMat;
+
+% beam correlations
+Vel.(['F' whfreq 'kHz']).corr1=EmptyMat;
+Vel.(['F' whfreq 'kHz']).corr2=EmptyMat;
+Vel.(['F' whfreq 'kHz']).corr3=EmptyMat;
+Vel.(['F' whfreq 'kHz']).corr4=EmptyMat;
+
+% beam amplitudes
+Vel.(['F' whfreq 'kHz']).amp1=EmptyMat;
+Vel.(['F' whfreq 'kHz']).amp2=EmptyMat;
+Vel.(['F' whfreq 'kHz']).amp3=EmptyMat;
+Vel.(['F' whfreq 'kHz']).amp4=EmptyMat;
+
 Vel.(['F' whfreq 'kHz']).dnum=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).pitch=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).roll=nan*ones(1,Nt);
@@ -109,7 +148,8 @@ Vel.(['F' whfreq 'kHz']).bt_status=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).bt_u=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).bt_v=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).bt_w=nan*ones(1,Nt);
-Vel.(['F' whfreq 'kHz']).btheading=nan*ones(1,Nt);
+%Vel.(['F' whfreq 'kHz']).btheading=nan*ones(1,Nt); % same as compass
+%heading? - compute after from btu and btv
 
 Vel.(['F' whfreq 'kHz']).z=nan*ones(Nz,1);
 %Vel.(['F' num2str(sysfreq1) 'kHz'])=S;
@@ -135,10 +175,29 @@ for iens=1:Nens
         whens=ii2;
     end
         
+    % earth velocities
     Vel.(['F' whfreq 'kHz']).u(:,whens)=Ensembles(iens).EarthVel(:,1);
     Vel.(['F' whfreq 'kHz']).v(:,whens)=Ensembles(iens).EarthVel(:,2);
     Vel.(['F' whfreq 'kHz']).w(:,whens)=Ensembles(iens).EarthVel(:,3);
     
+    % beam velocities
+    Vel.(['F' whfreq 'kHz']).bm1(:,whens)=Ensembles(iens).BeamVel(:,1);
+    Vel.(['F' whfreq 'kHz']).bm2(:,whens)=Ensembles(iens).BeamVel(:,2);
+    Vel.(['F' whfreq 'kHz']).bm3(:,whens)=Ensembles(iens).BeamVel(:,3);
+    Vel.(['F' whfreq 'kHz']).bm4(:,whens)=Ensembles(iens).BeamVel(:,4);
+
+    % beam correlations
+    Vel.(['F' whfreq 'kHz']).corr1(:,whens)=Ensembles(iens).Correlation(:,1);
+    Vel.(['F' whfreq 'kHz']).corr2(:,whens)=Ensembles(iens).Correlation(:,2);
+    Vel.(['F' whfreq 'kHz']).corr3(:,whens)=Ensembles(iens).Correlation(:,3);
+    Vel.(['F' whfreq 'kHz']).corr4(:,whens)=Ensembles(iens).Correlation(:,4);
+
+    % beam amplitudes
+    Vel.(['F' whfreq 'kHz']).amp1(:,whens)=Ensembles(iens).Amplitude(:,1);
+    Vel.(['F' whfreq 'kHz']).amp2(:,whens)=Ensembles(iens).Amplitude(:,2);
+    Vel.(['F' whfreq 'kHz']).amp3(:,whens)=Ensembles(iens).Amplitude(:,3);
+    Vel.(['F' whfreq 'kHz']).amp4(:,whens)=Ensembles(iens).Amplitude(:,4);
+
     % ensenmble data (includes date and time)
     clear yr mo dd hh mm ss dnum
     yr=Ensembles(iens).Ensemble(7);
@@ -196,7 +255,7 @@ delete(hb)
 %%
 
 whfreq=num2str(sysfreq1)
-whfreq=num2str(sysfreq2)
+%whfreq=num2str(sysfreq2)
 
 figure(1);clf
 agutwocolumn(1)

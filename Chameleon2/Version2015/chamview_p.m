@@ -60,6 +60,7 @@ handles.tempdata.commport = 4; %COM port number
 handles.tempdata.bytesreceived = 0;
 handles.tempdata.commdev = 0;
 handles.tempdata.outpath = '';
+set(handles.startbutton,'enable','off');
 set(handles.stopbutton,'Enable','Off');
 set(handles.pushbutton_selectnone,'Enable','Off');
 set(handles.pushbutton_selectall,'Enable','Off');
@@ -154,7 +155,7 @@ handles.tempdata.template = tmpl;
 virtual_ch = handles.tempdata.template.virtualchannels;
 set(handles.headertext,'String',raw_name);
 set(handles.text13,'String',description);
-set(handles.startbutton,'enable','on');
+
 handles.tempdata.head.saildata = char(zeros(1,774));
 % now fill in the checkbox labels with the channel names
 set(handles.gainoffset_panel,'Visible','on');
@@ -184,36 +185,17 @@ for ii = 1:16
  
 
 end
-
+set(handles.startbutton,'enable','on');
 % handles.tempdata.outpath = uigetdir('title','Select Output Data Directory');
-handles.tempdata.outpath = 'C:\Users\mixing\Documents\chameleon2_test\chamviewpavan\data\';
+handles.tempdata.outpath = 'X:\raw';
 handles.tempdata.head.startdepth = 0;
-[out1,out2] = ChamFile(handles);
-handles.tempdata.fname = [out1,'.',out2];
 
-%%%%%%%%%%%%%%%%%%
 
-%%%%GPS NOT USED NOW IN TESTING, USED ONLY WHEN THERE IS A GPS INPUT TO THE
-%%%%COMPUTER. 
-% serGPS=serial('COM1','BaudRate',4800);
-% fopen(serGPS);
-% [GPS_in] = ReadGarmin(serGPS);
-% fclose(serGPS);
-% delete(serGPS);
-% clear serGPS;
-% handles.tempdata.lat.start = strcat(num2str(GPS_in.lat),cell2mat(GPS_in.latdirRMC),'^^^^^^^^^^^^^^^^^^^');
-% handles.tempdata.lon.start = strcat(num2str(GPS_in.lon),cell2mat(GPS_in.londirRMC),'^^^^^^^^^^^^^^^^^^^');
-% handles.tempdata.head.starttime = strcat(num2str(GPS_in.date),num2str(GPS_in.timeRMC),'^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
-% set(handles.textbox_lat,'String','Start Lat');
-% set(handles.text_lon,'String','Start Lon');
-% set(handles.text_date,'String','Start Date');
-% set(handles.textbox_latitude,'String',handles.tempdata.lat.start(1:12));
-% set(handles.text_longitude,'String',handles.tempdata.lon.start(1:12));
-% set(handles.text_datetime,'String',handles.tempdata.head.starttime(1:12));
-% sail = GPS_in.F(8:end);
-% handles.tempdata.head.saildata(1:numel(sail)) = sail;
+%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%
 
 
 % The chidx cells now each have a vector containing the indices within
@@ -236,6 +218,8 @@ function startbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+
+
 global p1;
 global t1;
 p1 = 0;
@@ -250,6 +234,8 @@ set(handles.stopbutton,'Enable','off');
 %list them below to disable and deselect them. - Pavan
 global stopbutt; 
 % set(handles.stopbutton,'enable','on');
+% % % % % % [out1,out2] = ChamFile(handles);
+% % % % % % handles.tempdata.fname = [out1,'.',out2];
 set(handles.startbutton,'enable','off');
 set(handles.templatebutton,'enable','off');
 set(handles.recordeddepth_textbox,'ForegroundColor','black');
@@ -280,7 +266,7 @@ set(handles.text13,'string','LOGGING STOPPED');
 set(handles.stopbutton,'enable','off');
 set(handles.stopbutton,'BackgroundColor','red'); % Stop button is now Red 
 set(handles.logbutton,'BackgroundColor',[0.8,0.8,0.8]); %Start Logging button is now Grey ;
-set(handles.startbutton,'enable','on');
+set(handles.startbutton,'enable','off');
 set(handles.pushbutton_selectnone,'Enable','On');
 set(handles.pushbutton_selectall,'Enable','Off');
 set(handles.logbutton,'enable','on');
@@ -488,10 +474,10 @@ while runflag == 1
                         p1 = P_depth;
                         t1 = t2;
                         
-                        set(handles.fallspeed_text,'String',num2str(round(fallspeed)));
+                        set(handles.fallspeed_text,'String',num2str((fallspeed),3));
                        
                     end
-                    set(handles.text6, 'String', num2str(round(P_depth)));
+                    set(handles.text6, 'String', num2str((P_depth),3));
                       handles.tempdata.head.enddepth = P_depth; 
                  
 %             end
@@ -530,28 +516,29 @@ function SaveData(handles,tbytes, firstrow, numrows, times)
     fid = fopen(sprintf('%s',fullfilename),'w');
 
 
-%%%%%%%%%%
-%%%GPS DATA NOT BEING USED DURING TEST, ONLY DURING DEPLOYMENT
-% GPS=serial('COM1','BaudRate',4800);
-% fopen(GPS);
-% [GPS_in] = ReadGarmin(GPS);
-% fclose(GPS);
-% delete(GPS);
-% clear GPS;
-% handles.tempdata.lat.end = strcat(num2str(GPS_in.lat),cell2mat(GPS_in.latdirRMC));
-% handles.tempdata.lon.end = strcat(num2str(GPS_in.lon),cell2mat(GPS_in.londirRMC));
-% handles.tempdata.head.endtime = strcat(num2str(GPS_in.date),num2str(GPS_in.timeRMC),'^^^^^^^^^^^^^^^^');
-% 
-% % handles.tempdata.head.saildata(1:35) = F;
-% set(handles.textbox_lat,'String','Stop Lat');
-% set(handles.text_lon,'String','Stop Lon');
-% set(handles.text_date,'String','Stop Date');
-% set(handles.textbox_latitude,'String',handles.tempdata.lat.end(1:5));
-% set(handles.text_longitude,'String',handles.tempdata.lon.end(1:5));
-% set(handles.text_datetime,'String',handles.tempdata.head.endtime(1:20));
-% sail2 = GPS_in.F(8:end);
-% handles.tempdata.head.saildata(37:(36+numel(sail2))) = sail2;
-%%%%%%%%%%
+%%%%%%%%%
+%%GPS DATA NOT BEING USED DURING TEST, ONLY DURING DEPLOYMENT
+GPS=serial('COM25','BaudRate',4800);
+fopen(GPS);
+[GPS_in] = ReadGarmin(GPS);
+fclose(GPS);
+delete(GPS);
+clear GPS;
+handles.tempdata.lat.end = [GPS_in.lat,GPS_in.latDir];
+
+handles.tempdata.lon.end = [GPS_in.lon,GPS_in.lonDir];
+handles.tempdata.head.endtime = strcat(GPS_in.date,GPS_in.time,'0000000000');
+
+% handles.tempdata.head.saildata(1:35) = F;
+set(handles.textbox_lat,'String','Stop Lat');
+set(handles.text_lon,'String','Stop Lon');
+set(handles.text_date,'String','Stop Date');
+set(handles.textbox_latitude,'String',handles.tempdata.lat.end);
+set(handles.text_longitude,'String',handles.tempdata.lon.end);
+set(handles.text_datetime,'String',handles.tempdata.head.endtime);
+sail2 = GPS_in.F(8:end);
+handles.tempdata.head.saildata(37:(36+numel(sail2))) = sail2;
+%%%%%%%%%
 
 
 WriteCham2Header(fid,handles.tempdata.head);
@@ -961,17 +948,41 @@ function logbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to logbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+%%%GPS NOT USED NOW IN TESTING, USED ONLY WHEN THERE IS A GPS INPUT TO THE
+%%%COMPUTER. 
+serGPS=serial('COM25','BaudRate',4800);
+fopen(serGPS);
+[GPS_in] = ReadGarmin(serGPS);
+fclose(serGPS);
+delete(serGPS);
+clear serGPS;
+% % handles.tempdata.lat.start = strcat(num2str(GPS_in.lat),cell2mat(GPS_in.latdirRMC),'^^^^^^^^^^^^^^^^^^^');
+% handles.tempdata.lat.start = strcat(GPS_in.lat,'   ',GPS_in.latDir);
+handles.tempdata.lat.start = [GPS_in.lat,GPS_in.latDir];
+
+handles.tempdata.lon.start = [GPS_in.lon,GPS_in.lonDir];
+handles.tempdata.head.starttime = strcat(GPS_in.date,GPS_in.time,'00000000000');
+
+set(handles.textbox_lat,'String','Start Lat');
+set(handles.text_lon,'String','Start Lon');
+set(handles.text_date,'String','Start Date');
+set(handles.textbox_latitude,'String',handles.tempdata.lat.start);
+set(handles.text_longitude,'String',handles.tempdata.lon.start);
+set(handles.text_datetime,'String',handles.tempdata.head.starttime);
+sail = GPS_in.F(8:end);
+handles.tempdata.head.saildata(1:numel(sail)) = sail;
 set(handles.stopbutton,'enable','on');
 set(handles.logbutton,'enable','off');
 set(handles.pushbutton_pause,'enable','off');
-set(handles.logbutton,'String',handles.tempdata.fname);
+[out1,out2] = ChamFile(handles);
+handles.tempdata.fname = [out1,'.',out2];
+set(handles.logbutton,'string',handles.tempdata.fname);
 set(handles.logbutton,'BackgroundColor','green'); %Start Button color set to green
 set(handles.stopbutton,'BackgroundColor',[0.8 0.8 0.8]); %Start Button color set to red
 set(handles.recordeddepth_textbox,'ForegroundColor','black');
 global inputrow;
-[out1,out2] = ChamFile(handles);
-handles.tempdata.fname = [out1,'.',out2];
-set(handles.logbutton,'string',handles.tempdata.fname);
+
 handles.tempdata.startpath = inputrow;
 handles.tempdata.starttime1 = now;
 guidata(hObject,handles);

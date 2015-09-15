@@ -41,21 +41,21 @@
 % path_raw = '~/data/yq14/data/chameleon/raw/';
 % path_raw = '~/ganges/data/Yq14/Chameleon/raw/';
 % path_raw = '~/GDrive/data/yq14/data/chameleon/raw/';
-path_raw = '~/wdmycloud/mixing/YQ15/Chameleon/raw/';
+% path_raw = '~/GDrive/data/eq14/chameleon/raw/';
+path_raw = 'W:\YQ15\Chameleon\raw\';
 
 % path_cham='~/data/yq14/processed/chameleon/';
 % path_cham = '~/ganges/data/Yq14/Chameleon/processed/';
 % path_cham = '~/data/yq14/processed/chameleon/';
 % path_cham = '~/GDrive/data/eq14/chameleon/processed/';
 % path_cham = '~/wdmycloud/mixing/data/EQ14/Chameleon/processed/';
-path_cham = '~/wdmycloud/mixing/YQ15/Chameleon/processed/';
-
+path_cham = 'W:\YQ15\Chameleon\processed\';
 
 % path_writeraw is where the chameleon writes all of the data. Data must be
 % copied FROM here to path_raw before it can be processed!
 % path_writeraw = '/Volumes/mixing/Data/YQ14/data/Chameleon/raw/';
 % path_writeraw = '~/ganges/data/Yq14/Chameleon/raw/';
-path_writeraw = '~/wdmycloud/mixing/data/EQ14/Chameleon/raw/';
+% path_writeraw = '~/wdmycloud/mixing/data/EQ14/Chameleon/raw/';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -68,36 +68,59 @@ year=2015;
 
 % set number of depth bins. This should be greater than the deepest depth
 % of the casts (m)
-max_depth_bins = 30;
+max_depth_bins = 40;
 n_dep=max_depth_bins;
 
 
 % startnumber: what is the first cast that you would like to include in the
 % summary file?
-firstfile = 3101;
-
+firstfile = 3103;
+% firstfile = 3193;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PARAMETERS FOR PLOTTING
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% % WHAT TO PLOT
+% fig.toplot={'log10(cham.EPSILON1)','log10(cham.EPSILON2)','cham.SIGMA',...
+%         'cham.T1','cham.T2','cham.SAL'};
+% % fig.toplot={'log10(cham.EPSILON1)','log10(cham.EPSILON2)','cham.SIGMA',...
+% %         'cham.T','cham.N2','cham.S'};
+% 
+% % CORRESPONDING SUBPLOT TITLES
+% fig.names={'log_{10} \epsilon_1','log_{10} \epsilon_2','\sigma', ... 
+%         'T1 [^oC]','T2 [^oC]','S [psu]'};
+% % fig.names={'log_{10} \epsilon_1','log_{10} \epsilon_2','\sigma', ... 
+% %         'T [^oC]','N2 [s^{-2}]','S [psu]'};
+%     
+% % INITIAL COLOR LIMITS, CORRESPONDING TO PLOTTING VARIABLES
+% % limits can be changed within the figure once the plot has been made
+% fig.colmin=[-8 -8  22   14   14  32];
+% fig.colmax=[-4 -4  25   18   18  32];
+% % fig.colmin=[-10 -10  21   7   0  29];
+% % fig.colmax=[-6  -6   24  13  0.1  31];
+
+
 % WHAT TO PLOT
-fig.toplot={'log10(cham.EPSILON1)','log10(cham.EPSILON2)','cham.SIGMA',...
-        'cham.T1','cham.T2','cham.SAL'};
+fig.toplot={'cham.T1','cham.SAL','cham.SIGMA','log10(cham.EPSILON)',...
+        'cham.FLR','cham.SCAT'};
+% fig.toplot={'cham.T1','cham.SAL','cham.SIGMA','log10(cham.EPSILON1)',...
+%         'log10(cham.EPSILON2)','cham.SCAT'};
 % fig.toplot={'log10(cham.EPSILON1)','log10(cham.EPSILON2)','cham.SIGMA',...
 %         'cham.T','cham.N2','cham.S'};
 
 % CORRESPONDING SUBPLOT TITLES
-fig.names={'log_{10} \epsilon_1','log_{10} \epsilon_2','\sigma', ... 
-        'T1 [^oC]','T2 [^oC]','S [psu]'};
+fig.names={'T1 [^oC]','S [g kg^{-1}]','\sigma [kg m^{-3}]',...
+    'log_{10} \epsilon','FLUOR. [volts]', ... 
+    'SCAT [volts]',};
 % fig.names={'log_{10} \epsilon_1','log_{10} \epsilon_2','\sigma', ... 
 %         'T [^oC]','N2 [s^{-2}]','S [psu]'};
     
 % INITIAL COLOR LIMITS, CORRESPONDING TO PLOTTING VARIABLES
 % limits can be changed within the figure once the plot has been made
-fig.colmin=[-10 -10  24   10   10  31];
-fig.colmax=[-6  -6   26   30   30  32.5];
+fig.colmin=[15 32.6 23.5 -8 0.2  0.5];
+fig.colmax=[17 33   24.5 -4 0.5  0.8];
 % fig.colmin=[-10 -10  21   7   0  29];
 % fig.colmax=[-6  -6   24  13  0.1  31];
 

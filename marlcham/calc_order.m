@@ -9,22 +9,22 @@ function inds=calc_order(series_name,depth_name)
 
 global cal head
 
-eval(['series=cal.' upper(series_name) ';,depth=cal.' upper(depth_name) ... 
+eval(['seriesvar=cal.' upper(series_name) ';,depth=cal.' upper(depth_name) ... 
       ';,irep_t=head.irep.' upper(series_name) ';,irep_p=head.irep.' ...
       upper(depth_name) ';']);
 
 if irep_p ~= irep_t
-  series=series(1:irep_t/irep_p:length(series));
+  seriesvar=seriesvar(1:irep_t/irep_p:length(seriesvar));
 end
 
-% Check to see how the series is oriented: assume that any series starting
+% Check to see how the seriesvar is oriented: assume that any seriesvar starting
 % with a T is temperature, otherwise it is density.
 test=mean(cal.FALLSPD>0) ;
 if (test & upper(series_name(1))=='T') | (~test & upper(series_name(1))~='T')
-  [Tth,inds]=sort(-series);
+  [Tth,inds]=sort(-seriesvar);
   Tth=-Tth;
  else
-  [Tth,inds]=sort(series);
+  [Tth,inds]=sort(seriesvar);
 end
 % if any(strcmp(fieldnames(cal),'THORPE'))
 eval(['cal.THORPE_' upper(series_name) '(inds,1)=(depth(inds)-depth(1:length(depth)));'])

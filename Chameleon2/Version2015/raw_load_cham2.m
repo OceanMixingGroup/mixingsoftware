@@ -236,10 +236,11 @@ for i=1:head.num_sensors
  
   head.coef=setfield(head.coef,fieldname,head.coefficients(i,:));
 end
-% data = rmfield(data,'NONE'); %removes the unused channels
-data.NONE = data.P*0;
-data.GND = data.P*0;
-% data = rmfield(data,'GND'); %removes the unused channels
+
+data = rmfield(data,'NONE'); %removes the unused channels
+% data.NONE = data.P*0;
+% data.GND = data.P*0;
+data = rmfield(data,'GND'); %removes the unused channels
 return;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

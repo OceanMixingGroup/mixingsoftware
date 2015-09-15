@@ -22,9 +22,11 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % !!!!! comment out when running with the timer !!!!!
-clear all
-set_chameleon_oceanus;
-initialize_summary_file_oceanus;
+% disp('If you are running with a timer, stop and comment out the clear')
+% disp('statement in process_file_oceanus_v3.m')
+% clear
+% set_chameleon_oceanus;
+% initialize_summary_file_oceanus;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -84,7 +86,7 @@ end
 % if no new files need to be processed, tell the user and break
 if ~exist('indtoprocess','var') 
     disp(['Waiting for new raw files at ' datestr(now)])
-    break
+    return
 end
 
 
@@ -128,7 +130,7 @@ for ii = 1:length(indtoprocess)
 	% define variables to be processed and sent to average_data
 	q.series = {'fallspd','t1','t2','cond','sal','theta','sigma',...
         'epsilon1','epsilon2',...
-        'chi','n2','az2','dtdz','drhodz','scat','ax_tilt','ay_tilt'};
+        'chi','n2','az2','dtdz','drhodz','scat','flr','ax_tilt','ay_tilt'};
         warning off
         
 	% if the processed data is NOT bad, save it and add it to the 
@@ -136,13 +138,22 @@ for ii = 1:length(indtoprocess)
     if bad ~= 1
 
         % average calibrated data into 1m bins
+        % SJW sept 2015: IMPORTANT NOTE! For final processing DO NOT use
+        % this version of average_data. Need average_data_gen1 which is
+        % used for final processing such as with EQ14 data. For realtime
+        % visualization of chameleon, this is okay, but it is NOT okay for
+        % the final dataset!!
         avg = average_data(q.series,'binsize',1,'nfft',nfft,'whole_bins',1);
 
         % remove glitches
-        indfast = find(log10(avg.AZ2)>-4.5);
-        avg.EPSILON1(indfast) = NaN;
-        avg.EPSILON2(indfast) = NaN;
-        warning backtrace
+        % SJW Sept 2015: for shallow locations like Yaquina Bay and Mobile
+        % Bay, we're bringing the chameleon out of the water to begin the
+        % drop. Don't want to NaN our these values at the surface because
+        % losing the entire top of the water column
+%         indfast = find(log10(avg.AZ2)>-4.5);
+%         avg.EPSILON1(indfast) = NaN;
+%         avg.EPSILON2(indfast) = NaN;
+%         warning backtrace
 
         % calc dynamic height and max pressure and add to the header
         head = calc_dynamic_z(avg,head);

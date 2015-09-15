@@ -8,6 +8,9 @@
 %
 % If you need to stop this code from running. The timer object is named
 % "tmc," so simply type the command: stop(tmc)
+%
+% The command get(tmc) can show whether the timer is running or not. The
+% command timerfind can also be helpful.
 % ****************************************************
 
 
@@ -15,8 +18,8 @@
 % initialize the workspace
 clear all; close all; 
 
-addpath('~/GDrive/data/eq14/chameleon/mfiles/')
-addpath('~/GDrive/data/eq14/chameleon/mfiles/utilities/')
+% addpath('~/GDrive/data/eq14/chameleon/mfiles/')
+% addpath('~/GDrive/data/eq14/chameleon/mfiles/utilities/')
 
 % set_chameleon sets the path to the raw chameleon data (path_raw), to the 
 % processed chameleon data (path_cham), and the summary file of all of the

@@ -101,6 +101,7 @@ cham.T2=init;
 cham.SAL=init;
 cham.COND=init;
 cham.SCAT=init;
+cham.FLR=init;
 cham.AZ2=init;
 cham.FALLSPD=init;
 cham.P=init;

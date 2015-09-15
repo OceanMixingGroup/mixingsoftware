@@ -63,6 +63,7 @@ if f>0
     cham.SAL(f:t,n)=real(avg.SAL(1:l)');
     cham.COND(f:t,n)=real(avg.COND(1:l)');
     cham.SCAT(f:t,n)=real(avg.SCAT(1:l)');
+    cham.FLR(f:t,n)=real(avg.FLR(1:l)');
     cham.AZ2(f:t,n)=avg.AZ2(1:l)';
     cham.FALLSPD(f:t,n)=avg.FALLSPD(1:l)';
     cham.P(f:t,n)=avg.P(1:l)';

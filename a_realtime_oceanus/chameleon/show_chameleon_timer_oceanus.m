@@ -8,6 +8,9 @@
 %
 % If you need to stop this code from running. The timer object is called
 % "tsc" so simply type the command: stop(tsc)
+%
+% The command get(tsc) can show whether the timer is running or not. The
+% command timerfind can also be helpful.
 % ******************************************************
 
 
@@ -119,6 +122,7 @@ for jj=1:nplots
     fig.colhand(jj)=colorbar; set(fig.colhand(jj),'fontsize',fs);
     smallbar(h1,fig.colhand(jj));
     cpi=get(fig.colhand(jj),'position');
+    cpi(1) = cpi(1)+0.09;
     spi=get(h1,'position');
     if jj>1
         set(h1,'position',[spf(1) spi(2) spf(3) spf(4)]);
@@ -137,7 +141,7 @@ for jj=1:nplots
     
     % make sure the x and y-axes have the correct limits 
     if max_depth>4
-        axis([min_file max_file+1 -max_depth-1 0])
+        axis([min_file max_file+1 -max_depth-2 0])
     else
         axis([min_file max_file+1 -6 0])
     end    
@@ -149,9 +153,9 @@ for jj=1:nplots
     set(gca,'fontsize',fs)
 end
 
-% % % % create a timer that will automatically update this plot as new data is
-% % % % collected.
-% % % tsc=timer('TimerFcn','plot_cham_summary_timer',...
-% % %     'Period',20,'executionmode','fixedrate','busymode','queue');
-% % % STARTTIME=now+1/86400;
-% % % startat(tsc,STARTTIME);
+% % create a timer that will automatically update this plot as new data is
+% % collected.
+tsc=timer('TimerFcn','plot_cham_summary_timer',...
+    'Period',20,'executionmode','fixedrate','busymode','queue');
+STARTTIME=now+1/86400;
+startat(tsc,STARTTIME);

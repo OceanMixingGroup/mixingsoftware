@@ -65,170 +65,14 @@ if strcmp(head.thisfile(end-9:end-6),'YQ14') == 1
     t_offset=0;
     c_offset=0.09;
     
-    
+
 elseif strcmp(head.thisfile(end-9:end-6),'EQ14') == 1
     
     disp('using new cali coefs')
     
-    %%%%%% try 1: using the average coefficients for every cast
-%     head.coef.COND = [-0.2526 2.7492 -0.0626 0 0];
-    
 
-
-
-%     %%%%%% try 2: using what look like good matches
-% 
-%     if str2num(head.thisfile(end-4:end))*1000 < 20
-%         % based on fit of cham 0004 to ctd 12
-%         head.coef.COND = [2.592310133297870 -0.376285889185778 0.816605326624887 0 0];
-%         
-%      elseif str2num(head.thisfile(end-4:end))*1000 >= 20 &...
-%          str2num(head.thisfile(end-4:end))*1000 < 588
-%          % based on fit of cham 0400 to ctd 14
-%          head.coef.COND = [0.631839139848669 1.807231951343833 0.194997096649180 0 0];
-%          
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 588 &...
-%          str2num(head.thisfile(end-4:end))*1000 < 754
-%          % based on fit of cham 0705 to ctd 19
-%          head.coef.COND = [0.369729559535639 2.113206034132981 0.101534121802797 0 0];
-%          
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 754 &...
-%          str2num(head.thisfile(end-4:end))*1000 < 1643
-%          % based on fit of cham 1590 to ctd 30
-%          head.coef.COND = [0.139948422542979 2.353296664941154 0.038694063508930 0 0];
-%         
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 1643 &...
-%          str2num(head.thisfile(end-4:end))*1000 <= 1844    
-%         % based on fit of cham 1795 to ctd 33
-%          head.coef.COND = [-0.748414979970028   3.278049790610916  -0.211507627468904 0 0];
-%      
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 1845 &...
-%          str2num(head.thisfile(end-4:end))*1000 < 2072   
-%          % based on fit of cham 1903 to ctd 34
-%          head.coef.COND = [-0.410080045856984 2.946972990284236 -0.120832141826407 0 0];
-%          
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 2072      
-%         % based on fit of cham 3089 to ctd 47
-%          head.coef.COND = [0.906147540207201 1.519734540413913 0.261708729641122 0 0];
-%         
-%         
-%     end
-%     
-    
-    
-%     %%%%%% try 3: using linear fits
-%     
-%     if str2num(head.thisfile(end-4:end))*1000 < 400
-%         
-%         % based on fit of cham 0004 to ctd 12
-%          head.coef.COND = [-0.07949 2.586 0 0 0];
-%     
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 400 &...
-%          str2num(head.thisfile(end-4:end))*1000 < 453
-%      
-%          % based on fit of cham 0400 to ctd 14
-%          head.coef.COND = [-0.07731 2.552 0 0 0];
-%          
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 453 &...
-%          str2num(head.thisfile(end-4:end))*1000 < 507
-%      
-%          % based on fit of cham 0453 to ctd 15
-%          head.coef.COND = [-0.05185 2.538 0 0 0];
-%          
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 507 &...
-%          str2num(head.thisfile(end-4:end))*1000 < 595
-%      
-%          % based on fit of cham 0507 to ctd 16
-%          head.coef.COND = [-0.03328 2.528 0 0 0];
-% 
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 595 &...
-%          str2num(head.thisfile(end-4:end))*1000 < 754
-%      
-%          % based on fit of cham 0753 to ctd 20
-%          head.coef.COND = [-0.01876 2.509 0 0 0];
-%          
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 754 &...
-%          str2num(head.thisfile(end-4:end))*1000 < 1643
-%          
-%          % based on fit of cham 1135 to ctd 26
-%          head.coef.COND = [-0.02266 2.510 0 0 0];
-%         
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 1643 &...
-%          str2num(head.thisfile(end-4:end))*1000 <= 1844
-%      
-%          % ******** different instrument in this period ********
-%          % based on fit of cham 1652 to ctd 32
-%          head.coef.COND = [0.02491 2.46 0 0 0];
-%          % based on fit of cham 1795 to ctd 33
-% %          head.coef.COND = [-0.02944 2.494 0 0 0];
-%          
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 1845 &...
-%          str2num(head.thisfile(end-4:end))*1000 < 2072
-%      
-%         % based on fit of cham 1903 to ctd 34
-%          head.coef.COND = [-0.04198 2.522 0 0 0];
-%      
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 2072 
-%          
-%          % based on fit of cham 2670 to ctd 42
-%          head.coef.COND = [-0.03004 2.512 0 0 0];
-%         
-%     end
-
-
-
-%  %%%%%% try 4: 
-%  
-%  
-%      if str2num(head.thisfile(end-4:end))*1000 < 600
-%      
-%          % based on fit of cham 0400 to ctd 14
-%          head.coef.COND = [0.631839139848669 1.807231951343833 0.194997096649180 0 0];
-%          
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 600 &...
-%          str2num(head.thisfile(end-4:end))*1000 < 754
-%          
-%          % based on fit of cham 0705 to ctd 19
-%          head.coef.COND = [0.369729559535639 2.113206034132981 0.101534121802797 0 0];
-%     
-%          
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 754 &...
-%          str2num(head.thisfile(end-4:end))*1000 < 1643
-%          
-%          % based on fit of cham 1590 to ctd 30
-%          head.coef.COND = [0.139948422542979 2.353296664941154 0.038694063508930 0 0];
-%         
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 1643 &...
-%          str2num(head.thisfile(end-4:end))*1000 <= 1844
-%      
-%         disp('bad period')
-%      
-%          % ******** different instrument in this period ********
-%          % based on fit of cham 1652 to ctd 32
-% %          head.coef.COND = [-0.1294 2.605 0 0 0];
-%          head.coef.COND = [0 0 0 0 0];
-% %          head.coef.COND = [-0.0780 2.5616 -0.0250 0 0];
-%          
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 1845 &...
-%          str2num(head.thisfile(end-4:end))*1000 < 2072
-%      
-%         % based on fit of cham 1590 to ctd 30
-%          head.coef.COND = [0.139948422542979 2.353296664941154 0.038694063508930 0 0];
-%      
-%     elseif str2num(head.thisfile(end-4:end))*1000 >= 2072 
-%          
-%          % based on fit of cham 3089 to ctd 47
-% %          head.coef.COND = [0.906147540207201 1.519734540413913 0.261708729641122 0 0];
-%          head.coef.COND = [0.906147540207201 1.519734540413913 0.1 0 0];
-%          
-%      else
-%          disp(['no conductivity coefficients for ' head.thisfile])
-%         
-%      end
-
-
-
-%%%%%% try 6: as good as it's gonna get
+    %%%%%% try 6: new calibration coefficients for EQ14 (not perfect, but
+    %%%%%% as good as I'm able to get)
 
     if str2num(head.thisfile(end-4:end))*1000 < 4
         % based on fit of cham 0004 to ctd 12
@@ -287,7 +131,16 @@ elseif strcmp(head.thisfile(end-9:end-6),'EQ14') == 1
     end
  
     disp(num2str(head.coef.COND))
- 
+
+elseif strcmp(head.thisfile(end-9:end-6),'YQ15') == 1
+    % as far as I know, there are no header calibration coefficients that
+    % need to be changed
+    
+    % offsets to apply to calibrated T,C to make fit to CTD
+    t_offset=0;
+    c_offset=0;
+    
+    
  
 end
 
@@ -309,7 +162,7 @@ if bad==1
 end
 
 % make sure length of file is long enough
-if length(data.P)<500
+if length(data.P)<100
    disp('no sync or too short file');
     bad=1;
     wait=0;
@@ -320,7 +173,8 @@ end
 % profile is long enough and that pressure is right sign
 calibrate('p','p','l2');
 calibrate('az','az')
-if (abs(max(cal.P)-min(cal.P))<10 | any(cal.P<-2.5));
+% if (abs(max(cal.P)-min(cal.P))<10 | any(cal.P<-2.5));
+if (abs(max(cal.P)-min(cal.P))<2 | any(cal.P<-2.5)); %During YQ14, the profiles are so shallow, that we need to reset this to be 4m min rather than 10m min
    bad=1;
    disp('profile < 10m or negative P');
    disp(['min pressure = ' num2str(min(cal.P))]);
@@ -340,7 +194,8 @@ end
 %
 % determine_depth_range is one possibility...
 if head.direction=='d'
-  [q.mini,q.maxi,head.got_bottom]=determine_depth_range2(3);
+%   [q.mini,q.maxi,head.got_bottom]=determine_depth_range2(3); % SJW Sept 2015: the minimum depth range is set to 3m. In shallow areas like yaquina bay and mobile bay, we want this to be MUCH shallower, especially since we're pulling chameleon all the way out of the water
+  [q.mini,q.maxi,head.got_bottom]=determine_depth_range2(0);
 
   % now select only the data within that depth range
   len=select_depth_range(q.mini,q.maxi);
@@ -353,7 +208,8 @@ else
 end
 
 % check to make sure the cast is long enough
-if maxi-mini<500
+% if maxi-mini<500
+if maxi-mini<100   % during YQ15, casts are very shallow. need to change threshold to be less than 10m
     disp('profile < 10m');
     bad=1;
     wait=0;
@@ -365,7 +221,8 @@ calibrate('p','p','l2')
 calibrate('p','fallspd','l.5') 
 data.P=data.P(mini:maxi);
 cal.P=cal.P(mini:maxi);
-if (abs(max(cal.P)-min(cal.P))<10);
+% if (abs(max(cal.P)-min(cal.P))<10);
+if (abs(max(cal.P)-min(cal.P))<2);  % for YQ15, need to change depth threshold
    bad=1;
    disp('profile < 10m');
    wait=0;
@@ -454,6 +311,7 @@ calibrate('s2','s',{'h.4','l20'})
 
 % SCATTERING
 calibrate('scat','volts')
+calibrate('flr','volts')
 
 % ACCELERATIONS
 calibrate('az','az')

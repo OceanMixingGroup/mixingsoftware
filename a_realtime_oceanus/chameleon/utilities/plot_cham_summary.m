@@ -107,6 +107,7 @@ for jj=1:nplots
     colhand(jj)=colorbar; set(colhand(jj),'fontsize',fs);
     smallbar(h1,colhand(jj));
     cpi=get(colhand(jj),'position');spi=get(h1,'position');
+    cpi(1) = cpi(1)+0.09;
     if jj>1
         set(h1,'position',[spf(1) spi(2) spf(3) spf(4)]);
         set(colhand(jj),'position',[cpf(1) spi(2) cpf(3) spf(4)]);

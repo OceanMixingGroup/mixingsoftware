@@ -28,15 +28,17 @@ function data = ctd_correction2(data)
 % fit t-c lag in deeper water, below intrusions. Then apply to entire water
 % column.
 %
-% This version of code is part of 'ctd_processing' folder in the OSU
+% This version of the code is part of 'ctd_processing' folder in the OSU
 % 'mixing software' github repository.
 % Added to 'ctd_processing' folder by A. Pickering - April 2015
 % Original code from Jen MacKinnon in 'ctd_proc2' folder.
 %
+% 09/21/15 - AP - add disp_on option
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
-figures = 1; % 0 for no figures, 1 for figures
+figures = 0; % 0 for no figures, 1 for figures
+disp_on = 0; % option to display values
 
 % depth range to use for t-c fitting, specified earlier in processing
 if ~isfield(data,'tcfit')
@@ -130,8 +132,10 @@ L2 = x2(2);
 %tau1=0.0076908; L1= 0.0073246;
 data.tau1=tau1; data.tau2=tau2; data.L1=L1; data.L2=L2;
 
+if disp_on
 disp(['1: tau = ' num2str(tau1) ', lag = ' num2str(L1) ' s'])
 disp(['2: tau = ' num2str(tau2) ', lag = ' num2str(L2) ' s'])
+end
 
 % Plots of Spectral Quantities for Uncorrected Data--------------------%
 

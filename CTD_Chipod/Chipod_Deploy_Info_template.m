@@ -5,8 +5,9 @@
 % Deployment info for CTD chipods. For loading during chipod
 % processing.
 %
-% ** change InstDir to InstDir.T1,T2 etc. to make compatible with big
-% chipods ? **
+% Note that the sign of az_correction is not always consistent with the
+% chipod deployment direction; the correct sign can be determined from
+% aligning the chipod and CTD (AlignChipodCTD.m in the processing script).
 %
 % May 18, 2015 - A.Pickering - apickering@coas.oregonstate.edu
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,7 +26,7 @@ SN1012.pcaseSN='Ti88-3';
 SN1012.sensorSN='11-21D';
 SN1012.InstDir='up';
 SN1012.InstType='mini';
-SN1012.az_correction=-1; % -1 if the Ti case is pointed up
+SN1012.az_correction=-1; %
 SN1012.suffix='A1012'; % suffix for data filenames
 SN1012.isbig=0; %
 SN1012.cal.coef.T1P=0.097;

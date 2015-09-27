@@ -29,7 +29,7 @@ ib=find(abs(diff(data.s1))>.1); data.s1(ib)=NaN;
 ib=find(abs(diff(data.s2))>.1); data.s2(ib)=NaN;
 
 % remove out of bounds data
-smin=33; smax=36;
+smin=28; smax=36;
 ib=find(data.s1<smin|data.s1>smax); data.s1(ib)=NaN;
 ib=find(data.s2<smin|data.s2>smax); data.s2(ib)=NaN;
 

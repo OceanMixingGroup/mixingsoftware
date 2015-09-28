@@ -72,9 +72,9 @@ for icast=1%:length(ctdlist)
     
     close all
     
-    clear data1 data2 data3 data4 data5 data6 data7 
+    clear data1 data2 data3 data4 data5 data6 data7
     clear ctdname outname matname confile cfg d
-
+    
     
     disp('=============================================================')
     
@@ -102,7 +102,7 @@ for icast=1%:length(ctdlist)
     data1 = hex_parse(d);
     
     % check for modcount errors
-    clear dmc mmc fmc 
+    clear dmc mmc fmc
     dmc = diff(data1.modcount);
     mmc = mod(dmc, 256);
     %figure; plot(mmc); title('mod diff modcount')
@@ -129,7 +129,7 @@ for icast=1%:length(ctdlist)
     disp('converting:')
     % *** fl, trans, ch4
     data2 = physicalunits(data1, cfg);
- 
+    
     % Plot raw profiles of temp and cond.
     h=PlotRawCTDprofiles(data2,ctdlist,icast)
     print('-dpng',fullfile(CTD_out_dir_figs,[ctdlist(icast).name(1:end-4) '_Raw_Temp_Cond_vsP']))
@@ -197,25 +197,25 @@ for icast=1%:length(ctdlist)
         datad6.epsilon1=Epsout;
         datad6.Lot=Lot;
     end
-    %%
+    %% 25cm binning
     
-    if dobin
-        disp('binning:')
-        dz = 0.25; % m
-        zmin = 0; % surface
-        [zmax, imax] = max([max(datad7.depth) max(datau7.depth)]);
-        zmax = ceil(zmax); % full depth
-        datad = ctd_bincast(datad7, zmin, dz, zmax);
-        datau = ctd_bincast(datau7, zmin, dz, zmax);
-        datad.datenum=datad.time/24/3600+datenum([1970 1 1 0 0 0]);
-        datau.datenum=datau.time/24/3600+datenum([1970 1 1 0 0 0]);
-        
-        disp(['saving: ' matname])
-        save(matname, 'datad', 'datau')
-        
-    end
+    %     if dobin
+    %         disp('binning:')
+    %         dz = 0.25; % m
+    %         zmin = 0; % surface
+    %         [zmax, imax] = max([max(datad7.depth) max(datau7.depth)]);
+    %         zmax = ceil(zmax); % full depth
+    %         datad = ctd_bincast(datad7, zmin, dz, zmax);
+    %         datau = ctd_bincast(datau7, zmin, dz, zmax);
+    %         datad.datenum=datad.time/24/3600+datenum([1970 1 1 0 0 0]);
+    %         datau.datenum=datau.time/24/3600+datenum([1970 1 1 0 0 0]);
+    %
+    %         disp(['saving: ' matname])
+    %         save(matname, 'datad', 'datau')
+    %
+    %     end
     
-    %% 1-m bin
+    %% 1-m binning
     
     if dobin
         disp('binning:')
@@ -227,32 +227,23 @@ for icast=1%:length(ctdlist)
         datau_1m = ctd_bincast(datau7, zmin, dz, zmax);
         datad_1m.datenum=datad_1m.time/24/3600+datenum([1970 1 1 0 0 0]);
         datau_1m.datenum=datau_1m.time/24/3600+datenum([1970 1 1 0 0 0]);
-        %%%%%%%%% remove 0s from cast 153 %%%%%%%%%%%%%%%%%
-        if icast == 153
-            flds = fieldnames(datau);
-            for a = 1:11
-                datau.([flds{a}])(datau.([flds{a}])==0) = NaN;
-                datad.([flds{a}])(datad.([flds{a}])==0) = NaN;
-                datau_1m.([flds{a}])(datau_1m.([flds{a}])==0) = NaN;
-                datad_1m.([flds{a}])(datad_1m.([flds{a}])==0) = NaN;
-            end
-        end
+        
         
         datad_1m.MakeInfo=['Made ' datestr(now) ' w/ ' this_file_name  ' in ' version]
         datau_1m.MakeInfo=['Made ' datestr(now) ' w/ ' this_file_name  ' in ' version]
-        datad.MakeInfo=['Made ' datestr(now) ' w/ ' this_file_name  ' in ' version]
-        datau.MakeInfo=['Made ' datestr(now) ' w/ ' this_file_name  ' in ' version]
+        % datad.MakeInfo=['Made ' datestr(now) ' w/ ' this_file_name  ' in ' version]
+        % datau.MakeInfo=['Made ' datestr(now) ' w/ ' this_file_name  ' in ' version]
         
         
         datad_1m.source=ctdname;
         datau_1m.source=ctdname;
-        datad.source=ctdname;
-        datau.source=ctdname;
+        %        datad.source=ctdname;
+        %       datau.source=ctdname;
         
         datad_1m.confile=confile;
         datau_1m.confile=confile;
-        datad.confile=confile;
-        datau.confile=confile;
+        %      datad.confile=confile;
+        %     datau.confile=confile;
         
         disp(['saving: ' matname])
         save(matname, 'datad_1m', 'datau_1m','datad','datau')

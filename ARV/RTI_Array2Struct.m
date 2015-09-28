@@ -90,6 +90,9 @@ Vel.(['F' whfreq 'kHz']).dnum=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).pitch=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).roll=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).heading=nan*ones(1,Nt);
+Vel.(['F' whfreq 'kHz']).p=nan*ones(1,Nt);
+Vel.(['F' whfreq 'kHz']).temp=nan*ones(1,Nt);
+
 
 Vel.(['F' whfreq 'kHz']).bt_range0=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).bt_range1=nan*ones(1,Nt);
@@ -137,6 +140,8 @@ Vel.(['F' whfreq 'kHz']).dnum=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).pitch=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).roll=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).heading=nan*ones(1,Nt);
+Vel.(['F' whfreq 'kHz']).p=nan*ones(1,Nt);
+Vel.(['F' whfreq 'kHz']).temp=nan*ones(1,Nt);
 
 Vel.(['F' whfreq 'kHz']).bt_range0=nan*ones(1,Nt);
 Vel.(['F' whfreq 'kHz']).bt_range1=nan*ones(1,Nt);
@@ -211,7 +216,7 @@ for iens=1:Nens
     
     Vel.(['F' whfreq 'kHz']).dnum(whens)=dnum;
     
-     Nbins=Ensembles(iens).Ensemble(2);
+    Nbins=Ensembles(iens).Ensemble(2);
     % ancillary data (includes binsize, pitch and roll)
     clear Anc range_first binsize heading pitch roll temp
     Anc=Ensembles(iens).Ancillary;
@@ -226,9 +231,10 @@ for iens=1:Nens
     Vel.(['F' whfreq 'kHz']).pitch(whens)=Anc(6);
     Vel.(['F' whfreq 'kHz']).roll(whens)=Anc(7);
     Vel.(['F' whfreq 'kHz']).temp(whens)=Anc(8);
-    
+    Vel.(['F' whfreq 'kHz']).p(whens)=Anc(11);
         
     % bottom-tracking data
+    if isfield(Ensembles,'BottomTrack')
     clear BTdat bt_time_first 
     BTdat=Ensembles(iens).BottomTrack;
 %    bt_time_first=BTdat(1);
@@ -246,6 +252,7 @@ for iens=1:Nens
     Vel.(['F' whfreq 'kHz']).bt_w(whens)=BTdat(49);
     
     Vel.(['F' whfreq 'kHz']).btheading(whens)=BTdat(3);
+    end
     
 end
 

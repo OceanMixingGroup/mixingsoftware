@@ -27,7 +27,7 @@ axis ij
 grid on
 xlabel('Sal.')
 ylabel('Pressure [db]')
-legend('s1 down','s2 down','s1 up','s2 up','location','west')
+legend('s1 down','s2 down','s1 up','s2 up','location','best')
 
 return
 %%

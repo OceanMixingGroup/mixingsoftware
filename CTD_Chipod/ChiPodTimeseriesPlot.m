@@ -64,6 +64,7 @@ else
 end
 ylabel('T [\circ C]')
 xlim(xls)
+ylim([0 30])
 datetick('x')
 grid on
 xtloff

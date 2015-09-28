@@ -8,6 +8,7 @@ h = fdesign.bandpass('N,F3dB1,F3dB2',6,0.1,1,1./nanmean(diff(t1*86400)));
 d = design(h,'butter');
 y1 = filtfilt(d.sosMatrix,d.ScaleValues,x1);
 
+clear h d
 h = fdesign.bandpass('N,F3dB1,F3dB2',6,0.1,1,1./nanmean(diff(t2*86400)));
 d = design(h,'butter');
 y2 = filtfilt(d.sosMatrix,d.ScaleValues,x2);

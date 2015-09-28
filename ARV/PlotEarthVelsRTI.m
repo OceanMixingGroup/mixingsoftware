@@ -6,7 +6,8 @@ function ax=PlotEarthVelsRTI(Vel,whfreq)
 % 08/11/15 - A. Pickering - apickering@coas.oregonstate.edu
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
-yl=[0 nanmax(Vel.(['F' whfreq 'kHz']).bt_range0)]
+%yl=[0 nanmax(Vel.(['F' whfreq 'kHz']).bt_range0)]
+yl=[0 nanmax(Vel.(['F' whfreq 'kHz']).z)]
 figure(1);clf
 agutwocolumn(1)
 wysiwyg
@@ -73,7 +74,8 @@ xtloff
 axes(ax(5))
 plot(Vel.(['F' whfreq 'kHz']).dnum,Vel.(['F' whfreq 'kHz']).heading)
 hold on
-plot(Vel.(['F' whfreq 'kHz']).dnum,Vel.(['F' whfreq 'kHz']).btheading,'o')
+%if isfield(
+%plot(Vel.(['F' whfreq 'kHz']).dnum,Vel.(['F' whfreq 'kHz']).btheading,'o')
 grid on
 ylabel('Deg','fontsize',16)
 cb=colorbar;killcolorbar(cb)

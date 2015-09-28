@@ -6,7 +6,8 @@ function ax=PlotBeamAmpsRTI(Vel,whfreq)
 % 08/11/15 - A. Pickering - apickering@coas.oregonstate.edu
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
-yl=[0 nanmax(Vel.(['F' whfreq 'kHz']).bt_range0)]
+%yl=[0 nanmax(Vel.(['F' whfreq 'kHz']).bt_range0)]
+yl=[0 nanmax(Vel.(['F' whfreq 'kHz']).z)]
 figure(1);clf
 agutwocolumn(1)
 wysiwyg

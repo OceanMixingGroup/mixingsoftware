@@ -182,6 +182,13 @@ for a=1
             
             % find and load chipod data for this time range
             chidat=load_chipod_data(chi_path,time_range,suffix,isbig,1);
+            ab=get(gcf,'Children');
+            axes(ab(end));
+            title([whSN ' - ' castname ' - Raw Data '],'interpreter','none')
+            
+            % save plot
+            print('-dpng',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig1_RawChipodTS']))
+            
             
             chidat.time_range=time_range;
             chidat.castname=castname;
@@ -196,18 +203,19 @@ for a=1
             
             if length(chidat.datenum)>1000
                 
-                % Align chipod data with 24Hz CTD data
+                % Align
                 [CTD_24hz chidat]=AlignChipodCTD(CTD_24hz,chidat,az_correction,1);
-                print('-dpng',fullfile(chi_fig_path,['chi_' whSN ],['cast_' cast_suffix '_w_TimeOffset']))
+                print('-dpng',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig2_w_TimeOffset']))
                 
                 % zoom in and plot again
-                xlim([nanmin(chidat.datenum) nanmin(chidat.datenum)+100/86400])
-                print('-dpng',fullfile(chi_fig_path,['chi_' whSN ],['cast_' cast_suffix '_w_TimeOffset_Zoom']))
-
+                xlim([nanmin(chidat.datenum) nanmin(chidat.datenum)+400/86400])
+                print('-dpng',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig3_w_TimeOffset_Zoom']))
+                
                 % Calibrate T and dT/dt
                 [CTD_24hz chidat]=CalibrateChipodCTD(CTD_24hz,chidat,az_correction,1);
-                print('-dpng',fullfile(chi_fig_path,['chi_' whSN],['cast_' cast_suffix '_w_dTdtSpectraCheck']))
-                                
+                print('-dpng',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig4_dTdtSpectraCheck']))
+                
+                
                 % save again, with time-offset and calibration added
                 save(processed_file,'chidat')
                 
@@ -220,7 +228,7 @@ for a=1
                     disp('Warning T calibration not good')
                     fprintf(fileID,' *T calibration not good* ');
                 end
-                    
+                
                 % check if T2 calibration is ok
                 clear out2 err pvar
                 out2=interp1(chidat.datenum,chidat.cal.T2,CTD_24hz.datenum);
@@ -241,10 +249,12 @@ for a=1
                     axes(h(end))
                     xlabel(['Time on ' datestr(time_range(1),'dd-mmm-yyyy')])
                     
-                    print('-dpng','-r300',fullfile(chi_fig_path,['chi_' whSN ],['cast_' cast_suffix '_T_P_dTdz_fspd.png']));
+                    %                    print('-dpng','-r300',fullfile(chi_fig_path,['chi_' whSN ],['cast_' cast_suffix '_T_P_dTdz_fspd.png']));
+                    print('-dpng','-r300',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig5_T_P_dTdz_fspd.png']));
+                    
                 end
                 %~~~~
-                                
+                
                 clear datad_1m datau_1m chi_inds p_max ind_max ctd
                 
                 % load 1-m CTD data.
@@ -304,6 +314,9 @@ for a=1
                     else
                         Ncasestodo=2
                     end
+                    
+                    
+                    whfig=6; % # for figure filename, so they can be viewed in order in Finder
                     
                     for whcasetodo=1:Ncasestodo
                         
@@ -368,7 +381,7 @@ for a=1
                         title(['cast_' cast_suffix '_' chi_todo_now.castdir],'interpreter','none')
                         axis ij
                         datetick('x')
-                                                
+                        
                         %%% Now we'll do the main looping through of the data.
                         clear avg  todo_inds
                         
@@ -382,16 +395,21 @@ for a=1
                         ib_loop=find(chi_todo_now.is_good_data==0);
                         Nloop=length(ib_loop);
                         fprintf(fileID,['\n  ' num2str(round(Nloop/length(chi_todo_now.datenum)*100)) ' percent of points removed for depth loops ']);
-                                                
+                        
                         %~~ plot histogram of avg.P to see if we have good
                         %data in each bin
                         figure
-                        hi=histogram(avg.P,0:10:nanmax(avg.P))
+                        agutwocolumn(0.6)
+                        wysiwyg
+                        hi=histogram(avg.P,0:10:nanmax(avg.P),'edgecolor','none')
                         hi.Orientation='Horizontal';axis ij;
-                        ylabel('P [db]')
-                        xlabel('# good data windows')
-                        title([whSN ' cast ' cast_suffix ' - ' chi_todo_now.castdir 'cast'])
-                        print('-dpng',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' whsens '_avgPhist']))
+                        ylabel('P [db]','fontsize',15)
+                        xlabel('# good data windows','fontsize',15)
+                        xlim([0 40])
+                        grid on
+                        title([whSN ' cast ' cast_suffix ' - ' chi_todo_now.castdir 'cast'],'fontsize',15)
+                        print('-dpng',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig' num2str(whfig) '_' chi_todo_now.castdir 'cast_chi_' whsens '_avgPhist']))
+                        whfig=whfig+1
                         
                         %~ compute chi in overlapping windows
                         avg=ComputeChi_for_CTDprofile(avg,nfft,fspd,TP,good_chi_inds,todo_inds);
@@ -401,7 +419,12 @@ for a=1
                         title(['cast ' cast_suffix])
                         axes(ax(2))
                         title([whSN],'interpreter','none')
-                        print('-dpng',fullfile(chi_fig_path,[  'chi_' whSN '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' whSN '_' whsens '_avg_chi_KT_dTdz']))
+                        axes(ax(3))
+                        title(['Sensor ' whsens])
+                        %                        print('-dpng',[chi_fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' short_labs{up_down_big} '_' whsens '_avg_chi_KT_dTdz'])
+                        print('-dpng',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig' num2str(whfig) '_' chi_todo_now.castdir 'cast_chi_' whsens '_avg_chi_KT_dTdz']))
+                        whfig=whfig+1
+                        
                         
                         %~~~
                         avg.castname=castname;
@@ -427,7 +450,7 @@ for a=1
                         end
                         
                     end % up,down, T1/T2
-                                        
+                    
                 end % if we have binned ctd data
                 
             else

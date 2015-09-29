@@ -165,6 +165,7 @@ if plotit==1
             datetick('x')
             grid on
             legend('T1','T2')
+            title('Raw chipod data (uncalibrated)')
             
             axes(ax(2))
             plot(big.datenum,big.T1P);
@@ -193,7 +194,7 @@ if plotit==1
             xlabel(['Time on ' datestr(floor(nanmin(chidat.datenum))) ])
             linkaxes(ax,'x')
             
-            linkaxes([ax(2) ax(3)],'y')
+%            linkaxes([ax(2) ax(3)],'y')
             
         else
             figure(77);clf
@@ -208,6 +209,7 @@ if plotit==1
             xlim(time_range)
             datetick('x')
             grid on
+            title('Raw chipod data (uncalibrated)')
             
             axes(ax(2))
             plot(big.datenum,big.T1P);

@@ -5,6 +5,7 @@ h=figure;clf
 
 subplot(121)
 plot(data2.t1,data2.p,data2.t2,data2.p)
+ylim([0 nanmax(data2.p)])
 axis ij
 ylabel('p [db]')
 grid on
@@ -14,6 +15,7 @@ legend('t1','t2','location','Southeast')
 
 subplot(122)
 plot(data2.c1,data2.p,data2.c2,data2.p)
+ylim([0 nanmax(data2.p)])
 axis ij
 ylabel('p [db]')
 grid on

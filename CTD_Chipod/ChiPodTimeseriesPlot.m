@@ -58,7 +58,7 @@ hold on
 plot(chidat.datenum,chidat.cal.T1)
 if chidat.Info.isbig
     plot(chidat.datenum,chidat.cal.T2-.5)
-    legend('CTD','chi','chi2-.5','location','best')
+    legend('CTD','T1','T2-.5','location','best')
 else
     legend('CTD','chi','location','best')
 end

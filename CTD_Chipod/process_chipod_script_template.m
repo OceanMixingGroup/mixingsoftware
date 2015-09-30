@@ -47,10 +47,9 @@ tstart=tic;
 
 %~~~~ '***' means Modify these paths for your cruise/computer ~~~~
 
-% *** path for 'mixingsoftware' ***
+% *** add path for 'mixingsoftware' ***
 mixpath='/Users/Andy/Cruises_Research/mixingsoftware/'
-
-% cd to CTD_chipod folder and add paths we need
+% add subfolders we need
 addpath(fullfile(mixpath,'CTD_Chipod'))
 addpath(fullfile(mixpath,'general')) % makelen.m in /general is needed
 addpath(fullfile(mixpath,'marlcham')) % for integrate.m
@@ -77,15 +76,14 @@ chi_processed_path='/Users/Andy/Cruises_Research/mixingsoftware/CTD_Chipod/TestD
 % path to save figures to
 chi_fig_path=fullfile(chi_processed_path, 'figures');
 ChkMkDir(chi_fig_path)
-%
 
 % Make a list of all ctd files
 % *** replace 'TestData' with name that is in your ctd files ***
 CTD_list=dir(fullfile(CTD_out_dir_raw, '*TestData_*.mat'));
 
-% make a text file to print a summary of results to
+%--- make a text file to print a summary of results to
 txtfname=['Results' datestr(floor(now)) '.txt'];
-
+ 
 if exist(fullfile(chi_processed_path,txtfname),'file')
     delete(fullfile(chi_processed_path,txtfname))
 end
@@ -102,27 +100,29 @@ fprintf(fileID,[chi_processed_path '\n']);
 fprintf(fileID,'\n figure path \n');
 fprintf(fileID,[chi_fig_path '\n \n']);
 fprintf(fileID,[' \n There are ' num2str(length(CTD_list)) ' CTD files' ]);
+%---
 
-% we loop through and do processing for each ctd file
-
+% start a waitbar
 hb=waitbar(0,'Looping through ctd files');
 
+% loop through casts and do processing for each ctd file
 for a=1
     
     close all
+    clear castname tlim time_range cast_suffix_tmp cast_suffix CTD_24hz
     
+    % update waitbar
     waitbar(a/length(CTD_list),hb)
     
-    clear castname tlim time_range cast_suffix_tmp cast_suffix CTD_24hz
     castname=CTD_list(a).name;
     
     fprintf(fileID,[' \n \n ~' castname ]);
     
-    %load CTD profile
+    %load 24Hz CTD profile (in a structure named 'data2')
     load(fullfile(CTD_out_dir_raw, castname))
-    % 24Hz data loaded here is in a structure named 'data2'
     CTD_24hz=data2;clear data2
     CTD_24hz.ctd_file=castname;
+
     % Sometimes the 24hz ctd time needs to be converted from computer time into matlab (datenum?) time.
     tlim=now+5*365;
     if CTD_24hz.time > tlim
@@ -130,19 +130,17 @@ for a=1
         CTD_24hz.datenum=tmp'/24/3600+datenum([1970 1 1 0 0 0]);
     end
     
-    clear tlim tmp
+    % get time limits for this cast
     time_range=[min(CTD_24hz.datenum) max(CTD_24hz.datenum)];
     
     % ** this might not work for other cruises/names ? - AP **
     cast_suffix_tmp=CTD_list(a).name; % Cast # may be different than file #. JRM
     cast_suffix=cast_suffix_tmp(end-8:end-6);
     
-    %*** Load chipod deployment info
+    %*** Load chipod deployment info ( needs to be modified for each cruise)
     Chipod_Deploy_Info_template
     
-    %~~~ Enter Info for chipods deployed on CTD  ~~
-    %~~~ This needs to be modified for each cruise ~~~
-    
+    % loop through each chipod sensor on CTD
     for up_down_big=1
         
         close all
@@ -154,20 +152,22 @@ for a=1
                 whSN='SN1002' ;%
         end
         
+        % get info for this sensor
         this_chi_info=ChiInfo.(whSN);
         clear chi_path az_correction suffix isbig cal is_downcast
         chi_path=fullfile(chi_data_path,this_chi_info.loggerSN);
         suffix=this_chi_info.suffix;
         isbig=this_chi_info.isbig;
         cal=this_chi_info.cal;
+        az_correction=this_chi_info.az_correction;
         
         fprintf(fileID,[ ' \n \n ' whSN ]);
         
         d.time_range=datestr(time_range); % Time range of cast
         
+        % specific paths for processed data from this instrument
         chi_processed_path_specific=fullfile(chi_processed_path,['chi_' whSN ]);
-        ChkMkDir(chi_processed_path_specific)
-        
+        ChkMkDir(chi_processed_path_specific)        
         chi_fig_path_specific=fullfile(chi_fig_path,['chi_' whSN ]);
         ChkMkDir(chi_fig_path_specific)
         
@@ -178,45 +178,43 @@ for a=1
         if  1 %~exist(processed_file,'file')
             %load(processed_file)
             %            else
-            disp('loading chipod data')
             
-            % find and load chipod data for this time range
+            % find and load chipod data for this time range, and plot raw
+            % data
+            disp('loading chipod data')
             chidat=load_chipod_data(chi_path,time_range,suffix,isbig,1);
             ab=get(gcf,'Children');
             axes(ab(end));
-            title([whSN ' - ' castname ' - Raw Data '],'interpreter','none')
-            
+            title([whSN ' - ' castname ' - Raw Data '],'interpreter','none')            
             % save plot
             print('-dpng',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig1_RawChipodTS']))
-            
-            
+                        
             chidat.time_range=time_range;
             chidat.castname=castname;
+            
+            % save the file with chipod data for just this cast
             save(processed_file,'chidat')
             
-            az_correction=this_chi_info.az_correction;
-            %~
-            
-            % carry over chipod info
+            % carry over chipod info into this structure
             chidat.Info=this_chi_info;
             chidat.cal=this_chi_info.cal;
             
+            % if there is enough good data, continue processing
             if length(chidat.datenum)>1000
                 
-                % Align
+                % find time-offset and align with CTD
                 [CTD_24hz chidat]=AlignChipodCTD(CTD_24hz,chidat,az_correction,1);
                 print('-dpng',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig2_w_TimeOffset']))
                 
-                % zoom in and plot again
+                % zoom in and plot again (*check that alignment is correct)
                 xlim([nanmin(chidat.datenum) nanmin(chidat.datenum)+400/86400])
                 print('-dpng',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig3_w_TimeOffset_Zoom']))
                 
-                % Calibrate T and dT/dt
+                % Calibrate chipod T and dT/dt
                 [CTD_24hz chidat]=CalibrateChipodCTD(CTD_24hz,chidat,az_correction,1);
                 print('-dpng',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig4_dTdtSpectraCheck']))
-                
-                
-                % save again, with time-offset and calibration added
+                                
+                % save file again, with time-offset and calibration added
                 save(processed_file,'chidat')
                 
                 % check if T1 calibration is ok
@@ -239,25 +237,21 @@ for a=1
                     fprintf(fileID,' *T2 calibration not good* ');
                 end
                 
-                %~~~~
+                %~~ Make a timeseries plot of the aligned and calibr. data
                 do_timeseries_plot=1;
-                if do_timeseries_plot
-                    
+                if do_timeseries_plot                    
                     h=ChiPodTimeseriesPlot(CTD_24hz,chidat)
                     axes(h(1))
                     title(['Cast ' cast_suffix ', ' whSN '  ' datestr(time_range(1),'dd-mmm-yyyy HH:MM') '-' datestr(time_range(2),15) ', ' CTD_list(a).name],'interpreter','none')
                     axes(h(end))
-                    xlabel(['Time on ' datestr(time_range(1),'dd-mmm-yyyy')])
-                    
-                    %                    print('-dpng','-r300',fullfile(chi_fig_path,['chi_' whSN ],['cast_' cast_suffix '_T_P_dTdz_fspd.png']));
-                    print('-dpng','-r300',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig5_T_P_dTdz_fspd.png']));
-                    
+                    xlabel(['Time on ' datestr(time_range(1),'dd-mmm-yyyy')])                    
+                    print('-dpng','-r300',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig5_T_P_dTdz_fspd.png']));                    
                 end
                 %~~~~
                 
                 clear datad_1m datau_1m chi_inds p_max ind_max ctd
                 
-                % load 1-m CTD data.
+                % Now load the 1-m binned CTD data 
                 if exist(fullfile(CTD_out_dir_bin,[ castname(1:end-6) '.mat']),'file')
                     load(fullfile(CTD_out_dir_bin,[ castname(1:end-6) '.mat']));
                     
@@ -269,55 +263,57 @@ for a=1
                     % upcast
                     chi_up=struct();
                     chi_up.datenum=chidat.cal.datenum(ind_max:length(chidat.cal.P));
-                    chi_up.P=chidat.cal.P(ind_max:length(chidat.cal.P));
-                    chi_up.T1P=chidat.cal.T1P(ind_max:length(chidat.cal.P));
-                    chi_up.fspd=chidat.cal.fspd(ind_max:length(chidat.cal.P));
+                    chi_up.P      =chidat.cal.P(ind_max:length(chidat.cal.P));
+                    chi_up.T1P    =chidat.cal.T1P(ind_max:length(chidat.cal.P));
+                    chi_up.fspd   =chidat.cal.fspd(ind_max:length(chidat.cal.P));
                     chi_up.castdir='up';
-                    chi_up.Info=this_chi_info;
+                    chi_up.Info   =this_chi_info;
+                    if this_chi_info.isbig==1
                     % 2nd sensor on 'big' chipods
-                    chi_up.T2P=chidat.cal.T2P(ind_max:length(chidat.cal.P));
+                    chi_up.T2P    =chidat.cal.T2P(ind_max:length(chidat.cal.P));
+                    end
                     
                     % downcast
                     chi_dn=struct();
                     chi_dn.datenum=chidat.cal.datenum(1:ind_max);
-                    chi_dn.P=chidat.cal.P(1:ind_max);
-                    chi_dn.T1P=chidat.cal.T1P(1:ind_max);
-                    chi_dn.fspd=chidat.cal.fspd(1:ind_max);
+                    chi_dn.P      =chidat.cal.P(1:ind_max);
+                    chi_dn.T1P    =chidat.cal.T1P(1:ind_max);
+                    chi_dn.fspd   =chidat.cal.fspd(1:ind_max);
                     chi_dn.castdir='down';
-                    chi_dn.Info=this_chi_info;
+                    chi_dn.Info   =this_chi_info;
+                    if this_chi_info.isbig==1
                     % 2nd sensor on 'big' chipods
-                    chi_dn.T2P=chidat.cal.T2P(1:ind_max);
-                    %~
-                    
+                    chi_dn.T2P    =chidat.cal.T2P(1:ind_max);
+                    end
+                    %~                    
                     
                     %~~~
-                    % save these data here now ?
+                    % save these data here now 
                     clear fname_dn fname_up
                     fname_dn=fullfile(chi_processed_path_specific,['cast_' cast_suffix '_' whSN '_downcast.mat']);
                     save(fname_dn,'chi_dn')
                     fname_up=fullfile(chi_processed_path_specific,['cast_' cast_suffix '_' whSN '_upcast.mat']);
                     save(fname_up,'chi_up')
                     %~~~
-                    
-                    
+                                        
                     %~~
                     do_T2_big=1; % do calc for T2 if big chipod
                     % define some parameters that are the same for up/down and
                     % T1/T2:
-                    z_smooth=20
+                    z_smooth=20;
                     nfft=128;
                     extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
                     wthresh = 0.4;
                     
                     if isbig==1 && do_T2_big==1
-                        Ncasestodo=4
+                        Ncasestodo=4; % do T1 and T2 sensor (big chipod)
                     else
-                        Ncasestodo=2
+                        Ncasestodo=2; % just do T1 sensor (mini chipod)
                     end
-                    
-                    
+                                        
                     whfig=6; % # for figure filename, so they can be viewed in order in Finder
                     
+                    % loop through up/down casts and T1/T2 and compute chi
                     for whcasetodo=1:Ncasestodo
                         
                         clear ctd chi_todo_now whsens TP
@@ -345,9 +341,6 @@ for a=1
                                 clear ctd chi_todo_now
                                 ctd=datad_1m;
                                 chi_todo_now=chi_dn;
-                                % ~~ Choose which dT/dt to use (for mini
-                                % chipods, only T1P. For big, we will do T1P
-                                % and T2P).
                                 TP=chi_todo_now.T2P;
                                 whsens='T2';
                                 disp('Doing T2 downcast')
@@ -361,7 +354,7 @@ for a=1
                         end
                         
                         
-                        % AP May 11 - replace with function
+                        % compute N^2 and dT/dz from CTD for chi calculations
                         ctd=Compute_N2_dTdz_forChi(ctd,z_smooth);
                         
                         %~~~ now let's do the chi computations:
@@ -370,10 +363,11 @@ for a=1
                         clear datau2 bad_inds tmp
                         [datau2,bad_inds] = ctd_rmdepthloops(CTD_24hz,extra_z,wthresh);
                         tmp=ones(size(datau2.p));
-                        tmp(bad_inds)=0;
-                        
+                        tmp(bad_inds)=0;                        
+                        % find good chipod data (data not in depth loops)
                         chi_todo_now.is_good_data=interp1(datau2.datenum,tmp,chi_todo_now.datenum,'nearest');
-                        %
+                        
+                        % plot p vs time to make sure we got right CTD data
                         figure(55);clf
                         plot(chi_todo_now.datenum,chi_todo_now.P)
                         xlabel('Time')
@@ -420,10 +414,9 @@ for a=1
                         axes(ax(2))
                         title([whSN],'interpreter','none')
                         axes(ax(3))
-                        title(['Sensor ' whsens])
-                        %                        print('-dpng',[chi_fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_' chi_todo_now.castdir 'cast_chi_' short_labs{up_down_big} '_' whsens '_avg_chi_KT_dTdz'])
+                        title(['Sensor ' whsens])                        
                         print('-dpng',fullfile(chi_fig_path,['chi_' whSN],[whSN '_cast_' cast_suffix '_Fig' num2str(whfig) '_' chi_todo_now.castdir 'cast_chi_' whsens '_avg_chi_KT_dTdz']))
-                        whfig=whfig+1
+                        whfig=whfig+1;
                         
                         
                         %~~~

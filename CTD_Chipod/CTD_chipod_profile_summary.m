@@ -42,7 +42,7 @@ ylim([0 nanmax(avg.P)])
 gridxy
 
 %interval=50;
-minobs=3
+minobs=3;
 
 axes(ax(4))
 plot(log10(avg.chi1),avg.P,'.','color',0.5*[1 1 1]),axis ij

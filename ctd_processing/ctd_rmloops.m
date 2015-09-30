@@ -71,8 +71,8 @@ else
   end
 end
 
-disp(['n loops = ' num2str(nlp)])
-disp(['n data in loops = ' num2str(length(iloop))])
+disp(['n loops = ' num2str(nlp)]);
+disp(['n data in loops = ' num2str(length(iloop))]);
 
 % close all
 % plot(data.t1,data.p,'b')

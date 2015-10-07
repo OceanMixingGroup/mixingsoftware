@@ -78,17 +78,17 @@ idb=idb(find(idb<length(dnum))); % don't want indices after end
 
 if plotit==1
     
-    
-    figure(1);clf
-    ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.08, 1,2);
-    axes(ax(1))
-    plot(dnum,TP)
-    
-    axes(ax(2))
-    plot(dnum,abs(test))
-    linkaxes(ax,'x')
+%     
+%     figure(1);clf
+%     ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.08, 1,2);
+%     axes(ax(1))
+%     plot(dnum,TP)
+%     
+%     axes(ax(2))
+%     plot(dnum,abs(test))
+%     linkaxes(ax,'x')
 
-    figure(2);clf
+    figure(1);clf
     ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.08, 1,2);
     
     clear tp2

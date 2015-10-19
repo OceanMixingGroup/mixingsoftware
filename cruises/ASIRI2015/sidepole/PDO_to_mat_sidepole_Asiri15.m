@@ -10,16 +10,20 @@
 %
 % (Formerly part of process_pole_Aug2015_ASIRI_v2.m)
 %
+%-----------------
 % 09/16/15 - A.Pickering
+% 10/19/15 - AP - Make paths general relative to SciencePath
 %~~~~~~~~~~~~~~~
 %%
 
 clear ; close all
 
-cd('/Volumes/scienceparty_share/mfiles/sidepole/')
+SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
+
+cd(fullfile(SciencePath,'mfiles','sidepole'))
 
 % root directory for data
-dir_data='/Volumes/scienceparty_share/sidepole/raw'
+dir_data=fullfile(SciencePath,'sidepole','raw')
 
 % filenames
 %fnameshort='ASIRI_2Hz_deployment_20150824T043756.pd0';lab='File1';;t_offset=0
@@ -42,7 +46,7 @@ for a=1:length(Flist)
     
     % check if mat file of beam velocity data already exists
     clear fname_beam_mat
-    fname_beam_mat=fullfile('/Volumes/scienceparty_share/sidepole/mat/',[Flist(a).name '_beam.mat'])
+    fname_beam_mat=fullfile(SciencePath,'sidepole','mat',[Flist(a).name '_beam.mat'])
     if 0%exist(fname_beam_mat,'file')
         disp('file already exists, loading')
         load(fname_beam_mat)
@@ -89,7 +93,7 @@ for a=1:length(Flist)
     % do each smaller file one at a time.
     clear xadcp nadcp
     clear fname_earth_mat
-    fname_earth_mat=fullfile('/Volumes/scienceparty_share/sidepole/mat/',[Flist(a).name '_earth.mat'])
+    fname_earth_mat=fullfile(SciencePath,'sidepole','mat',[Flist(a).name '_earth.mat'])
     if 0%exist(fname_earth_mat,'file')
         disp('Earth vel file already exists, loading')
         load(fname_earth_mat)

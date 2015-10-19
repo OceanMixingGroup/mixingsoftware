@@ -40,13 +40,15 @@
 
 clear ; close all
 
-cd('/Volumes/scienceparty_share/mfiles/sidepole/')
+SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
+
+cd(fullfile(SciencePath,'mfiles','sidepole'))
 
 % =1 to estimate heading offset by comparing to ship speed
 est_head_offset=0 ; head_offset=255
 
 % root directory for data
-dir_data='/Volumes/scienceparty_share/sidepole/raw'
+dir_data=fullfile(SciencePath,'sidepole','raw')
 
 %~ choose filename to process (these are the large raw files, each of which
 % have been split into smaller files)
@@ -87,8 +89,8 @@ for ifile=1:length(Flist)
     
     % check if mat file of beam velocity data already exists
     clear fname_beam_mat fname_earth_mat
-    fname_beam_mat=fullfile('/Volumes/scienceparty_share/sidepole/mat/',[Flist(ifile).name '_beam.mat'])
-    fname_earth_mat=fullfile('/Volumes/scienceparty_share/sidepole/mat/',[Flist(ifile).name '_earth.mat'])
+    fname_beam_mat=fullfile(SciencePath,'sidepole','mat',[Flist(ifile).name '_beam.mat'])
+    fname_earth_mat=fullfile(SciencePath,'sidepole','mat',[Flist(ifile).name '_earth.mat'])
     
     if exist(fname_beam_mat,'file')==2 && exist(fname_earth_mat,'file')==2
         %        disp('file already exists, loading')
@@ -526,11 +528,11 @@ for ifile=1:length(Flist)
     
     linkaxes(ax,'x')
     
-    print(['/Volumes/scienceparty_share/sidepole/figures/' Flist(ifile).name '_u0v0uv.png'],'-dpng','-r100')
+    print([SciencePath,'sidepole','figures' Flist(ifile).name '_u0v0uv.png'],'-dpng','-r100')
     
     %% do some basic despiking
     
-    addpath('/Volumes/scienceparty_share/mfiles/pipestring/') % for despike.m
+    addpath(fullfile(SciencePath,'mfiles','pipestring')) % for despike.m
     clear ib
     ib=find(abs(A.u)>5); A.u(ib)=NaN;
     ib=find(abs(A.v)>5); A.v(ib)=NaN;
@@ -672,14 +674,14 @@ for ifile=1:length(Flist)
     xlabel(['Time on ' datestr(floor(nanmin(A.dnum)))])
     
     linkaxes(ax,'x')
-    print(['/Volumes/scienceparty_share/sidepole/figures/' Flist(ifile).name '_proc.png'],'-dpng','-r100')
+    print(fullfile(SciencePath,'sidepole','figures',[Flist(ifile).name '_proc.png']),'-dpng','-r100')
     %
     %%
     V.source=fname;
     V.head_offset=head_offset;
     V.MakeInfo=['Made ' datestr(now) ' w/ process_pole_Aug2015_ASIRI_v3.m']
     V.Note='Preliminary processing - use with caution! - contact Andy with ?s'
-    save(fullfile('/Volumes/scienceparty_share/sidepole/mat/',[Flist(ifile).name '_proc.mat']),'V')
+    save(fullfile(SciencePath,'sidepole','mat',[Flist(ifile).name '_proc.mat']),'V')
     %save(fullfile('/Volumes/scienceparty_share/sidepole/mat/',['sentinel_1min_' lab '.mat']),'V')
     
     %    offsets(ifile)=head_offset

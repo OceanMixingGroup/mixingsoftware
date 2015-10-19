@@ -24,7 +24,7 @@ function Ntot=loadNavSpecTime(time_range)
 
 % get list of all the daily nav files we have so far
 
-navdir='/Volumes/scienceparty_share/nav/';
+navdir=fullfile(SciencePath,'nav');
 Flist=dir([navdir '*.mat']);
 
 Ntot.head=[];

@@ -12,8 +12,10 @@
 
 clear ; close all
 
+SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
+
 %data_dir='/Volumes/scienceparty_share/data/'
-data_dir='/Volumes/scienceparty_share/sidepole/mat/'
+data_dir=fullfile(SciencePath,'sidepole','mat')
 
 fnames={'sentinel_1min_File1.mat','sentinel_1min_File2.mat','sentinel_1min_File3.mat',...
     'sentinel_1min_File4.mat','sentinel_1min_File5.mat','sentinel_1min_File6.mat'...
@@ -55,7 +57,7 @@ Vtot.v(:,idb)=nan;
 
 clear V
 V=Vtot;
-save('/Volumes/scienceparty_share/data/sentinel_1min.mat','V')
+save(fullfile(SciencePath,'data','sentinel_1min.mat'),'V')
 
 %% plot the combined file
 

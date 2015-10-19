@@ -10,13 +10,13 @@
 
 clear ; close all
 
-scienceshare_root='/Volumes/Midge/ExtraBackup/scienceshare_092115/'
+SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092115/'
 
-cd(fullfile(scienceshare_root,'mfiles','sidepole'))
+cd(fullfile(SciencePath,'mfiles','sidepole'))
 
 % root directory for data
 %dir_data='/Volumes/scienceparty_share/sidepole/raw'
-dir_data=fullfile(scienceshare_root,'sidepole','raw')
+dir_data=fullfile(SciencePath,'sidepole','raw')
 
 % filenames
 %fnameshort='ASIRI_2Hz_deployment_20150824T043756.pd0';lab='File1';
@@ -53,7 +53,7 @@ Vtot.lon=[];
 for ifile=11%:length(Flist)
     clear V
 %    fname=fullfile('/Volumes/scienceparty_share/sidepole/mat/',[Flist(ifile).name '_proc.mat'])
-    fname=fullfile(scienceshare_root,'sidepole','mat',[Flist(ifile).name '_proc.mat']);
+    fname=fullfile(SciencePath,'sidepole','mat',[Flist(ifile).name '_proc.mat']);
     try
         load(fname)
         
@@ -107,5 +107,5 @@ linkaxes(ax,'x')
 
 %%
 V=Vtot;
-save(['/Volumes/scienceparty_share/sidepole/mat/sentinel_1min_' lab '.mat'],'V')
+save(fullfile(SciencePath,'sidepole','mat',['sentinel_1min_' lab '.mat']),'V')
 %%

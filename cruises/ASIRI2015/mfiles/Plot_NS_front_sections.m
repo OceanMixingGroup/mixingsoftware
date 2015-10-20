@@ -19,18 +19,16 @@
 clear ; close all
 
 whvar='v'
-saveplots=0
+saveplots=1
 % path to my back-up of science share that has data files on it
 SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
 DataPath=fullfile(SciencePath,'data')
 
-% path to save mat files to
-savedir=fullfile(SciencePath,'adcp_secs')
-ChkMkDir(savedir)
-
 % path to mat files with adcp data for each section
 datdir=fullfile(SciencePath,'adcp_secs')
 
+% path to save figures to
+figdir=datdir;
 
 MfilePath='/Users/Andy/Cruises_Research/mixingsoftware/cruises/ASIRI2015/mfiles/'
 addpath(MfilePath)
@@ -79,7 +77,6 @@ secname=fctd_names(whsec).name
 F=fctd_names(whsec)
 
 % load FCTD section to contour density
-%eval(['load([''/Volumes/scienceparty_share/FCTD/FCTD_scratch/' F.name '.mat''])' ])
 load(fullfile(SciencePath,'FCTD','FCTD_scratch',[F.name '.mat']))
 eval(['FF=' F.name ])
 
@@ -90,32 +87,6 @@ clear adcp fname
 fname=fullfile(datdir,[F.name '_adcp.mat'])
 load(fname)
 
-% % find sidepole indices for this time period
-% clear idV
-% idV=isin(V.dnum,[fctd_names(whsec).st fctd_names(whsec).et]);
-
- %edit out some missing/bad data in one section
- if strcmp(secname,'nidhi6')
-     clear idV
-     idV=find(adcp.V.lat>17.4);
-     adcp.V.lat(idV)=nan;
-     adcp.V.u(:,idV)=nan;
-     adcp.V.v(:,idV)=nan;
-%     pause
-%     idV=idV(idV2);
-
-clear idP;
-idP=find(adcp.P.lat>17.4);
-%     % use HDSS data instead for this gap
-%     clear idH
-% %    idH=isin(H.dnum,[fctd_names(whsec).st fctd_names(whsec).et]);
-%     idH=find(adcp.H.lat>=17.4);
-    %idH=idH(idH2);
- end
-
-% %
-
-%cl2=7e-2*[-1 1]
 cl=0.5*[-1 1]
 yl=[0 50]
 xl=[17.15 17.5]
@@ -124,12 +95,6 @@ dd=1
 %figure(1)
 axes(ax(axorder(isec)))
 ezpc(adcp.V.lat,adcp.V.z,adcp.V.(whvar))
-
-if strcmp(secname,'nidhi6')
-    hold on
-%    ezpc(adcp.H.lat(idH),adcp.H.z,adcp.H.(whvar)(:,idH))
-        ezpc(adcp.P.lat(idP),adcp.P.z,adcp.P.(whvar)(:,idP))
-end
 
 ig=find(~isnan(FF.grid.lat(1,:)));
 hold on
@@ -162,7 +127,6 @@ cb.Position=cb.Position.*[1.05 1 1 1]
 %
 linkaxes(ax)
 
-%addpath('/Volumes/scienceparty_share/mfiles/shared/cbrewer/cbrewer/')
 addpath(fullfile(SciencePath,'mfiles','shared','cbrewer','cbrewer'))
 cmap=cbrewer('div','RdBu',10);
 colormap(flipud(cmap))
@@ -170,6 +134,6 @@ shg
 %
 if saveplots==1
 %   print(['/Volumes/scienceparty_share/figures/NS_FrontSections_8panel_' whvar],'-dpng')
-      print(fullfile(LocalPath,['NS_FrontSections_8panel_' whvar]),'-dpng')
+    print(fullfile(figdir,['NS_FrontSections_8panel_' whvar]),'-dpng')
 end
 %%

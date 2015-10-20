@@ -19,12 +19,13 @@ clear ; close all
 
 savedata=1
 
-% path to my local copy of mfiles
-LocalPath='/Users/Andy/Cruises_Research/Asiri/Local/'
-
-SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
 % path to my back-up of science share that has data files on it
-DataPath='/Volumes/Midge/ExtraBackup/scienceshare_092015/data/'
+SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
+DataPath=fullfile(SciencePath,'data')
+
+% path to save mat files to
+savedir=fullfile(SciencePath,'adcp_secs')
+ChkMkDir(savedir)
 
 % load processed sidepople data
 %Vfile='/Volumes/scienceparty_share/data/sentinel_1min.mat'
@@ -36,19 +37,14 @@ load(Vfile)
 Hfile=fullfile(DataPath,'hdss_bin_all.mat')
 load(Hfile)
 
- Pfile=fullfile(DataPath,'pipestring_1min.mat');
- load(Pfile)
+Pfile=fullfile(DataPath,'pipestring_1min.mat');
+load(Pfile)
 
 % load Drew's file with section names and times
 %load('/Volumes/scienceparty_share/FCTD/FCTD_scratch/fctd_names.mat')
 load(fullfile(SciencePath,'FCTD','FCTD_scratch','fctd_names.mat'))
 
-%
-%savedir='/Volumes/scienceparty_share/FCTD/FCTD_scratch'
-%savedir='/Volumes/scienceparty_share/data/adcp_secs'
-savedir=fullfile(LocalPath,'adcp_secs')
-ChkMkDir(savedir)
-
+%%
 for whsec=23:32%:length(fctd_names)
     
     clear adcp
@@ -126,7 +122,7 @@ for whsec=23:32%:length(fctd_names)
         adcp.H.distkm=adcp.H.distkm/1e3;
         
         adcp.MakeInfo=['made ' datestr(now) ' w/ /mfiles/analysis/MakeADCPmat_FCTSsecs.m'];
-        adcp.Info=['V=sidepole (0-40m), H=HDSS140kHz (>40m)'];
+        adcp.Info=['V=sidepole (0-40m),P=pipestring, H=HDSS140kHz (>40m)'];
         
         if savedata==1
         % save the mat file

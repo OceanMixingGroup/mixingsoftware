@@ -8,6 +8,8 @@
 % progression in space/time. Plots velocity from sidepole and isopycnals
 % from FCTD.
 %
+% Uses mat files with adcp data for each section made in MakeADCPmat_FCTDsecs.m
+%
 %-------------
 % 09/19/15 - A.Pickering
 % 10/14/15 - AP - Copied from my science share copy to my laptop after
@@ -17,33 +19,22 @@
 clear ; close all
 
 whvar='v'
-saveplots=1
-
-% path to my local copy of mfiles
-LocalPath='//Users/Andy/Cruises_Research/Asiri/Local/'
-
-SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
+saveplots=0
 % path to my back-up of science share that has data files on it
-DataPath='/Volumes/Midge/ExtraBackup/scienceshare_092015/data/'
+SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
+DataPath=fullfile(SciencePath,'data')
 
-%addpath('/Volumes/scienceparty_share/mfiles/shared/')
-addpath(fullfile(SciencePath,'mfiles','shared'))
+% path to save mat files to
+savedir=fullfile(SciencePath,'adcp_secs')
+ChkMkDir(savedir)
 
-% % load 500kHz sidepole ADCP
-% %load('/Volumes/scienceparty_share/data/sentinel_1min.mat')
-% load(fullfile(SciencePath,'data','sentinel_1min.mat'))
+% path to mat files with adcp data for each section
+datdir=fullfile(SciencePath,'adcp_secs')
 
-% % load HDSS 140kHz data (for gap in Nidhi6 section)
-% %Hfile='/Volumes/scienceparty_share/data/hdss_bin_all.mat'
-% Hfile=fullfile(DataPath,'hdss_bin_all.mat')
-% load(Hfile)
-% H=sonar;clear sonar;
 
-% % interpolate small gaps in velocity so it plots nice
-% for whz=1:length(V.z)
-%     V.u(whz,:)=FillGaps(V.u(whz,:),2);
-%     V.v(whz,:)=FillGaps(V.v(whz,:),2);
-% end
+MfilePath='/Users/Andy/Cruises_Research/mixingsoftware/cruises/ASIRI2015/mfiles/'
+addpath(MfilePath)
+addpath(fullfile(MfilePath,'shared'))
 
 % load file with section names and times
 %load('/Volumes/scienceparty_share/FCTD/FCTD_scratch/fctd_names.mat')
@@ -95,7 +86,7 @@ eval(['FF=' F.name ])
 % load ADCP data for this section
 clear adcp fname
 %datdir='/Volumes/scienceparty_share/data/adcp_secs'
-datdir=fullfile(LocalPath,'adcp_secs')
+%datdir=fullfile(LocalPath,'adcp_secs')
 fname=fullfile(datdir,[F.name '_adcp.mat'])
 load(fname)
 

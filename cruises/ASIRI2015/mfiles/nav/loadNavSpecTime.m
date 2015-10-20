@@ -1,4 +1,4 @@
-function Ntot=loadNavSpecTime(time_range)
+function Ntot=loadNavSpecTime(time_range,SciencePath)
 %~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % N=loadNavSpecTime(time_range)
@@ -25,7 +25,7 @@ function Ntot=loadNavSpecTime(time_range)
 % get list of all the daily nav files we have so far
 
 navdir=fullfile(SciencePath,'nav');
-Flist=dir([navdir '*.mat']);
+Flist=dir(fullfile(navdir,['*.mat']));
 
 Ntot.head=[];
 Ntot.pitch=[];

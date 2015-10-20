@@ -15,6 +15,25 @@
 
 clear ; close all
 
+%~ VMP
+%vmp.start=[201508240859,201508241007,201508241049,201508252352,...
+%    201508260218,201508260629,201508260951,201508261249,201508261858,...
+%    201509080915,201509090501,201509121042];
+vmp.start=[201508240859, 201508252352, 201509080915,201509090501,201509121042]
+    vmp.stop=[201508241135 ,201508270236 ,201509081339,201509091453,201509141440]
+%vmp.stop=[201508240913,201508241042,201508241135,201508260137,...
+%    201508260600,201508260855,201508261040,201508261435,201508270236,...
+%    201509081339,201509091453,201509141440];
+
+vmp.names={'shake','Jet3','frontx','frontx','18N'}
+
+for whb=1:length(vmp.start)
+   VMP(whb).name=vmp.names{whb};
+   VMP(whb).st=datenum(num2str(vmp.start(whb)),'yyyymmddHHMM');
+   VMP(whb).et=datenum(num2str(vmp.stop(whb)),'yyyymmddHHMM');
+end
+
+
 %~ Ross
 
 ross.start=[201508240537,201508252342,201509050300,201509071143,201509071338,201509100312,201509101103,201509140416];
@@ -50,7 +69,7 @@ end
 
 %%
 
-AIndex=struct('Bow',Bow,'Ross',Ross,'Reel',Reel)
+AIndex=struct('Bow',Bow,'Ross',Ross,'Reel',Reel,'VMP',VMP)
 AIndex.MakeInfo=['Made ' datestr(now) ' w/ ASIRI_IndexFile.m']
 AIndex.Info='Instrument deployment times for August 2015 ASIRI Cruise on RV Revelle (RR1513). Times from bridge log .'
 save('/Users/Andy/Cruises_Research/Asiri/Local/Asiri2015IndexFile.mat','AIndex')

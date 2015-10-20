@@ -22,13 +22,15 @@ clear ; close all
 % path to my back-up of science share that has data files on it
 SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
 DataPath='/Volumes/Midge/ExtraBackup/scienceshare_092015/data/'
-
-vmp.start=[201508240859,201508241007,201508241049,201508252352,...
-    201508260218,201508260629,201508260951,201508261249,201508261858,...
-    201509080915,201509090501,201509121042];
-vmp.stop=[201508240913,201508241042,201508241135,201508260137,...
-    201508260600,201508260855,201508261040,201508261435,201508270236,...
-    201509081339,201509091453,201509141440];
+% 
+% vmp.start=[201508240859,201508241007,201508241049,201508252352,...
+%     201508260218,201508260629,201508260951,201508261249,201508261858,...
+%     201509080915,201509090501,201509121042];
+% vmp.stop=[201508240913,201508241042,201508241135,201508260137,...
+%     201508260600,201508260855,201508261040,201508261435,201508270236,...
+%     201509081339,201509091453,201509141440];
+vmp.start=[201508240859, 201508252352, 201509080915,201509090501,201509121042]
+    vmp.stop=[201508241135 ,201508270236 ,201509081339,201509091453,201509141440]
 vmp.start=datenum(num2str(vmp.start(:)),'yyyymmddHHMM');
 vmp.stop=datenum(num2str(vmp.stop(:)),'yyyymmddHHMM');
 
@@ -66,20 +68,18 @@ ctd=datenum(num2str(ctd(:)),'yyyymmddHHMM');
 
 %%
 
-saveplot=1
+saveplot=0
 
 load(fullfile(SciencePath,'FCTD','FCTD_scratch','fctd_names.mat'))
 
 xl=[datenum(2015,8,24) datenum(2015,9,23)];
 
 figure(1);clf
-%agutwocolumn(1)
 orient landscape
 set(gcf,'defaultaxesfontsize',15)
 wysiwyg
 ax = MySubplot2(0.15, 0.075, 0.02, 0.06, 0.1, 0.01,1,2);
 
-%ax1=subplot(311);
 axes(ax(1))
 
 % shade the different named sections alternating light/dark gray
@@ -103,62 +103,10 @@ set(AX(1),'Ylim',[13 20])
 set(AX(2),'Ylim',[84 93])
 AX(1).YLabel.String='Lat'
 AX(2).YLabel.String='Lon'
-%ylabel('lat')
 grid on
-datetick('x')
-%ylim([13 18.5])
-%xlim(xl)
 set(AX(1),'Xlim',xl);set(AX(2),'Xlim',xl)
 title('ASIRI Aug. 2015 - R/V Revelle - RR1513')
 %
-% %ax2=subplot(312);
-% axes(ax(2))
-% % plot lon vs time
-% plot(met.Time,met.LO,'linewidth',2)
-% grid on
-% ylabel('lon')
-% datetick('x')
-% ylim([84 91])
-% %xlim([datenum(2015,8,24) now])
-% xlim(xl)
-% 
-% %ax3=subplot(313);
-axes(ax(2))
-%
-lw=8
-hold on;
-for m=1:length(ross.start);
-    line([ross.start(m),ross.stop(m)],[1 1],'color','m','linewidth',lw);
-end
-for m=1:length(vmp.start);
-    line([vmp.start(m),vmp.stop(m)],[2 2],'color','r','linewidth',lw);
-end
-for m=1:length(reel.start);
-    line([reel.start(m),reel.stop(m)],[3 3],'color','b','linewidth',lw);
-end
-for m=1:length(bow.start);
-    line([bow.start(m),bow.stop(m)],[4 4],'color','g','linewidth',lw);
-end
-
-% for m=1:length(sp.start);
-%     line([sp.start(m),sp.stop(m)],[5 5],'color','c','linewidth',lw);
-% end
-
-plot(ctd,5*ones(size(ctd)),'d','markerfacecolor','k')
-
-% plot ~ FCTD times
-%load('/Volumes/scienceparty_share/FCTD/MAT/FastCTD_MATfile_TimeIndex.mat')
-load(fullfile(SciencePath,'FCTD','MAT','FastCTD_MATfile_TimeIndex.mat'))
-plot(FastCTD_MATfile_TimeIndex.timeStart,6*ones(size(FastCTD_MATfile_TimeIndex.timeStart)),'mp','linewidth',lw/2,'color',[.7 .7 .7])
-
-set(gca,'YTick',[1 2 3 4 5 6 ])
-set(gca,'YTickLabels',{'ROSS';'vmp';'reelCTD';'bowchain';'CTD';'FCTD'})
-ylim([0 7])
-grid on
-datetick('x')
-xlim(xl)
-xlabel('Date - 2015 ','fontsize',16)
-
 
 %
 % try plotting section names on figure
@@ -190,10 +138,36 @@ end
 % don't have labels for this section yet
 text(datenum(2015,9,13),88,'18N')
 
+xlabel('Date - 2015 ','fontsize',16)
+set(ax(1),'XTick',[datenum(2015,8,23) :3: datenum(2015,9,23)])
+set(AX(1),'XTick',[datenum(2015,8,23) :3: datenum(2015,9,23)])
+set(AX(2),'XTick',[datenum(2015,8,23) :3: datenum(2015,9,23)])
+%set(gca,'XTickLabel',[datenum(2015,8,23) :3: datenum(2015,9,23)])
+axes(ax(1));datetick('x','keeplimits','keepticks')
+axes(AX(1));datetick('x','keeplimits','keepticks')
+axes(AX(2));datetick('x','keeplimits','keepticks')
 
-load('Asiri2015IndexFile.mat')
-%
+load('/Users/Andy/Cruises_Research/Asiri/Local/Asiri2015IndexFile.mat')
+
+%~~~~~ LOWER panel
+
 axes(ax(2))
+%
+lw=8
+hold on;
+for m=1:length(ross.start);
+    line([ross.start(m),ross.stop(m)],[1 1],'color','m','linewidth',lw);
+end
+for m=1:length(vmp.start);
+    line([vmp.start(m),vmp.stop(m)],[2 2],'color','r','linewidth',lw);
+end
+for m=1:length(reel.start);
+    line([reel.start(m),reel.stop(m)],[3 3],'color','b','linewidth',lw);
+end
+for m=1:length(bow.start);
+    line([bow.start(m),bow.stop(m)],[4 4],'color','g','linewidth',lw);
+end
+
 for whst=1:length(AIndex.Bow)
     text(nanmean([AIndex.Bow(whst).st AIndex.Bow(whst).et]),3.7,AIndex.Bow(whst).name,'rotation',55,'fontsize',10)
     hold on
@@ -203,10 +177,29 @@ for whst=1:length(AIndex.Ross)
     text(nanmean([AIndex.Ross(whst).st AIndex.Ross(whst).et]),0.7,AIndex.Ross(whst).name,'rotation',55,'fontsize',10)
     hold on
 end
+
+for whst=1:length(AIndex.VMP)
+    text(nanmean([AIndex.VMP(whst).st AIndex.VMP(whst).et]),2,AIndex.VMP(whst).name,'rotation',55,'fontsize',12)
+    hold on
+end
 shg
 %
 set(gca,'Box','on')
 
+plot(ctd,5*ones(size(ctd)),'d','markerfacecolor','k')
+
+% plot ~ FCTD times
+%load('/Volumes/scienceparty_share/FCTD/MAT/FastCTD_MATfile_TimeIndex.mat')
+load(fullfile(SciencePath,'FCTD','MAT','FastCTD_MATfile_TimeIndex.mat'))
+plot(FastCTD_MATfile_TimeIndex.timeStart,6*ones(size(FastCTD_MATfile_TimeIndex.timeStart)),'mp','linewidth',lw/2,'color',[.7 .7 .7])
+
+set(gca,'YTick',[1 2 3 4 5 6 ])
+set(gca,'YTickLabels',{'ROSS';'vmp';'reelCTD';'bowchain';'CTD';'FCTD'})
+ylim([0 7])
+grid on
+xlim(xl)
+set(gca,'XTick',[datenum(2015,8,23) :3: datenum(2015,9,23)])
+datetick('x','keeplimits','keepticks')
 
 linkaxes([ax AX],'x')
 shg

@@ -35,7 +35,11 @@ makerawplots=0
 name='Deploy5' ; time_offset=-16/86400 ;
 %name='Deploy6'; time_offset=-22/86400 ;
 
-BaseDir=fullfile('/Volumes/scienceparty_share/ROSS/',name)
+SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
+% path for m-files (github repo)
+MfilePath='/Users/Andy/Cruises_Research/mixingsoftware/cruises/ASIRI2015/mfiles/'
+
+BaseDir=fullfile(SciencePath,'ROSS',name)
 FigDir=fullfile(BaseDir,'figures')
 
 % load GPS data
@@ -363,7 +367,7 @@ linkaxes(ax,'x')
 
 %% now transform velocity to earth coordinates
 
-addpath('/Volumes/scienceparty_share/ROSS/mfiles/')
+addpath(fullfile(MfilePath,'ross'))
 
 xadcp = adcp;
 disp('transforming from beam to earth coordinates')
@@ -727,7 +731,7 @@ for whz=1:length(vel.z)
     v2(whz,:)=FillGaps(vel.v(whz,:),maxgap);
 end
 
-addpath('/Volumes/scienceparty_share/mfiles/pipestring/')
+%addpath('/Volumes/scienceparty_share/mfiles/pipestring/')
 %despike
 u3=nan*ones(size(vel.u));
 v3=u3;

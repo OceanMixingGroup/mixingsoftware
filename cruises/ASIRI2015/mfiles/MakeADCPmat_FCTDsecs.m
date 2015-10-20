@@ -48,19 +48,19 @@ load(fullfile(SciencePath,'FCTD','FCTD_scratch','fctd_names.mat'))
 for whsec=23:32%:length(fctd_names)
     
     clear adcp
-    adcp=struct()
+    adcp=struct()l
     
     clear secname F FF time_range
     secname=fctd_names(whsec).name
-    F=fctd_names(whsec)
+    F=fctd_names(whsec)l
     
     try
         % load FCTD section to contour density
         load(fullfile(SciencePath,'FCTD','FCTD_scratch',[F.name '.mat']))
         %eval(['load([''/Volumes/scienceparty_share/FCTD/FCTD_scratch/' F.name '.mat''])' ])
-        eval(['FF=' F.name ])
+        eval(['FF=' F.name ])l
        
-        time_range=[nanmin(FF.grid.time) nanmax(FF.grid.time)]
+        time_range=[nanmin(FF.grid.time) nanmax(FF.grid.time)]l
         
         % find indices for ADCP data in this time range
         clear idH idzh idV 
@@ -95,8 +95,7 @@ for whsec=23:32%:length(fctd_names)
         adcp.P.v=P.v(:,idP);
         adcp.P.lat=P.lat(idP);
         adcp.P.lon=P.lon(idP);
-        adcp.P.source=Pfile;
-        
+        adcp.P.source=Pfile;        
         
         % compute distance also for plotting
         adcp.P.distkm=nan*ones(1,length(adcp.P.lat));

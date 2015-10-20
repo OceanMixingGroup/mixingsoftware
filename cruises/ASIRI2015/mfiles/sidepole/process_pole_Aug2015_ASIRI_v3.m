@@ -73,7 +73,7 @@ fnameshort='ASIRI 2Hz deployment 20150904T053350.pd0';lab='File4'
 Flist=dir(fullfile(dir_data,['*' fnameshort(1:end-4) '_split*'])) % some have capital 'S' in split
 %%
 
-for ifile=1%:length(Flist)
+for ifile=1:length(Flist)
     
     close all ;
     clear Atot A fname adcp xadcp nadcp fname_beam_mat fname_earth_mat
@@ -441,6 +441,16 @@ for ifile=1%:length(Flist)
         print([SciencePath,'sidepole','figures' Flist(ifile).name '_u0v0uv.png'],'-dpng','-r100')
     end
     
+    
+    %% 10/20/15 - AP - save data here before filtering/smoothing/despiking
+    clear A2
+    A2.dnum=A.dnum;
+    A2.z=A.z;
+    A2.u=A.u;
+    %A2.v=A.v;
+    save(fullfile(SciencePath,'sidepole','mat',[Flist(ifile).name '_proc_raw.mat']),'A2')
+    
+    
     %% do some basic despiking
     
     addpath(fullfile(SciencePath,'mfiles','pipestring')) % for despike.m
@@ -452,8 +462,8 @@ for ifile=1%:length(Flist)
         clear ig
         ig=find(~isnan(A.u(iz,:)));
         if length(ig)>1e3;
-            A.u(iz,:)=despike(A.u(iz,:),4);
-            A.v(iz,:)=despike(A.v(iz,:),4);
+            A.u(iz,:)=despike(A.u(iz,:),3);
+            A.v(iz,:)=despike(A.v(iz,:),3);
         end
     end
     % plot again

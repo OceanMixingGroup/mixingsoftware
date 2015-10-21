@@ -39,7 +39,11 @@ Af=struct();
 Af.dnum=A.dnum(1):1/60/24:A.dnum(end);
 Af.u=NaN*ones(length(A.z),length(Af.dnum));Af.v=Af.u;
 ig=find(diff(A.dnum)>0); ig=ig(2:end-1)+1;
-nc=120;
+
+dt_mins=1 % # minutes to average over
+dt=nanmean(diff(A.dnum))*86400;
+nc=round(dt_mins*60/dt);
+%nc=120;
 usm=conv2(A.u,ones(1,nc)/nc,'same');
 vsm=conv2(A.v,ones(1,nc)/nc,'same');
 for iz=1:length(A.z);
@@ -62,5 +66,7 @@ for iz=1:length(Af.z)
         Af.v(iz,:)=despike(Af.v(iz,:),3);
     end
 end
+
+Af.AvgInfo=['Averaged over ' num2str(dt_mins) 'mins (' num2str(nc) ' points)']
 
 %%

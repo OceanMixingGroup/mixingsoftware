@@ -22,6 +22,7 @@ clear ; close all
 % path to my back-up of science share that has data files on it
 SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
 DataPath='/Volumes/Midge/ExtraBackup/scienceshare_092015/data/'
+MfilePath='/Users/Andy/Cruises_Research/mixingsoftware/cruises/ASIRI2015/mfiles/'
 % 
 % vmp.start=[201508240859,201508241007,201508241049,201508252352,...
 %     201508260218,201508260629,201508260951,201508261249,201508261858,...
@@ -70,7 +71,8 @@ ctd=datenum(num2str(ctd(:)),'yyyymmddHHMM');
 
 saveplot=0
 
-load(fullfile(SciencePath,'FCTD','FCTD_scratch','fctd_names.mat'))
+%load(fullfile(SciencePath,'FCTD','FCTD_scratch','fctd_names.mat'))
+load(fullfile(MfilePath,'cruise_report','fctd_names.mat'))
 
 xl=[datenum(2015,8,24) datenum(2015,9,23)];
 
@@ -112,11 +114,13 @@ title('ASIRI Aug. 2015 - R/V Revelle - RR1513')
 % try plotting section names on figure
 axes(AX(2))
 hold on
-for whst=[1:2]
+for whst=[1:3]
     text(nanmean([fctd_names(whst).st fctd_names(whst).et]),85.5,fctd_names(whst).name,'rotation',65,'fontsize',11)
-    end
+end
+
+    text(nanmean([fctd_names(4).st fctd_names(4).et]),86,fctd_names(4).name,'rotation',65,'fontsize',11)
 aa=1
-for whst=[3:10 17 19 21 23 25 26 27 28 29 30 31 32 33 34]% 35 36 37 38 39:45]%4:2:length(fctd_names)
+for whst=[5:10 17 19 21 23 25 26 27 28 29 30 31 32 33 34]% 35 36 37 38 39:45]%4:2:length(fctd_names)
     if iseven(aa)
     text(nanmean([fctd_names(whst).st fctd_names(whst).et]),86.3,fctd_names(whst).name,'rotation',70,'fontsize',11)
     else
@@ -126,7 +130,7 @@ for whst=[3:10 17 19 21 23 25 26 27 28 29 30 31 32 33 34]% 35 36 37 38 39:45]%4:
 end
 
 aa=1
-for whst=[ 35:1:45]%4:2:length(fctd_names)
+for whst=[ 35:1:length(fctd_names)-3]%4:2:length(fctd_names)
     if iseven(aa)
     text(nanmean([fctd_names(whst).st fctd_names(whst).et]),85.5,fctd_names(whst).name,'rotation',70,'fontsize',10)
     else
@@ -135,8 +139,10 @@ for whst=[ 35:1:45]%4:2:length(fctd_names)
     aa=aa+1;
 end
 
-% don't have labels for this section yet
-text(datenum(2015,9,13),88,'18N')
+for whst=[ length(fctd_names)-3 : length(fctd_names)]%4:2:length(fctd_names)
+    text(nanmean([fctd_names(whst).st fctd_names(whst).et]),90,fctd_names(whst).name,'rotation',70,'fontsize',10)
+end
+
 
 xlabel('Date - 2015 ','fontsize',16)
 set(ax(1),'XTick',[datenum(2015,8,23) :3: datenum(2015,9,23)])

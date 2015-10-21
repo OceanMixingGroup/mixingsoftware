@@ -21,6 +21,7 @@
 % 09/13/2015 - AP - Use a varying time-offset
 % 09/19/2015 - AP - beam-to-earth now done already for each file in
 % loadsaveENR .
+% 10/21/15 - AP - update paths for post-cruise processing
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
@@ -33,7 +34,7 @@ savedata=1
 est_head_offset=0; head_offset=85.5
 
 %%% Set Path to mat files
-dir0='/Volumes/scienceparty_share/pipestring/mat/';
+dir0=fullfile(SciencePath,'pipestring','mat');
 
 % get list of mat files (beam velocity), made in loadsaveENR.m
 files = dir([dir0 '*beam.mat']);
@@ -85,7 +86,8 @@ end
 
 %%
 %%% load in nav data
-load('/Volumes/scienceparty_share/data/nav_tot.mat')
+%load('/Volumes/scienceparty_share/data/nav_tot.mat')
+load(fullfile(SciencePath,'data','nav_tot.mat'))
 
 %%%  calculate ship velocity
 dydt=diff(N.lat)*111.18e3./(diff(N.dnum_ll)*24*3600);
@@ -236,7 +238,9 @@ caxis(0.6*[-1 1])
 datetick('x')
 colorbar
 
-addpath('/Volumes/scienceparty_share/mfiles/shared/cbrewer/cbrewer/')
+%addpath('/Volumes/scienceparty_share/mfiles/shared/cbrewer/cbrewer/')
+addpath(fullfile(MfilePath,'shared','cbrewer','cbrewer'))
+
 %cmap=cbrewer('div','RdBu',15);
 %colormap(flipud(cmap))
 colormap(bluered)
@@ -306,7 +310,8 @@ P.HeadInfo=['Heading offset of ' num2str(head_offset) ' deg used']
 P.Note='Preliminary processing - use with caution. Think heading offset is mostly right (compares ok to 150kHz & HDSS). Still working on fixing some bad data where ship changes headings quickly. Contact apickering@coas.oregonstate.edu'
 P.mfiles={'asiri_read_running_nav.m' 'FindPipestringTimeOffset_Asiri15.m' 'loadsaveENR.m' 'process_pipestring.m'}
 if savedata==1
-    dir1='/Volumes/scienceparty_share/data/'
+    % dir1='/Volumes/scienceparty_share/data/'
+    dir1=fullfile(SciencePath,'data')
     save([dir1 'pipestring_1min.mat'],'P')
 end
 

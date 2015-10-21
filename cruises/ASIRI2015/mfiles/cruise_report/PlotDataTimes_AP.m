@@ -69,7 +69,7 @@ ctd=datenum(num2str(ctd(:)),'yyyymmddHHMM');
 
 %%
 
-saveplot=0
+saveplot=1
 
 %load(fullfile(SciencePath,'FCTD','FCTD_scratch','fctd_names.mat'))
 load(fullfile(MfilePath,'cruise_report','fctd_names.mat'))

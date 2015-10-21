@@ -9,17 +9,21 @@
 % time_offset_fit.mat and used to calculate time offset for each file
 % in loadsaveENR.m
 %
+%---------------
 % 09/19/15 - A.Pickering - apickering@coas.oregonstate.edu
+% 10/21/15 - AP - Update paths for post-cruise processing
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
 clear ; close all
 
 % load nav data with ship heading and time (the 'true' values)
-load('/Volumes/scienceparty_share/data/nav_tot.mat')
+%load('/Volumes/scienceparty_share/data/nav_tot.mat')
+load(fullfile(SciencePath,'data','nav_tot.mat'))
 
 %
-datadir='/Volumes/scienceparty_share/pipestring/mat/'
+%datadir='/Volumes/scienceparty_share/pipestring/mat/'
+datadir=fullfile(SciencePath,'pipestring','mat')
 Flist=dir(datadir)
 
 tm=nan*ones(1,length(Flist));
@@ -122,6 +126,7 @@ linkaxes([ax1 ax2],'x')
 
 %%
 
-save('/Volumes/scienceparty_share/pipestring/time_offset_fit','P')
+%save('/Volumes/scienceparty_share/pipestring/time_offset_fit','P')
+save(fullfile(SciencePath,'pipestring','time_offset_fit'),'P')
 
 %%

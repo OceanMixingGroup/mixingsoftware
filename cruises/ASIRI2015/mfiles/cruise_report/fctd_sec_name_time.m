@@ -5,7 +5,7 @@
 % Names and times for sections during Aug. 2015 ASIRI cruise (RR1513)
 %
 %-------------
-% 10/21/15 Original from Drew Lucas copied here 
+% 10/21/15 Original from Drew Lucas copied here
 % 10/21/ 15 - AP - Adding some additional sections etc.
 %~~~~~~~~~~~~~~~~~~~~~~~~
 %%
@@ -19,18 +19,18 @@ fctd_names(secnum).name='jet1'
 fctd_names(secnum).st= datenum([2015 08 24 11 38 00]);
 fctd_names(secnum).et=datenum([2015 08 25 07 08 00]);
 secnum=secnum+1;
- 
+
 fctd_names(secnum).name='jet2'
 fctd_names(secnum).st= datenum([2015 08 25 07 10 00]);
 fctd_names(secnum).et=datenum([2015 08 25 23 52 06]);%datenum([2015 08 26 01 46 00]);
 secnum=secnum+1;
- 
-fctd_names(secnum).name='jet3' ; 
+
+fctd_names(secnum).name='jet3' ;
 fctd_names(secnum).st=datenum([2015 08 25 23 52 06])
 fctd_names(secnum).et=datenum([2015 08 27 02 39 24])
 secnum=secnum+1;
 
-fctd_names(secnum).name='FullSpeedN' ; 
+fctd_names(secnum).name='FullSpeedN' ;
 fctd_names(secnum).st=datenum([2015 08 27 05 56 04])
 fctd_names(secnum).et=datenum([2015 08 28 03 12 42])
 secnum=secnum+1;
@@ -39,220 +39,234 @@ secnum=secnum+1;
 fctd_names(secnum).name='upnorth'
 fctd_names(secnum).st= datenum([2015 08 28 06 44 00]);
 fctd_names(secnum).et=datenum([2015 08 29 13 54 00]);
- secnum=secnum+1;
- 
+secnum=secnum+1;
+
 fctd_names(secnum).name='eddy1'
 fctd_names(secnum).st= datenum([2015 08 29 13 35 00]);
 fctd_names(secnum).et=datenum([2015 08 29 23 40 00]);
- secnum=secnum+1;
- 
+secnum=secnum+1;
+
 fctd_names(secnum).name='eddy2'
 fctd_names(secnum).st= datenum([2015 08 29 23 43 00]);
 fctd_names(secnum).et=datenum([2015 08 30 11 26 00]);
- secnum=secnum+1;
- 
+secnum=secnum+1;
+
 fctd_names(secnum).name='duenorth'
 fctd_names(secnum).st= datenum([2015 08 30 16 08 00]);
 fctd_names(secnum).et=datenum([2015 08 31 15 07 00]);
- secnum=secnum+1;
- 
+secnum=secnum+1;
+
 fctd_names(secnum).name='SEleg'
 fctd_names(secnum).st= datenum([2015 08 31 15 10 00]);
 fctd_names(secnum).et=datenum([2015 09 01 06 57 00]);
- secnum=secnum+1;
- 
+secnum=secnum+1;
+
 fctd_names(secnum).name='SWleg'
 fctd_names(secnum).st= datenum([2015 09 01 07 00 00]);
 fctd_names(secnum).et=datenum([2015 09 01 17 15 00]);
- secnum=secnum+1;
- 
+secnum=secnum+1;
+
 fctd_names(secnum).name='bigtriangle1'
 fctd_names(secnum).st= datenum([2015 09 01 17 20 00]);
 fctd_names(secnum).et=datenum([2015 09 01 23 05 00]);
- secnum=secnum+1;
- 
-fctd_names(secnum).name='bigtriangle2'; 
+secnum=secnum+1;
+
+fctd_names(secnum).name='bigtriangle2';
 fctd_names(secnum).st= datenum([2015 09 01 23 07 00]);
 fctd_names(secnum).et=datenum([2015 09 02 07 28 00]);
 secnum=secnum+1;
- 
+
 fctd_names(secnum).name='drifter1'
 fctd_names(secnum).st= datenum([2015 09 02 07 31 00]);
 fctd_names(secnum).et=datenum([2015 09 02 16 47 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='drifterX1'
 fctd_names(secnum).st= datenum([2015 09 02 16 50 00]);
 fctd_names(secnum).et=datenum([2015 09 02 18 15 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='drifter2'
 fctd_names(secnum).st= datenum([2015 09 02 18 20 00]);
 fctd_names(secnum).et=datenum([2015 09 02 22 18 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='drifterX2'
 fctd_names(secnum).st= datenum([2015 09 02 22 19 00]);
 fctd_names(secnum).et=datenum([2015 09 02 23 15 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='drifter3'
 fctd_names(secnum).st= datenum([2015 09 02 23 51 00]);
 fctd_names(secnum).et=datenum([2015 09 03 02 20 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='dangler'
 fctd_names(secnum).st= datenum([2015 09 03 02 20 00]);
 fctd_names(secnum).et=datenum([2015 09 03 04 05 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhi1'
 fctd_names(secnum).st= datenum([2015 09 03 15 16 00]);
 fctd_names(secnum).et=datenum([2015 09 03 18 09 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhiX1'
 fctd_names(secnum).st= datenum([2015 09 03 18 12 00]);
 fctd_names(secnum).et=datenum([2015 09 03 23 07 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhi2'
 fctd_names(secnum).st= datenum([2015 09 04 00 28 00]);
 fctd_names(secnum).et=datenum([2015 09 04 03 29 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='dangler2'
 fctd_names(secnum).st= datenum([2015 09 04 07 16 00]);
 fctd_names(secnum).et=datenum([2015 09 04 08 30 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhi3'
 fctd_names(secnum).st= datenum([2015 09 04 08 50 00]);
 fctd_names(secnum).et=datenum([2015 09 04 17 17 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhiX3'
 fctd_names(secnum).st= datenum([2015 09 04 17 18 00]);
 fctd_names(secnum).et=datenum([2015 09 04 17 46 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhi4'
 fctd_names(secnum).st= datenum([2015 09 04 17 52 00]);
 fctd_names(secnum).et=datenum([2015 09 04 23 23 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhiX4'
 fctd_names(secnum).st= datenum([2015 09 04 23 24 00]);
 fctd_names(secnum).et=datenum([2015 09 05 00 10 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhi5'
 fctd_names(secnum).st= datenum([2015 09 05 00 11 00]);
 fctd_names(secnum).et=datenum([2015 09 05 09 15 00]);
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhi6'
-fctd_names(secnum).st= 736212.483308102; 
+fctd_names(secnum).st= 736212.483308102;
 fctd_names(secnum).et=736212.794509607;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhi7'
 fctd_names(secnum).st= 736212.828477199;
 fctd_names(secnum).et=736213.100004861;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhi8'
-fctd_names(secnum).st= 736213.138877894;   
+fctd_names(secnum).st= 736213.138877894;
 fctd_names(secnum).et=736213.407136806;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhi9'
-fctd_names(secnum).st= 736213.428902083; 
+fctd_names(secnum).st= 736213.428902083;
 fctd_names(secnum).et=736213.685690394;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhi10'
 fctd_names(secnum).st= 736213.725137384;
 fctd_names(secnum).et=736213.981323727;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhi11'
 fctd_names(secnum).st= 736214.029512153;
 fctd_names(secnum).et=736214.446225347;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhi12'
 fctd_names(secnum).st= 736214.577271065;
 fctd_names(secnum).et=736214.872804977;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='nidhi13'
 fctd_names(secnum).st= 736214.908957986;
 fctd_names(secnum).et=736215.231322222;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='front1'
 fctd_names(secnum).st= 736215.258631119;
 fctd_names(secnum).et=736215.361229003;
- secnum=secnum+1;
+secnum=secnum+1;
+
+fctd_names(secnum).name='front1.5'
+fctd_names(secnum).st= datenum([2015 09 08 08 40 10]);
+fctd_names(secnum).et=datenum([2015 09 08 14 33 49]); ;
+secnum=secnum+1;
 
 fctd_names(secnum).name='front2'
 fctd_names(secnum).st= 736215.606821746;
 fctd_names(secnum).et=736215.737377545;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='front3'
-fctd_names(secnum).st= 736215.751948453; 
+fctd_names(secnum).st= 736215.751948453;
 fctd_names(secnum).et=736215.893639271;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='front4'
-fctd_names(secnum).st= 736215.901516669; 
+fctd_names(secnum).st= 736215.901516669;
 fctd_names(secnum).et=736216.003791902;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='front5'
 fctd_names(secnum).st= 736216.092956512;
 fctd_names(secnum).et=736216.201375455;
- secnum=secnum+1;
+secnum=secnum+1;
+
+fctd_names(secnum).name='front5.5'
+fctd_names(secnum).st= 736216.201375455;
+fctd_names(secnum).et=736216.371579541;
+secnum=secnum+1;
 
 fctd_names(secnum).name='front6'
-fctd_names(secnum).st= 736216.371579541;  
+fctd_names(secnum).st= 736216.371579541;
 fctd_names(secnum).et=736216.439616054;
- secnum=secnum+1;
+secnum=secnum+1;
+
+fctd_names(secnum).name='front6.5'
+fctd_names(secnum).st= 736216.439616054;
+fctd_names(secnum).et=736216.614755897;
+secnum=secnum+1;
+
 
 fctd_names(secnum).name='front7'
-fctd_names(secnum).st= 736216.614755897; 
+fctd_names(secnum).st= 736216.614755897;
 fctd_names(secnum).et=736216.702341582;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='front8'
-fctd_names(secnum).st= 736216.703906355;    
+fctd_names(secnum).st= 736216.703906355;
 fctd_names(secnum).et=736216.841196537;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='front9'
-fctd_names(secnum).st= 736216.841196537; 
+fctd_names(secnum).st= 736216.841196537;
 fctd_names(secnum).et=736216.991801055;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='front10'
-fctd_names(secnum).st= 736216.991801055; 
+fctd_names(secnum).st= 736216.991801055;
 fctd_names(secnum).et=736217.124880162;
- secnum=secnum+1;
+secnum=secnum+1;
 
 fctd_names(secnum).name='front11'
-fctd_names(secnum).st= 736217.140452651;  
+fctd_names(secnum).st= 736217.140452651;
 fctd_names(secnum).et= 736217.2315509394;
- secnum=secnum+1;
-
+secnum=secnum+1;
 
 fctd_names(secnum).name='18N'
-fctd_names(secnum).st=datenum([2015 09 12 11 50 42]) ;  
+fctd_names(secnum).st=datenum([2015 09 12 11 50 42]) ;
 fctd_names(secnum).et= datenum([2015 09 15 02 30 33]);
- secnum=secnum+1;
+secnum=secnum+1;
 
- 
 fctd_names(secnum).name='secHome1'
 fctd_names(secnum).st= 736222.829623973;
 %fctd_names(secnum).et=736224.228012745;
@@ -260,7 +274,7 @@ fctd_names(secnum).et=datenum([2015 09 16 18 23 37]);
 secnum=secnum+1;
 
 fctd_names(secnum).name='Drews3amDiversion'
-fctd_names(secnum).st=datenum([2015 09 16 18 23 37]) 
+fctd_names(secnum).st=datenum([2015 09 16 18 23 37])
 fctd_names(secnum).et=datenum([2015 09 17 09 54 03]);
 secnum=secnum+1;
 
@@ -272,9 +286,9 @@ secnum=secnum+1;
 
 save('/Users/Andy/Cruises_Research/mixingsoftware/cruises/ASIRI2015/mfiles/cruise_report/fctd_names.mat','fctd_names')
 %%
-% 
+%
 % %section start times
-% fctd_names(1).st=datenum([2015 08 24 11 38 00]); 
+% fctd_names(1).st=datenum([2015 08 24 11 38 00]);
 % fctd_names(2).st=datenum([2015 08 25 07 10 00]);
 % fctd_names(3).st=datenum([2015 08 28 06 44 00]);
 % fctd_names(4).st=datenum([2015 08 29 13 35 00]);
@@ -299,8 +313,8 @@ save('/Users/Andy/Cruises_Research/mixingsoftware/cruises/ASIRI2015/mfiles/cruis
 % fctd_names(23).st=datenum([2015 09 04 17 52 00]);
 % fctd_names(24).st=datenum([2015 09 04 23 24 00]);
 % fctd_names(25).st=datenum([2015 09 05 00 11 00]);
-% 
-% 
+%
+%
 % fctd_names(1).et=datenum([2015 08 25 07 08 00]); %section end times
 % fctd_names(2).et=datenum([2015 08 26 01 46 00]);
 % fctd_names(3).et=datenum([2015 08 29 13 54 00]);
@@ -326,8 +340,8 @@ save('/Users/Andy/Cruises_Research/mixingsoftware/cruises/ASIRI2015/mfiles/cruis
 % fctd_names(23).et=datenum([2015 09 04 23 23 00]);
 % fctd_names(24).et=datenum([2015 09 05 00 10 00]);
 % fctd_names(25).et=datenum([2015 09 05 09 15 00]);
-% 
-% 
+%
+%
 % fctd_names(26).st = 736212.483308102;       fctd_names(26).et = 736212.794509607;
 % fctd_names(27).st = 736212.828477199;       fctd_names(27).et = 736213.100004861;
 % fctd_names(28).st = 736213.138877894;       fctd_names(28).et = 736213.407136806;
@@ -336,20 +350,20 @@ save('/Users/Andy/Cruises_Research/mixingsoftware/cruises/ASIRI2015/mfiles/cruis
 % fctd_names(31).st = 736214.029512153;       fctd_names(31).et = 736214.446225347;
 % fctd_names(32).st = 736214.577271065;       fctd_names(32).et = 736214.872804977;
 % fctd_names(33).st = 736214.908957986;       fctd_names(33).et =  736215.231322222;
-% 
+%
 % fctd_names(34).st = 736215.258631119;         fctd_names(34).et = 736215.361229003;
 % fctd_names(35).st = 736215.606821746;         fctd_names(35).et = 736215.737377545;
 % fctd_names(36).st = 736215.751948453;         fctd_names(36).et = 736215.893639271;
 % fctd_names(37).st = 736215.901516669;         fctd_names(37).et = 736216.003791902;
 % fctd_names(38).st = 736216.092956512;         fctd_names(38).et = 736216.201375455;
 % fctd_names(39).st = 736216.371579541;         fctd_names(39).et = 736216.439616054;
-% 
-% 
+%
+%
 % fctd_names(40).st =  736216.614755897;         fctd_names(40).et =  736216.702341582;
 % fctd_names(41).st =   736216.703906355;         fctd_names(41).et = 736216.841196537;
 % fctd_names(42).st =  736216.841196537;         fctd_names(42).et = 736216.991801055;
 % fctd_names(43).st = 736216.991801055;         fctd_names(43).et = 736217.124880162;
 % fctd_names(44).st = 736217.140452651;         fctd_names(44).et = 736217.2315509394;
-% 
+%
 % fctd_names(45).st=736222.829623973;
 % fctd_names(45).et=736224.228012745;

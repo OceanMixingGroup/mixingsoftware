@@ -184,10 +184,10 @@ for whst=1:length(AIndex.Ross)
     hold on
 end
 
-for whst=1:length(AIndex.VMP)
-    text(nanmean([AIndex.VMP(whst).st AIndex.VMP(whst).et]),2,AIndex.VMP(whst).name,'rotation',55,'fontsize',12)
-    hold on
-end
+% for whst=1:length(AIndex.VMP)
+%     text(nanmean([AIndex.VMP(whst).st AIndex.VMP(whst).et]),2,AIndex.VMP(whst).name,'rotation',55,'fontsize',12)
+%     hold on
+% end
 shg
 %
 set(gca,'Box','on')

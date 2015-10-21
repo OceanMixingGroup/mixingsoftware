@@ -20,10 +20,19 @@
 
 clear ; close all
 
-addpath('/Volumes/scienceparty_share/mfiles/shared/')
+% path to scienceparty_share (data)
+SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
 
-rawdir = '/Volumes/scienceparty_share/pipestring/raw/';
-savedir = '/Volumes/scienceparty_share/pipestring/mat/';
+% path to Mfiles (github repo)
+MfilePath='/Users/Andy/Cruises_Research/mixingsoftware/cruises/ASIRI2015/mfiles/'
+%
+addpath(fullfile(MfilePath,'shared'))
+addpath(fullfile(MfilePath,'nav'))
+
+%addpath('/Volumes/scienceparty_share/mfiles/shared/')
+
+rawdir = fullfile(SciencePath,'pipestring','raw');
+savedir = fullfile(SciencePath,'pipestring','mat');
 cruise ='ASIRI2015';
 
 files = dir([rawdir cruise '*.ENR']);
@@ -32,7 +41,8 @@ files_processed_earth=dir([savedir '*earth.mat']);
 %%
 
 % load time-offset fit
-load('/Volumes/scienceparty_share/pipestring/time_offset_fit.mat')
+%load('/Volumes/scienceparty_share/pipestring/time_offset_fit.mat')
+load(fullfile(SciencePath,'pipestring','time_offset_fit.mat'))
 
 hb=waitbar(0,'working on pipestring files');
 

@@ -7,7 +7,8 @@
 % Make a figure showing when different instruments were operating during
 % Aug 2015 ASIRI cruise on R/V Revelle.
 %
-% Some of the times are approximate, need to get more exact info...
+% * Section names come from fctd_sec_name_time.m *
+%
 %
 %-------------------
 % 09/02/15 - A.Pickering - apickering@coas.oregonstate.edu

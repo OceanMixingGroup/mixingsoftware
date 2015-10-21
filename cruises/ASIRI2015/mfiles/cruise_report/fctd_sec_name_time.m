@@ -11,60 +11,244 @@
 %%
 %Section time indices
 
+% start counter for sec #s
 secnum=1
+
 %sections names
-fctd_names(secnum).name='jet1';  secnum=secnum+1;
-fctd_names(secnum).name='jet2';  secnum=secnum+1;
-fctd_names(secnum).name='jet3' ; secnum=secnum+1;
+fctd_names(secnum).name='jet1'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+ 
+fctd_names(secnum).name='jet2'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+ 
+%fctd_names(secnum).name='jet3' ; 
+%fctd_names(secnum).st= 
+%fctd_names(secnum).et=
+%secnum=secnum+1;
 
-fctd_names(secnum).name='upnorth';  secnum=secnum+1;
-fctd_names(secnum).name='eddy1';  secnum=secnum+1;
-fctd_names(secnum).name='eddy2';  secnum=secnum+1;
-fctd_names(secnum).name='duenorth';  secnum=secnum+1;
-fctd_names(secnum).name='SEleg';  secnum=secnum+1;
-fctd_names(secnum).name='SWleg';  secnum=secnum+1;
-fctd_names(secnum).name='bigtriangle1';  secnum=secnum+1;
-fctd_names(secnum).name='bigtriangle2';  secnum=secnum+1;
+fctd_names(secnum).name='upnorth'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+ 
+fctd_names(secnum).name='eddy1'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+ 
+fctd_names(secnum).name='eddy2'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+ 
+fctd_names(secnum).name='duenorth'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+ 
+fctd_names(secnum).name='SEleg'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+ 
+fctd_names(secnum).name='SWleg'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+ 
+fctd_names(secnum).name='bigtriangle1'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+ 
+fctd_names(secnum).name='bigtriangle2'; 
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+secnum=secnum+1;
+ 
+fctd_names(secnum).name='drifter1'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
 
-fctd_names(secnum).name='drifter1';  secnum=secnum+1;
-fctd_names(secnum).name='drifterX1';  secnum=secnum+1;
-fctd_names(secnum).name='drifter2';  secnum=secnum+1;
-fctd_names(secnum).name='drifterX2';  secnum=secnum+1;
-fctd_names(secnum).name='drifter3';  secnum=secnum+1;
-fctd_names(secnum).name='dangler';  secnum=secnum+1;
+fctd_names(secnum).name='drifterX1'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
 
-fctd_names(secnum).name='nidhi1';  secnum=secnum+1;
-fctd_names(secnum).name='nidhiX1';  secnum=secnum+1;
-fctd_names(secnum).name='nidhi2';  secnum=secnum+1;
-fctd_names(secnum).name='dangler2';  secnum=secnum+1;
-fctd_names(secnum).name='nidhi3';  secnum=secnum+1;
-fctd_names(secnum).name='nidhiX3';  secnum=secnum+1;
-fctd_names(secnum).name='nidhi4';  secnum=secnum+1;
-fctd_names(secnum).name='nidhiX4';  secnum=secnum+1;
-fctd_names(secnum).name='nidhi5';  secnum=secnum+1;
-fctd_names(secnum).name='nidhi6';  secnum=secnum+1;
-fctd_names(secnum).name='nidhi7';  secnum=secnum+1;
-fctd_names(secnum).name='nidhi8';  secnum=secnum+1;
-fctd_names(secnum).name='nidhi9';  secnum=secnum+1;
-fctd_names(secnum).name='nidhi10';  secnum=secnum+1;
-fctd_names(secnum).name='nidhi11';  secnum=secnum+1;
-fctd_names(secnum).name='nidhi12';  secnum=secnum+1;
-fctd_names(secnum).name='nidhi13';  secnum=secnum+1;
-fctd_names(secnum).name='front1';  secnum=secnum+1;
-fctd_names(secnum).name='front2';  secnum=secnum+1;
-fctd_names(secnum).name='front3';  secnum=secnum+1;
-fctd_names(secnum).name='front4';  secnum=secnum+1;
-fctd_names(secnum).name='front5';  secnum=secnum+1;
-fctd_names(secnum).name='front6';  secnum=secnum+1;
-fctd_names(secnum).name='front7';  secnum=secnum+1;
-fctd_names(secnum).name='front8';  secnum=secnum+1;
-fctd_names(secnum).name='front9';  secnum=secnum+1;
-fctd_names(secnum).name='front10';  secnum=secnum+1;
-fctd_names(secnum).name='front11';  secnum=secnum+1;
-fctd_names(secnum).name='secHome1';  secnum=secnum+1;
+fctd_names(secnum).name='drifter2'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='drifterX2'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='drifter3'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='dangler'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhi1'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhiX1'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhi2'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='dangler2'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhi3'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhiX3'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhi4'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhiX4'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhi5'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhi6'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhi7'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhi8'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhi9'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhi10'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhi11'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhi12'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='nidhi13'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='front1'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='front2'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='front3'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='front4'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='front5'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='front6'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='front7'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='front8'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='front9'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='front10'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='front11'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
+fctd_names(secnum).name='secHome1'
+fctd_names(secnum).st= 
+fctd_names(secnum).et=
+ secnum=secnum+1;
+
 %%
 
-fctd_names(1).st=datenum([2015 08 24 11 38 00]); %section start times
+%section start times
+fctd_names(1).st=datenum([2015 08 24 11 38 00]); 
 fctd_names(2).st=datenum([2015 08 25 07 10 00]);
 fctd_names(3).st=datenum([2015 08 28 06 44 00]);
 fctd_names(4).st=datenum([2015 08 29 13 35 00]);

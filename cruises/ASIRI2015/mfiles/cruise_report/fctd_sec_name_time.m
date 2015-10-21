@@ -1,53 +1,68 @@
+%~~~~~~~~~~~~~~~~~~~~~~~~
+%
+% fctd_sec_name_time.m
+%
+% Names and times for sections during Aug. 2015 ASIRI cruise (RR1513)
+%
+%-------------
+% 10/21/15 Original from Drew Lucas copied here 
+% 10/21/ 15 - AP - Adding some additional sections etc.
+%~~~~~~~~~~~~~~~~~~~~~~~~
+%%
 %Section time indices
 
-fctd_names(1).name='jet1';  %sections names
-fctd_names(2).name='jet2';
-fctd_names(3).name='upnorth';
-fctd_names(4).name='eddy1';
-fctd_names(5).name='eddy2';
-fctd_names(6).name='duenorth';
-fctd_names(7).name='SEleg';
-fctd_names(8).name='SWleg';
-fctd_names(9).name='bigtriangle1';
-fctd_names(10).name='bigtriangle2';
+secnum=1
+%sections names
+fctd_names(secnum).name='jet1';  secnum=secnum+1;
+fctd_names(secnum).name='jet2';  secnum=secnum+1;
+fctd_names(secnum).name='jet3' ; secnum=secnum+1;
 
-fctd_names(11).name='drifter1';
-fctd_names(12).name='drifterX1';
-fctd_names(13).name='drifter2';
-fctd_names(14).name='drifterX2';
-fctd_names(15).name='drifter3';
-fctd_names(16).name='dangler';
+fctd_names(secnum).name='upnorth';  secnum=secnum+1;
+fctd_names(secnum).name='eddy1';  secnum=secnum+1;
+fctd_names(secnum).name='eddy2';  secnum=secnum+1;
+fctd_names(secnum).name='duenorth';  secnum=secnum+1;
+fctd_names(secnum).name='SEleg';  secnum=secnum+1;
+fctd_names(secnum).name='SWleg';  secnum=secnum+1;
+fctd_names(secnum).name='bigtriangle1';  secnum=secnum+1;
+fctd_names(secnum).name='bigtriangle2';  secnum=secnum+1;
 
-fctd_names(17).name='nidhi1';
-fctd_names(18).name='nidhiX1';
-fctd_names(19).name='nidhi2';
-fctd_names(20).name='dangler2';
-fctd_names(21).name='nidhi3';
-fctd_names(22).name='nidhiX3';
-fctd_names(23).name='nidhi4';
-fctd_names(24).name='nidhiX4';
-fctd_names(25).name='nidhi5';
-fctd_names(26).name='nidhi6';
-fctd_names(27).name='nidhi7';
-fctd_names(28).name='nidhi8';
-fctd_names(29).name='nidhi9';
-fctd_names(30).name='nidhi10';
-fctd_names(31).name='nidhi11';
-fctd_names(32).name='nidhi12';
-fctd_names(33).name='nidhi13';
-fctd_names(34).name='front1';
-fctd_names(35).name='front2';
-fctd_names(36).name='front3';
-fctd_names(37).name='front4';
-fctd_names(38).name='front5';
-fctd_names(39).name='front6';
-fctd_names(40).name='front7';
-fctd_names(41).name='front8';
-fctd_names(42).name='front9';
-fctd_names(43).name='front10';
-fctd_names(44).name='front11';
-fctd_names(45).name='secHome1';
+fctd_names(secnum).name='drifter1';  secnum=secnum+1;
+fctd_names(secnum).name='drifterX1';  secnum=secnum+1;
+fctd_names(secnum).name='drifter2';  secnum=secnum+1;
+fctd_names(secnum).name='drifterX2';  secnum=secnum+1;
+fctd_names(secnum).name='drifter3';  secnum=secnum+1;
+fctd_names(secnum).name='dangler';  secnum=secnum+1;
 
+fctd_names(secnum).name='nidhi1';  secnum=secnum+1;
+fctd_names(secnum).name='nidhiX1';  secnum=secnum+1;
+fctd_names(secnum).name='nidhi2';  secnum=secnum+1;
+fctd_names(secnum).name='dangler2';  secnum=secnum+1;
+fctd_names(secnum).name='nidhi3';  secnum=secnum+1;
+fctd_names(secnum).name='nidhiX3';  secnum=secnum+1;
+fctd_names(secnum).name='nidhi4';  secnum=secnum+1;
+fctd_names(secnum).name='nidhiX4';  secnum=secnum+1;
+fctd_names(secnum).name='nidhi5';  secnum=secnum+1;
+fctd_names(secnum).name='nidhi6';  secnum=secnum+1;
+fctd_names(secnum).name='nidhi7';  secnum=secnum+1;
+fctd_names(secnum).name='nidhi8';  secnum=secnum+1;
+fctd_names(secnum).name='nidhi9';  secnum=secnum+1;
+fctd_names(secnum).name='nidhi10';  secnum=secnum+1;
+fctd_names(secnum).name='nidhi11';  secnum=secnum+1;
+fctd_names(secnum).name='nidhi12';  secnum=secnum+1;
+fctd_names(secnum).name='nidhi13';  secnum=secnum+1;
+fctd_names(secnum).name='front1';  secnum=secnum+1;
+fctd_names(secnum).name='front2';  secnum=secnum+1;
+fctd_names(secnum).name='front3';  secnum=secnum+1;
+fctd_names(secnum).name='front4';  secnum=secnum+1;
+fctd_names(secnum).name='front5';  secnum=secnum+1;
+fctd_names(secnum).name='front6';  secnum=secnum+1;
+fctd_names(secnum).name='front7';  secnum=secnum+1;
+fctd_names(secnum).name='front8';  secnum=secnum+1;
+fctd_names(secnum).name='front9';  secnum=secnum+1;
+fctd_names(secnum).name='front10';  secnum=secnum+1;
+fctd_names(secnum).name='front11';  secnum=secnum+1;
+fctd_names(secnum).name='secHome1';  secnum=secnum+1;
+%%
 
 fctd_names(1).st=datenum([2015 08 24 11 38 00]); %section start times
 fctd_names(2).st=datenum([2015 08 25 07 10 00]);

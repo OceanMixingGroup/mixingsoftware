@@ -362,7 +362,7 @@ for ifile=1:length(Flist)
     datetick('x')
     xlim([nanmin(A.dnum) nanmax(A.dnum)])
     cb=colorbar;killcolorbar(cb)
-    SubplotLetterMW('heading (ship)');
+    SubplotLetterMW('head (ship)');
     ylabel('[^o]')
     title([Flist(ifile).name],'interpreter','none')
     xtloff
@@ -442,16 +442,48 @@ for ifile=1:length(Flist)
     end
     
     
+        %% add lat/lon to ADCP structure
+    clear ig
+    ig=find(diff(N.dnum_ll)>0); ig=ig(1:end-1)+1;
+    A.lon=interp1(N.dnum_ll(ig),N.lon(ig),A.dnum);
+    A.lat=interp1(N.dnum_ll(ig),N.lat(ig),A.dnum);
+
     %% 10/20/15 - AP - save data here before filtering/smoothing/despiking
+    
+    % Previously, I have been processing each split file separately, doing
+    % filtering/smoothing etc. because loading all the files together used
+    % too much memory. However, this results in some edge effects that i'd
+    % like to get rid of. So i'm testing out a new method, saving small
+    % files with just u or v, that I will load together after and do
+    % smoothing/despiking etc on larger file.
+    
     clear A2
     A2.dnum=A.dnum;
     A2.z=A.z;
     A2.u=A.u;
-    %A2.v=A.v;
+    A2.v=A.v;
+    A2.lat=A.lat;
+    A2.lon=A.lon;
     save(fullfile(SciencePath,'sidepole','mat',[Flist(ifile).name '_proc_raw.mat']),'A2')
     
+    %     clear A2
+    %     A2.dnum=A.dnum;
+    %     A2.z=A.z;
+    %     A2.u=A.u;
+    %     %A2.v=A.v;
+    %     save(fullfile(SciencePath,'sidepole','mat',[Flist(ifile).name '_proc_rawu.mat']),'A2')
+    %
+    %     clear A2
+    %     A2.dnum=A.dnum;
+    %     A2.z=A.z;
+    %     A2.v=A.v;
+    %     %A2.v=A.v;
+    %     save(fullfile(SciencePath,'sidepole','mat',[Flist(ifile).name '_proc_rawv.mat']),'A2')
     
-    %% do some basic despiking
+    %
+    dodespike=0
+    if dodespike==1
+    % do some basic despiking
     
     addpath(fullfile(SciencePath,'mfiles','pipestring')) % for despike.m
     clear ib

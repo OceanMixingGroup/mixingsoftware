@@ -28,7 +28,7 @@ addpath(fullfile(MfilePath,'nav'))
 saveplots=1
 
 % =1 to estimate heading offset by comparing to ship speed
-est_head_offset=0 ; head_offset=255
+est_head_offset=0 ; head_offset=255 % found ~=255 for Aug 2015 cruise
 
 % root directory for raw ADCP data
 dir_data=fullfile(SciencePath,'sidepole','raw')
@@ -58,7 +58,7 @@ end
 
 % list of split files (~50mb each)
 Flist=dir(fullfile(dir_data,['*' fnameshort(1:end-4) '_split*'])) % some have capital 'S' in split
-%%
+%
 
 for ifile=1:length(Flist)
     
@@ -112,15 +112,19 @@ for ifile=1:length(Flist)
     A.u=nan*ones(size(A.u0));
     A.v=A.u;
     
-    clear adcp nadcp xadcp%
-    
+    clear adcp nadcp xadcp%    
     
     %% load ship NAV data
     disp('loading nav data')
-    %load('/Volumes/scienceparty_share/data/nav_tot.mat')
     N=loadNavSpecTime([nanmin(A.dnum) nanmax(A.dnum)],SciencePath);
     ttemp_nav=N.dnum_hpr; ig=find(diff(ttemp_nav)>0); ig=ig(1:end-1)+1;
-    
+        
+    % add lat/lon to ADCP structure
+    clear ig
+    ig=find(diff(N.dnum_ll)>0); ig=ig(1:end-1)+1;
+    A.lon=interp1(N.dnum_ll(ig),N.lon(ig),A.dnum);
+    A.lat=interp1(N.dnum_ll(ig),N.lat(ig),A.dnum);
+
     % calculate ship velocity from it's 5 hz lat/lon, to subtract from measured velocity
     clear dydt dxdt uship vship
     dydt=diff(N.lat)*111.18e3./(diff(N.dnum_ll)*24*3600);
@@ -133,10 +137,7 @@ for ifile=1:length(Flist)
     clear ib
     ib=find(abs(uship)>10 | abs(vship)>10 );uship(ib)=nan;vship(ib)=nan;
     clear ib
-    
-    %    ig=isin(N.dnum_hpr,[nanmin(A.dnum) nanmax(A.dnum)]);
-    %
-    
+        
     %% testing to find heading offset
     % this is the heading offset between the instrument and the ship, i.e. beam
     % 3 was not quite aligned along-ship determined by comparing adcp heading and ship heading, although the adcp
@@ -150,7 +151,7 @@ for ifile=1:length(Flist)
         % assume the depth-average adcp speed over the upper 15-30m
         % should be ~= and opposite to the ship's speed. If there are
         % actual strong currents, this won't be true, but on average it is
-        % probably approximately right.
+        % probably approximately right?
         
         clear uv theta dth
         % form complex depth-average adcp velocity
@@ -193,7 +194,7 @@ for ifile=1:length(Flist)
     A.v=v0+repmat(vship',1,length(A.z))';
     
     %% plot the data
-    %    close all
+    %   
     figure(1);clf
     agutwocolumn(1)
     wysiwyg
@@ -287,13 +288,7 @@ for ifile=1:length(Flist)
         print([SciencePath,'sidepole','figures' Flist(ifile).name '_u0v0uv.png'],'-dpng','-r100')
     end
     
-    
-    %% add lat/lon to ADCP structure
-    clear ig
-    ig=find(diff(N.dnum_ll)>0); ig=ig(1:end-1)+1;
-    A.lon=interp1(N.dnum_ll(ig),N.lon(ig),A.dnum);
-    A.lat=interp1(N.dnum_ll(ig),N.lat(ig),A.dnum);
-    
+        
     %% 10/20/15 - AP - save data here before filtering/smoothing/despiking
     
     % Previously, I have been processing each split file separately, doing
@@ -315,200 +310,6 @@ for ifile=1:length(Flist)
     V.MakeInfo=['Made ' datestr(now) ' w/ process_pole_Aug2015_ASIRI_v4.m']
     
     save(fullfile(SciencePath,'sidepole','mat',[Flist(ifile).name '_proc_raw.mat']),'V')
-    
-    %     clear A2
-    %     A2.dnum=A.dnum;
-    %     A2.z=A.z;
-    %     A2.u=A.u;
-    %     %A2.v=A.v;
-    %     save(fullfile(SciencePath,'sidepole','mat',[Flist(ifile).name '_proc_rawu.mat']),'A2')
-    %
-    %     clear A2
-    %     A2.dnum=A.dnum;
-    %     A2.z=A.z;
-    %     A2.v=A.v;
-    %     %A2.v=A.v;
-    %     save(fullfile(SciencePath,'sidepole','mat',[Flist(ifile).name '_proc_rawv.mat']),'A2')
-    
-    %     %
-    %     dodespike=0
-    %     if dodespike==1
-    %     % do some basic despiking
-    %
-    %     addpath(fullfile(SciencePath,'mfiles','pipestring')) % for despike.m
-    %     clear ib
-    %     ib=find(abs(A.u)>5); A.u(ib)=NaN;
-    %     ib=find(abs(A.v)>5); A.v(ib)=NaN;
-    %
-    %     for iz=1:length(A.z)
-    %         clear ig
-    %         ig=find(~isnan(A.u(iz,:)));
-    %         if length(ig)>1e3;
-    %             A.u(iz,:)=despike(A.u(iz,:),3);
-    %             A.v(iz,:)=despike(A.v(iz,:),3);
-    %         end
-    %     end
-    %     % plot again
-    %
-    %     %     figure(3);clf
-    %     %     agutwocolumn(1)
-    %     %     wysiwyg
-    %     %     ax = MySubplot(0.15, 0.075, 0.02, 0.06, 0.1, 0.05, 1,4);
-    %     %     cl=0.5*[-1 1]
-    %     %
-    %     %     axes(ax(1))
-    %     %     ezpc(A.dnum,A.z,A.u)
-    %     %     datetick('x')
-    %     %     caxis(cl)
-    %     %     SubplotLetterMW('u')
-    %     %     colorbar
-    %     %     ylabel('depth [m]')
-    %     %
-    %     %     axes(ax(2))
-    %     %     ezpc(A.dnum,A.z,A.v)
-    %     %     datetick('x')
-    %     %     caxis([-1 1])
-    %     %     SubplotLetterMW('v')
-    %     %     colorbar
-    %     %     ylabel('depth [m]')
-    %
-    %     % smooth a bit in time - here's a 1-minute averaged data file
-    %
-    %     % 'Af' will be the smoothed/filtered data
-    %     %     clear Af ig
-    %     %     a=1; b=ones(1,60)/60;
-    %     %     Af.dnum=A.dnum(1):1/60/24:A.dnum(end);
-    %     %     Af.u=NaN*ones(length(A.z),length(Af.dnum));Af.v=Af.u;
-    %     %     ig=find(diff(A.dnum)>0); ig=ig(2:end-1)+1;
-    %     %     for iz=1:length(A.z);
-    %     %         try
-    %     %             Af.u(iz,:)=interp1(A.dnum(ig),nanfilt(b,a,despike(A.u(iz,ig))),Af.dnum);
-    %     %             Af.v(iz,:)=interp1(A.dnum(ig),nanfilt(b,a,despike(A.v(iz,ig))),Af.dnum);
-    %     %         end
-    %     %     end
-    %
-    %     %~--------    AP 10/19/15 - Try different method of smoothing to reduce
-    %     % spikes at edges
-    %     clear Af ig
-    %     Af.dnum=A.dnum(1):1/60/24:A.dnum(end);
-    %     Af.u=NaN*ones(length(A.z),length(Af.dnum));Af.v=Af.u;
-    %     ig=find(diff(A.dnum)>0); ig=ig(2:end-1)+1;
-    %     nc=120;
-    %     usm=conv2(A.u,ones(1,nc)/nc,'same');
-    %     vsm=conv2(A.v,ones(1,nc)/nc,'same');
-    %     for iz=1:length(A.z);
-    %         try
-    %             %Af.u(iz,:)=interp1(A.dnum(ig),nanfilt(b,a,despike(A.u(iz,ig))),Af.dnum);
-    %             %Af.v(iz,:)=interp1(A.dnum(ig),nanfilt(b,a,despike(A.v(iz,ig))),Af.dnum);
-    %             Af.u(iz,:)=interp1(A.dnum(ig),usm(iz,ig),Af.dnum);
-    %             Af.v(iz,:)=interp1(A.dnum(ig),vsm(iz,ig),Af.dnum);
-    %         end
-    %     end
-    %     %~--------
-    %
-    %     Af.z=A.z;
-    %
-    %     % despike again
-    %     for iz=1:length(Af.z)
-    %         ig=find(~isnan(Af.u(iz,:)));
-    %         if length(ig)>1e2;
-    %             Af.u(iz,:)=despike(Af.u(iz,:),1);
-    %             Af.v(iz,:)=despike(Af.v(iz,:),1);
-    %         end
-    %     end
-    %
-    %     %%
-    %     screenheadchanges=0
-    %     if screenheadchanges==1
-    %         % data doesn't do well when ship changes heading quickly
-    %         % blank out a bit of data on either side of quick heading changes
-    %         a=1; b=ones(1,120)/120;
-    %         ttemp=N.dnum_hpr; ig=find(diff(ttemp)>0); ig=ig(1:end-1)+1;
-    %         headf=interp1(N.dnum_hpr(ig),nanfilt(b,a,despike(N.head(ig))),Af.dnum);
-    %         ib=find(abs(diff(headf/mean(diff(Af.dnum))/24/3600))>0.15); % identify "big" heading changes
-    %         ibad=3; % # minutes on either side to blank out of such instances
-    %         for iib=1:length(ib)
-    %             inan=(ib(iib)-ibad):(ib(iib)+ibad);
-    %             Af.u(:,inan)=NaN; Af.v(:,inan)=NaN;
-    %         end
-    %         Af.u=Af.u(:,1:length(Af.dnum));
-    %         Af.v=Af.v(:,1:length(Af.dnum));
-    %
-    %         % now interpolate back in
-    %         for iz=1:length(Af.z)
-    %             ig=find(~isnan(Af.u(iz,:)));
-    %             Af.u(iz,:)=interp1(Af.dnum(ig),Af.u(iz,ig),Af.dnum);
-    %             Af.v(iz,:)=interp1(Af.dnum(ig),Af.v(iz,ig),Af.dnum);
-    %         end
-    %
-    %     end % screen heading changes
-    %     %%
-    %
-    %     clear V dth
-    %     % change name: use V for the sentinel files, and other files use P for pipesting ADCP, S for shipboard adcp.
-    %     V=Af;
-    %
-    %     % now correct for transducer location, approx 2 m down - this is determined
-    %     % by comparing to shipboard adcp, code for doing this below
-    %     V.z=V.z+2;
-    %
-    %     %% add lat/lon to ADCP structure
-    %     clear ig
-    %     ig=find(diff(N.dnum_ll)>0); ig=ig(1:end-1)+1;
-    %     V.lon=interp1(N.dnum_ll(ig),N.lon(ig),V.dnum);
-    %     V.lat=interp1(N.dnum_ll(ig),N.lat(ig),V.dnum);
-    %
-    %     %% plot the final smoothed data
-    %
-    %     figure(2);clf
-    %     agutwocolumn(1)
-    %     wysiwyg
-    %     ax = MySubplot2(0.15, 0.075, 0.02, 0.06, 0.1, 0.05, 1,3);
-    %     cl=0.5*[-1 1]
-    %
-    %     % lat/lon
-    %     axes(ax(1))
-    %     [AX,H1,H2]=plotyy(V.dnum,V.lon,V.dnum,V.lat);
-    %     H1.LineWidth=2;
-    %     H2.LineWidth=2;
-    %     AX(1).YLabel.String='Lon';
-    %     AX(2).YLabel.String='Lat';
-    %     grid on
-    %     title([Flist(ifile).name],'interpreter','none')
-    %     datetick('x')
-    %     cb=colorbar;killcolorbar(cb)
-    %
-    %     % u
-    %     axes(ax(2))
-    %     ezpc(V.dnum,V.z,V.u)
-    %     datetick('x')
-    %     caxis(cl)
-    %     SubplotLetterMW('u_f');
-    %     colorbar
-    %     ylabel('depth [m]')
-    %
-    %     % v
-    %     axes(ax(3))
-    %     ezpc(V.dnum,V.z,V.v)
-    %     datetick('x')
-    %     caxis(cl)
-    %     SubplotLetterMW('v_f');
-    %     colorbar
-    %     ylabel('depth [m]')
-    %     colormap(bluered)
-    %     xlabel(['Time on ' datestr(floor(nanmin(A.dnum)))])
-    %
-    %     linkaxes(ax,'x')
-    %     if saveplots==1
-    %         print(fullfile(SciencePath,'sidepole','figures',[Flist(ifile).name '_proc.png']),'-dpng','-r100')
-    %     end
-    %     %
-    %
-    %     V.source=fname;
-    %     V.head_offset=head_offset;
-    %     V.MakeInfo=['Made ' datestr(now) ' w/ process_pole_Aug2015_ASIRI_v3.m']
-    %     V.Note='Preliminary processing - use with caution! - contact Andy with ?s'
-    %     save(fullfile(SciencePath,'sidepole','mat',[Flist(ifile).name '_proc.mat']),'V')
-    %
+       
 end % which file
 %%

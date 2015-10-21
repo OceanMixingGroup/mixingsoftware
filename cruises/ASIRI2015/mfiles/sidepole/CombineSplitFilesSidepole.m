@@ -10,9 +10,11 @@
 
 clear ; close all
 
-SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092115/'
+SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
 
-cd(fullfile(SciencePath,'mfiles','sidepole'))
+% path for m-files (github repo)
+MfilePath='/Users/Andy/Cruises_Research/mixingsoftware/cruises/ASIRI2015/mfiles/'
+%cd(fullfile(SciencePath,'mfiles','sidepole'))
 
 % root directory for data
 %dir_data='/Volumes/scienceparty_share/sidepole/raw'
@@ -31,7 +33,7 @@ fnameshort='ASIRI 2Hz deployment 20150904T053350.pd0';lab='File4'
 
 % list of split files (~50mb each)
 Flist=dir(fullfile(dir_data,[fnameshort(1:end-4) '_split*'])) % some have capital 'S' in split
-%
+%%
 
 % load in navigation data from ship (more reliable than the internal
 % sensors in the instrument itself). this is a file created by
@@ -50,7 +52,7 @@ Vtot.z=[];
 Vtot.lat=[];
 Vtot.lon=[];
 
-for ifile=11%:length(Flist)
+for ifile=1:length(Flist)
     clear V
 %    fname=fullfile('/Volumes/scienceparty_share/sidepole/mat/',[Flist(ifile).name '_proc.mat'])
     fname=fullfile(SciencePath,'sidepole','mat',[Flist(ifile).name '_proc.mat']);

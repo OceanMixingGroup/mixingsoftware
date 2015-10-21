@@ -18,9 +18,12 @@
 
 clear ; close all
 
+% path to scienceparty_share
 SciencePath='/Volumes/Midge/ExtraBackup/scienceshare_092015/'
-
-cd(fullfile(SciencePath,'mfiles','sidepole'))
+MfilePath='/Users/Andy/Cruises_Research/mixingsoftware/cruises/ASIRI2015/mfiles/'
+%
+addpath(fullfile(MfilePath,'nav'))
+%cd(fullfile(SciencePath,'mfiles','sidepole'))
 
 % root directory for data
 dir_data=fullfile(SciencePath,'sidepole','raw')
@@ -29,17 +32,17 @@ dir_data=fullfile(SciencePath,'sidepole','raw')
 %fnameshort='ASIRI_2Hz_deployment_20150824T043756.pd0';lab='File1';;t_offset=0
 %fnameshort='ASIRI 2Hz deployment 20150828T043335.pd0';lab='File2';t_offset=10
 %fnameshort='ASIRI 2Hz deployment 20150829T123832.pd0';lab='File3';t_offset=0
-%fnameshort='ASIRI 2Hz deployment 20150904T053350.pd0';lab='File4';t_offset=10
+fnameshort='ASIRI 2Hz deployment 20150904T053350.pd0';lab='File4';t_offset=10
 %fnameshort='ASIRI 2Hz deployment 20150908T141555.pd0';lab='File5';t_offset=30
 %fnameshort='ASIRI 2Hz deployment 20150911T223729.pd0';lab='File6';t_offset=30
 %fnameshort='ASIRI 2Hz deployment 20150915T165213.pd0';lab='File7';t_offset=30
-fnameshort='ASIRI 2Hz deployment 20150917T091838.pd0';lab='File8';t_offset=0
+%fnameshort='ASIRI 2Hz deployment 20150917T091838.pd0';lab='File8';t_offset=0
 
 % list of split files (~50mb each)
 Flist=dir(fullfile(dir_data,[fnameshort(1:end-4) '_split*'])) % some have capital 'S' in split
-%
+%%
 
-for a=1:length(Flist)
+for a=11%:length(Flist)
     
     clear fname adcp
     fname=fullfile(dir_data,Flist(a).name)
@@ -84,7 +87,7 @@ for a=1:length(Flist)
     disp('loading nav data')
     %load('/Volumes/scienceparty_share/data/nav_tot.mat')
     clear N
-    N=loadNavSpecTime([nanmin(adcp.dnum) nanmax(adcp.dnum)])
+    N=loadNavSpecTime([nanmin(adcp.dnum) nanmax(adcp.dnum)],SciencePath)
     ttemp_nav=N.dnum_hpr; ig=find(diff(ttemp_nav)>0); ig=ig(1:end-1)+1;
         
     % check if mat file with Earth vels exists

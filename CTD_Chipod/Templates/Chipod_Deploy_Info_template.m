@@ -15,8 +15,8 @@
 
 ChiInfo=struct();
 ChiInfo.Project='Test';
-ChiInfo.SNs={'SN1012','SN1002'}
-ChiInfo.CastString='TestData'
+ChiInfo.SNs={'SN1012','SN1002'};
+ChiInfo.CastString='TestData';
 
 %~~~~~~~~~~~~~~~~~~~
 % Example 'mini' chipod

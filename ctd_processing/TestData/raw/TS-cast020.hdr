@@ -1,0 +1,22 @@
+* Sea-Bird SBE 9 Data File:
+* FileName = C:\CTD\RR1108\TS-cast020.hdr
+* Software Version Seasave V 7.21d
+* Temperature SN = 4588
+* Conductivity SN = 3430
+* Number of Bytes Per Scan = 44
+* Number of Voltage Words = 5
+* Number of Scans Averaged by the Deck Unit = 1
+* Append System Time to Every Scan
+* System UpLoad Time = Jun 18 2011 12:56:53
+* NMEA Latitude = 20 30.64 N
+* NMEA Longitude = 121 43.49 E
+* NMEA UTC (Time) = Jun 18 2011  12:57:10
+* Store Lat/Lon Data = Append to Every Scan
+** Cruise # / PI RR1108  Alford  (St Laurent, IWISE)
+** Ship R/V Revelle
+** Date & Time 
+** Station & Cast Time Series E of A1
+** Position 
+** 988 m depth
+* System UTC = Jun 18 2011 12:56:53
+*END*

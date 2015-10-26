@@ -29,6 +29,8 @@
 
 clear ; close all
 
+BaseDir='/Users/Andy/Cruises_Research/mixingsoftware/ctd_processing'
+
 addpath /Users/Andy/Cruises_Research/mixingsoftware/ctd_processing/
 
 % *** For recording filename used to process data
@@ -38,13 +40,13 @@ this_file_name='Process_CTD_hex_Template.m'
 % example: CTD file 'TS-cast002.hex', CastString='TS'
 CastString='TS'
 
-% *** Paths to raw and processed data ***
+% *** Paths to raw and processed data (all assuming we are in /ctd_processing/ ***
 
 % Folder with raw CTD data (.hex and .XMLCON files)
-CTD_data_dir='/Users/Andy/Cruises_Research/IWISE/Data/2011/ctd/'
+CTD_data_dir=fullfile(BaseDir,'TestData','raw')
 
 % Base directory for all output
-CTD_out_dir_root='/Users/Andy/Cruises_Research/ChiPod/'
+CTD_out_dir_root=fullfile(BaseDir,'TestData')
 
 % Folder to save processed 24Hz CTD mat files to
 CTD_out_dir_24hz=fullfile(CTD_out_dir_root,'processed','24hz')
@@ -55,18 +57,18 @@ CTD_out_dir_bin=fullfile(CTD_out_dir_root,'processed','binned')
 % Folder to save figures to
 CTD_out_dir_figs=fullfile(CTD_out_dir_root,'processed','figures')
 
-% Check if folders exist, and make new if not
-ChkMkDir(CTD_out_dir_figs)
-ChkMkDir(CTD_out_dir_bin)
-ChkMkDir(CTD_out_dir_24hz)
+% % Check if folders exist, and make new if not
+% ChkMkDir(CTD_out_dir_figs)
+% ChkMkDir(CTD_out_dir_bin)
+% ChkMkDir(CTD_out_dir_24hz)
 
 dobin=1;  % bin data
 doascii=0 % option to save data as text file for LADCP processing
 
 %~~~
 % Make list of all ctd files we have
-ctdlist = dirs(fullfile(CTD_data_dir, [CastString '*.hex']))
-%%
+ctdlist = dirs(fullfile(CTD_data_dir, ['*' CastString '*.hex*']))
+
 % Loop through each cast
 for icast=1%:length(ctdlist)
     
@@ -74,11 +76,9 @@ for icast=1%:length(ctdlist)
     
     clear data1 data2 data3 data4 data5 data6 data7
     clear ctdname outname matname confile cfg d
-    
-    
+        
     disp('=============================================================')
-    
-    
+        
     % name of file we are working on now
     ctdname = fullfile(CTD_data_dir,ctdlist(icast).name)
     % name for processed matfile
@@ -144,7 +144,7 @@ for icast=1%:length(ctdlist)
     
     % output raw data
     disp(['saving: ' matname])
-    matname0 = fullfile(CTD_out_dir_raw,[outname(1:end - 4) '_0.mat'])
+    matname0 = fullfile(CTD_out_dir_24hz,[outname(1:end - 4) '_0.mat'])
     save(matname0, 'data2')
     
     % specify the depth range over which t-c lag fitting is done. For deep
@@ -246,7 +246,7 @@ for icast=1%:length(ctdlist)
         %     datau.confile=confile;
         
         disp(['saving: ' matname])
-        save(matname, 'datad_1m', 'datau_1m','datad','datau')
+        save(matname, 'datad_1m', 'datau_1m')%,'datad','datau')
         
     end
     

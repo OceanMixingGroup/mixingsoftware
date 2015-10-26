@@ -2,7 +2,6 @@
 %
 % Process_CTD_hex_Template.m
 %
-%
 % Script to process raw (.hex) shipboard (Seabird) CTD data. Part of
 % ctd_processing folder in OSU mixing software github repo. Originally
 % designed to make data needed for CTD-chipod proccesing, but also useful
@@ -23,6 +22,7 @@
 %
 % Modified from original script from Jen MacKinnon @ Scripps. Modified by A. Pickering
 %
+%---------------------
 % A. Pickering - April 21, 2015 - apickering@coas.oregonstate.edu
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
@@ -34,9 +34,9 @@ addpath /Users/Andy/Cruises_Research/mixingsoftware/ctd_processing/
 % *** For recording filename used to process data
 this_file_name='Process_CTD_hex_Template.m'
 
-% ~ *** cruise name (in filename of CTD files) ***
-% example: CTD file 'TS-cast002.hex', cruise='TS'
-cruise='TS'
+% ~ *** identifying string in filename of CTD files ***
+% example: CTD file 'TS-cast002.hex', CastString='TS'
+CastString='TS'
 
 % *** Paths to raw and processed data ***
 
@@ -47,7 +47,7 @@ CTD_data_dir='/Users/Andy/Cruises_Research/IWISE/Data/2011/ctd/'
 CTD_out_dir_root='/Users/Andy/Cruises_Research/ChiPod/'
 
 % Folder to save processed 24Hz CTD mat files to
-CTD_out_dir_raw=fullfile(CTD_out_dir_root,'processed','24hz')
+CTD_out_dir_24hz=fullfile(CTD_out_dir_root,'processed','24hz')
 
 % Folder to save processed and binned CTD mat files to
 CTD_out_dir_bin=fullfile(CTD_out_dir_root,'processed','binned')
@@ -58,15 +58,15 @@ CTD_out_dir_figs=fullfile(CTD_out_dir_root,'processed','figures')
 % Check if folders exist, and make new if not
 ChkMkDir(CTD_out_dir_figs)
 ChkMkDir(CTD_out_dir_bin)
-ChkMkDir(CTD_out_dir_raw)
+ChkMkDir(CTD_out_dir_24hz)
 
 dobin=1;  % bin data
 doascii=0 % option to save data as text file for LADCP processing
 
 %~~~
 % Make list of all ctd files we have
-ctdlist = dirs(fullfile(CTD_data_dir, [cruise '*.hex']))
-
+ctdlist = dirs(fullfile(CTD_data_dir, [CastString '*.hex']))
+%%
 % Loop through each cast
 for icast=1%:length(ctdlist)
     
@@ -82,7 +82,7 @@ for icast=1%:length(ctdlist)
     % name of file we are working on now
     ctdname = fullfile(CTD_data_dir,ctdlist(icast).name)
     % name for processed matfile
-    outname=[sprintf([cruise '_%03d'],icast) '.mat']
+    outname=[sprintf([CastString '_%03d'],icast) '.mat']
     matname=fullfile(CTD_out_dir_bin, outname);
     disp(['CTD file: ' ctdname])
     %~~~

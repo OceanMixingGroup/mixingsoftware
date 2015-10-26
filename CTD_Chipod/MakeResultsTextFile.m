@@ -4,7 +4,7 @@
 %
 % Initialize a text file for results of CTD-chipod processing
 %
-% Replaces a bunch of l ines in processing script (deletes any fles of same
+% Replaces a bunch of lines in processing script (deletes any files of same
 % name already existing in chi_proc_path).
 % 
 %---------------

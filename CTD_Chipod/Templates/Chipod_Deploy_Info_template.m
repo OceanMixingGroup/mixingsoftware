@@ -15,6 +15,8 @@
 
 ChiInfo=struct();
 ChiInfo.Project='Test';
+ChiInfo.SNs={'SN1012','SN1002'}
+ChiInfo.CastString='TestData'
 
 %~~~~~~~~~~~~~~~~~~~
 % Example 'mini' chipod
@@ -41,7 +43,7 @@ SN1002.sensorSN.T1='13-10D';
 SN1002.sensorSN.T2='11-23D';
 SN1002.InstDir.T1='up';
 SN1002.InstDir.T2='down';
-SN102.InstType='big';
+SN1002.InstType='big';
 SN1002.cal.coef.T1P=0.105;
 SN1002.cal.coef.T2P=0.105;
 SN1002.suffix='A1002';

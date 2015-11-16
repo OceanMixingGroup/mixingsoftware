@@ -1,0 +1,120 @@
+%Pavan Vutukur on 11/16/2015 
+%matlab file to calculate the calibration coefficients of conductivity
+%calibration from raw volts of conductivity chameleon sensor using.. 
+%..seabird microcat CTD sensor
+%loads the raw mat file containing:
+%1. seabird temp in celisus, time and conductivity in S/m
+%2. raw volts from 4 conducitivity sensors 
+clear all;
+[f,p] = uigetfile('*.mat','Load raw calibration .mat file');
+%opens a window to get the file name and path name of the raw calibration (.mat) file
+
+load([p f]); 
+%enter the order of the sensor placement at 1, 3, 5, 7 # on the sensor
+%holder apparatus
+sensor = {'14-09','14-10','08-06','08-07'};
+%enter the conductivity sensor signal conditioning circuits' #'s in the
+%same order as "r"
+circuit = {'04-05','MHCT04-01','MHT66','MHCT2'};
+
+r = [7,6,5,4];
+for e = 1:4
+%this function is used to calculate the calibration coefficients of the 
+% chameleon conductivity sensor. 
+% Input Arguments: 
+% Circuit ID:     r    e
+% 1. 04-05        7    1   
+% 3. MHCT04-01    6    2 
+% 5. MHT66        5    3
+% 7. MHCT 2       4    4 
+% circuit = '04-05';
+% r = 7;
+% sensor = '14-01';
+
+
+%order of poly fit
+polinom_order = 2;
+
+%plot limits for x-axis time vector
+tlims=[min(sbe.sal)-0.1 max(sbe.sal)+0.1];
+
+
+% plot the data
+fig1 = figure(1); clf;
+s(1)=subplot(4,1,1);
+plot(sbe.time,sbe.sal,'k')
+ylabel('S/m');
+datetick
+legend('Seabird Conductivty','location','best');
+set(gca,'ylim',tlims,'xlim',[sbe.time(1) sbe.time(end)]);
+
+s(2)=subplot(4,1,2);
+plot(sbe.time,sbe.volts(r(e),:),'b');
+ylabel('volts')
+datetick;
+legend([sensor{:,e}],'location','best');
+set(gca,'ylim',[min(sbe.volts(r(e),:)) max(sbe.volts(r(e),:))],'xlim',[sbe.time(1) sbe.time(end)]);
+
+%calibration algorithm of the conductivity sensor from Seabird Data
+for ii=1:max(sbe.count)
+    in=find(sbe.count==ii);
+    sbc=sbe.sal(in);
+    cond = sbe.volts(r(e),in);
+    time=sbe.time(in);
+    sze_in = size(in);
+
+%calculates the time size of the plateau length and halves it. If its odd number then 
+%converts into the preceeding even number. For Ex: if size = 75 
+%then sze_in = 0.5*(75-1) = 37. 
+    if mod(sze_in(:,2),2) == 0
+        sze = 0.5*sze_in(:,2);
+    else
+        sze = 0.5*(sze_in(:,2)-1);
+    end
+    
+% end
+
+%  shrink in the time used by calculations by taking the last half of plateau
+    good=find(time>time(sze) & time<time(end));
+    
+      % find the Seabird  mean value over the shrunken interval
+    cal.sbc(ii)=nanmean(sbc(good));
+      % find the raw sensor mean voltage value over the same shrunken interval
+    cal.cond(ii)=nanmean(cond(good));
+end
+%100 data points from the minimum S/m value to max S/m value of the seabird
+%sensor
+v = min(cal.cond):0.01:max(cal.cond);
+
+%calculate the fit and save the coefficients 
+p=polyfit(cal.cond,cal.sbc,polinom_order);
+coeff.cond(1:polinom_order+1)=fliplr(p);
+
+%plots
+subplot(4,1,1);
+ title(['CircuitID: ' [circuit{:,e}] '  Sensor (' [sensor{:,e}] '):    ' num2str(coeff.cond(1)) ' + ' num2str(coeff.cond(2))...
+        '\cdotV + ' num2str(coeff.cond(3)) '\cdotV^2']);
+
+
+subplot(4,1,3)
+plot(v,coeff.cond(1)+coeff.cond(2).*v+coeff.cond(3).*v.^2,'b-');
+if ~isnan(v)
+    set(gca,'ylim',tlims,'xlim',[min(v) max(v)]);
+end
+xlabel('sensor V')
+ylabel('Fit S/m')
+
+subplot(4,1,4);
+plot(coeff.cond(1)+coeff.cond(2).*cal.cond+coeff.cond(3).*cal.cond.^2-cal.sbc,'r*','markersize',4);
+ylabel('S/m');
+legend('(Sensor - Seabird)','location','best');
+
+%directory path for saving the mat file of the calibration coefficients
+pathname = strcat('\\ganges\work\Pavan\Conductivity Cals\conductivity coeff\',[circuit{:,e}],'\');
+filename = char(strcat([circuit{:,e}],'_',[sensor{:,e}]));
+cd(char(pathname));
+
+%png file of the plots
+print(fig1,'-dpng','-r200',filename);
+save(filename,'coeff'); % saves the mat file of calibration coeffs
+end;

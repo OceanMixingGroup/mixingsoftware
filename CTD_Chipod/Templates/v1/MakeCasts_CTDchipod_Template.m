@@ -5,7 +5,7 @@
 % Find data for each cast, align and calibrate etc.. save files for each
 % cast.
 %
-% Next step in processing is Do
+% *Next step in processing is DoChiCalc_Template.m
 %
 %---------------------
 % 10/26/15 - A.Pickering - Initial coding
@@ -21,25 +21,30 @@ tstart=tic;
 
 % *** path for 'mixingsoftware' ***
 mixpath='/Users/Andy/Cruises_Research/mixingsoftware/';
+
 % add paths we need
 addpath(fullfile(mixpath,'CTD_Chipod'));
+addpath(fullfile(mixpath,'CTD_Chipod','Templates'));
 addpath(fullfile(mixpath,'general')); % makelen.m in /general is needed
 addpath(fullfile(mixpath,'marlcham')); % for integrate.m
 addpath(fullfile(mixpath,'adcp')); % need for mergefields_jn.m in load_chipod_data
 
-% Load paths for CTD and chipod data
+% *** Load paths for CTD and chipod data
 Load_chipod_paths_TestData
 
+%*** Load chipod deployment info
+Chipod_Deploy_Info_template
+%
 % Make a list of all ctd files
-CTD_list=dir(fullfile(CTD_out_dir_24hz,['*' ChiInfo.CastString '*.mat']));
+CTD_list=dir(fullfile(CTD_out_dir_24hz,['*' ChiInfo.CastString '*.mat*']));
 disp(['There are ' num2str(length(CTD_list)) ' CTD casts to process in ' CTD_out_dir_24hz])
-
+%
 % make a text file to print a summary of results to
 MakeResultsTextFile
-
+%
 % Loop through each ctd file
 hb=waitbar(0,'Looping through ctd files');
-for a=1%:length(CTD_list)
+for a=1:length(CTD_list)
     %
     close all
     clear castname tlim time_range cast_suffix_tmp cast_suffix CTD_24hz
@@ -50,10 +55,8 @@ for a=1%:length(CTD_list)
     % CTD castname we are working with
     castname=CTD_list(a).name
     
+    fprintf(fileID,[ '\n\n\n ~~~~~~~~~~~~~~~~~~~~' ]);
     fprintf(fileID,[' \n \n ~' castname ]);
-    
-    id1=strfind(castname,ChiInfo.CastString);
-    castnum=castname(id1+5 : id2-1);
     
     %load 24hz CTD profile
     load(fullfile(CTD_out_dir_24hz, castname))
@@ -73,13 +76,10 @@ for a=1%:length(CTD_list)
     
     % regular file, just use cast # for name
     id1=strfind(castname,ChiInfo.CastString);
-    cast_suffix=castname(id1+5 : id1+7)
-    
-    %*** Load chipod deployment info
-    Chipod_Deploy_Info_template
+    cast_suffix=castname(id1+length(ChiInfo.CastString)+1 : id1+length(ChiInfo.CastString)+3)
     
     %-- For multiple chipods, would have loop here --
-    for iSN=1:length(ChiInfo.SNs)
+    for iSN=1%:length(ChiInfo.SNs)
         
         close all
         clear whSN this_chi_info chi_path az_correction suffix isbig cal is_downcast
@@ -93,7 +93,9 @@ for a=1%:length(CTD_list)
         isbig=this_chi_info.isbig;
         cal=this_chi_info.cal;
         
-        fprintf(fileID,[ ' \n \n ' whSN ]);
+        fprintf(fileID,[ ' \n\n ---------' ]);
+        fprintf(fileID,[ ' \n ' whSN ]);
+        fprintf(fileID,[ ' \n ---------\n' ]);
         
         %~~ specific paths for this chipod
         chi_proc_path_specific=fullfile(chi_proc_path,[whSN]);
@@ -163,14 +165,16 @@ for a=1%:length(CTD_list)
                     fprintf(fileID,' *T1 calibration not good* ');
                 end
                 
-                % check if T2 calibration is ok
-                clear out2 err pvar
-                out2=interp1(chidat.datenum,chidat.cal.T2,CTD_24hz.datenum);
-                err=out2-CTD_24hz.t1;
-                pvar=100* (1-(nanvar(err)/nanvar(CTD_24hz.t1)) );
-                if pvar<50
-                    disp('Warning T2 calibration not good')
-                    fprintf(fileID,' *T2 calibration not good* ');
+                if this_chi_info.isbig==1
+                    % check if T2 calibration is ok
+                    clear out2 err pvar
+                    out2=interp1(chidat.datenum,chidat.cal.T2,CTD_24hz.datenum);
+                    err=out2-CTD_24hz.t1;
+                    pvar=100* (1-(nanvar(err)/nanvar(CTD_24hz.t1)) );
+                    if pvar<50
+                        disp('Warning T2 calibration not good')
+                        fprintf(fileID,' *T2 calibration not good* ');
+                    end
                 end
                 
                 %~~~~
@@ -206,8 +210,10 @@ for a=1%:length(CTD_list)
                     chi_up.fspd=chidat.cal.fspd(ind_max:length(chidat.cal.P));
                     chi_up.castdir='up';
                     chi_up.Info=this_chi_info;
-                    % 2nd sensor on 'big' chipods
-                    chi_up.T2P=chidat.cal.T2P(ind_max:length(chidat.cal.P));
+                    if this_chi_info.isbig
+                        % 2nd sensor on 'big' chipods
+                        chi_up.T2P=chidat.cal.T2P(ind_max:length(chidat.cal.P));
+                    end
                     chi_up.ctd.bin=datau_1m;
                     chi_up.ctd.raw=CTD_24hz;
                     
@@ -219,8 +225,10 @@ for a=1%:length(CTD_list)
                     chi_dn.fspd=chidat.cal.fspd(1:ind_max);
                     chi_dn.castdir='down';
                     chi_dn.Info=this_chi_info;
-                    % 2nd sensor on 'big' chipods
-                    chi_dn.T2P=chidat.cal.T2P(1:ind_max);
+                    if this_chi_info.isbig
+                        % 2nd sensor on 'big' chipods
+                        chi_dn.T2P=chidat.cal.T2P(1:ind_max);
+                    end
                     chi_dn.ctd.bin=datad_1m;
                     chi_dn.ctd.raw=CTD_24hz;
                     %~

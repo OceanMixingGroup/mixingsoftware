@@ -6,7 +6,10 @@
 %
 % *MakeCasts_CTDchipod_Template.m should be run first*
 %
-% Calls MakeCtdChiWindows.m
+% Trying to make general so that after specifying a few things at top
+% specific to deployment, will run for any deployment.
+%
+% Calls: MakeCtdChiWindows.m
 %
 %------------
 % 10/26/15 - AP - Initial coding
@@ -15,49 +18,56 @@
 
 clear ; close all
 
-this_script_name='DoChiCalc_IWISE11_V2.m'
+% ***
+this_script_name='DoChiCalc_Template.m'
 
-% load/set paths for data
+% *** load/set paths for data
 Load_chipod_paths_TestData
 
-% load deployment info 
+% *** load deployment info
 Chipod_Deploy_Info_template
 
-% choose which sensor to work on 
+%~~ set some params for following calcs
+do_T2_big=1; % do calc for T2 if big chipod
+% define some parameters that are the same for up/down and
+% T1/T2:
+Params.z_smooth=20;
+Params.nfft=128;
+Params.extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
+Params.wthresh = 0.3;
+%~~
+
+% initialize a text file for summary of processing
+MakeResultsTextFile_ChiCalc
+
+% choose which sensor to work on
 for iSN=1:length(ChiInfo.SNs)
     
     clear whSN
     whSN=ChiInfo.SNs{iSN}
     
     % specific paths for this sensor
-    clear chi_proc_path chi_fig_path savedir_cal
+    clear chi_proc_path_specific chi_fig_path savedir_cal
     chi_proc_path_specific=fullfile(chi_proc_path,[whSN]);
     chi_fig_path_specific=fullfile(chi_proc_path_specific,'figures')
     savedir_cal=fullfile(chi_proc_path_specific,'cal')
+    fprintf(fileID,['\n processed path: \n ' chi_proc_path  ]);
     
     % get list of cast files we have
     clear Flist
     Flist=dir(fullfile(savedir_cal,['*' whSN '.mat']))
     disp(['There are ' num2str(length(Flist)) ' casts to process '])
-    
-    
-    %~~ set some params for following calcs
-    do_T2_big=1; % do calc for T2 if big chipod
-    % define some parameters that are the same for up/down and
-    % T1/T2:
-    Params.z_smooth=20
-    Params.nfft=128;
-    Params.extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
-    Params.wthresh = 0.3;
-    %~~
+    fprintf(fileID,['\n There are ' num2str(length(Flist)) ' casts to process \n\n ']);
     
     % for each cast, do chi calculations
     for icast=1:length(Flist)
         
+        fprintf(fileID,['\n-------\n working on ' Flist(icast).name ' (icast=' num2str(icast) ')\n-------']);
+        
         try
             close all
             
-            if isbig==1 && do_T2_big==1
+            if ChiInfo.(whSN).isbig==1 && do_T2_big==1
                 Ncasestodo=4;
             else
                 Ncasestodo=2;
@@ -77,33 +87,35 @@ for iSN=1:length(ChiInfo.SNs)
                         % chipods, only T1P. For big, we will do T1P
                         % and T2P).
                         whsens='T1';
-                        castdir='down'
+                        castdir='down';
                         disp('Doing T1 downcast')
                     case 2 % upcast T1
                         clear avg ctd chi_todo_now
                         whsens='T1';
-                        castdir='up'
+                        castdir='up';
                         disp('Doing T1 upcast')
                     case 3 %downcast T2
                         clear ctd chi_todo_now
                         whsens='T2';
-                        castdir='down'
+                        castdir='down';
                         disp('Doing T2 downcast')
                     case 4 % upcast T2
                         clear avg ctd chi_todo_now
                         whsens='T2';
-                        castdir='up'
+                        castdir='up';
                         disp('Doing T2 upcast')
                 end
                 
-                %-- load appropriate data for this case                
+                fprintf(fileID,['\n----\n' castdir 'cast, sensor ' whsens]);
+                
+                %-- load appropriate data for this case
                 clear fname castfile id1
-                castfile=Flist(icast).name
-                id1=strfind(castfile,['_' whSN])
-                cast_suffix=castfile(1:id1-1)
+                castfile=Flist(icast).name;
+                id1=strfind(castfile,['_' whSN]);
+                cast_suffix=castfile(1:id1-1);
                 fname=fullfile(savedir_cal,[cast_suffix '_' whSN '_' castdir 'cast.mat']);
-                load(fname)                
-                %---       
+                load(fname)
+                %---
                 
                 clear TP ctd
                 TP=C.([whsens 'P']);
@@ -126,7 +138,7 @@ for iSN=1:length(ChiInfo.SNs)
                 clear ib_loop Nloop
                 ib_loop=find(C.is_good_data==0);
                 Nloop=length(ib_loop);
-                %fprintf(fileID,['\n  ' num2str(round(Nloop/length(C.datenum)*100)) ' percent of points removed for depth loops ']);
+                fprintf(fileID,['\n  ' num2str(round(Nloop/length(C.datenum)*100)) ' percent of points removed for depth loops ']);
                 disp(['\n  ' num2str(round(Nloop/length(C.datenum)*100)) ' percent of points removed for depth loops ']);
                 
                 %
@@ -182,7 +194,7 @@ for iSN=1:length(ChiInfo.SNs)
                 xlabel('# good data windows')
                 title([whSN ' cast ' cast_suffix ' - ' C.castdir 'cast'],'interpreter','none')
                 print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' cast_suffix '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avgPhist']))
-                whfig=whfig+1
+                whfig=whfig+1;
                 
                 % get N2, dTdz for each window
                 good_inds=find(~isnan(ctd.p));
@@ -229,7 +241,7 @@ for iSN=1:length(ChiInfo.SNs)
                         avg.eps1(iwind)=epsil1(1);
                         avg.KT1(iwind)=0.5*chi1(1)/avg.dTdz(iwind)^2;
                         
-                    end % if T1Pvar>threshold                    
+                    end % if T1Pvar>threshold
                 end % windows
                 
                 
@@ -242,7 +254,7 @@ for iSN=1:length(ChiInfo.SNs)
                 axes(ax(3))
                 title(['Sensor ' whsens])
                 print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' cast_suffix '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avg_chi_KT_dTdz']))
-                whfig=whfig+1;                
+                whfig=whfig+1;
                 %~~~
                 
                 % add lat/lon to avg structure
@@ -253,7 +265,7 @@ for iSN=1:length(ChiInfo.SNs)
                 
                 avg.castname=castname;
                 avg.castdir=C.castdir;
-                avg.Info=C.Info;% this_chi_info;
+                avg.Info=C.Info;
                 ctd.castname=castname;
                 
                 avg.castname=castname;
@@ -267,11 +279,11 @@ for iSN=1:length(ChiInfo.SNs)
                 save(processed_file,'avg','ctd')
                 %~~~
                 
-                %         ngc=find(~isnan(avg.chi1));
-                %         if numel(ngc)>1
-                %             fprintf(fileID,['\n Chi computed for ' C.castdir 'cast, sensor ' whsens]);
-                %             fprintf(fileID,['\n ' processed_file]);
-                %         end
+                ngc=find(~isnan(avg.chi1));
+                if numel(ngc)>1
+                    fprintf(fileID,['\n Chi computed for ' C.castdir 'cast, sensor ' whsens]);
+                    fprintf(fileID,['\n ' processed_file '\n']);
+                end
                 
             end % up/down, T1/T2
             

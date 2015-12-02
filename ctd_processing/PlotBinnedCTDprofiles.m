@@ -8,19 +8,21 @@ subplot(221)
 plot(datad_1m.t1,datad_1m.p,'.')
 hold on
 plot(datad_1m.t2,datad_1m.p,'.')
+ylim([0 nanmax(datad_1m.p)])
 axis ij
 grid on
 xlabel('Temp [^oC]')
 ylabel('Pressure [db]')
 title(ctdlist(icast).name,'interpreter','none')
 %legend('t1 down','t2 down','t1 up','t2 up','location','Southeast')
-legend('t1 down','t2 down','location','Southeast')
+legend('t1 down','t2 down','location','best')
 
 subplot(222)
 plot(datau_1m.t1,datau_1m.p,'.')
 hold on
 plot(datau_1m.t2,datau_1m.p,'.')
-legend('t1 up','t2 up','location','Southeast')
+ylim([0 nanmax(datad_1m.p)])
+legend('t1 up','t2 up','location','best')
 axis ij
 grid on
 xlabel('Temp [^oC]')
@@ -29,6 +31,7 @@ subplot(223)
 plot(datad_1m.s1,datad_1m.p,'.')
 hold on
 plot(datad_1m.s2,datad_1m.p,'.')
+ylim([0 nanmax(datad_1m.p)])
 axis ij
 grid on
 xlabel('Sal.')
@@ -39,6 +42,7 @@ subplot(224)
 plot(datau_1m.s1,datau_1m.p,'.')
 hold on
 plot(datau_1m.s2,datau_1m.p,'.')
+ylim([0 nanmax(datad_1m.p)])
 axis ij
 grid on
 xlabel('Sal.')

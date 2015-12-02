@@ -151,7 +151,7 @@ if plotit==1
         
         if isbig==1
             
-            figure(77);clf
+            figure;clf
             agutwocolumn(1)
             wysiwyg
             ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.02, 1,4);
@@ -160,7 +160,7 @@ if plotit==1
             plot(big.datenum,big.T1);
             hold on
             plot(big.datenum,big.T2);
-            ylabel('T')
+            ylabel('T [V]')
             xlim(time_range)
             datetick('x')
             grid on
@@ -170,7 +170,7 @@ if plotit==1
             axes(ax(2))
             plot(big.datenum,big.T1P);
             axis tight
-            ylabel('T1P')
+            ylabel('T1P [V]')
             xlim(time_range)
             grid on
             datetick('x')
@@ -178,7 +178,7 @@ if plotit==1
             axes(ax(3))
             plot(big.datenum,big.T2P);
             axis tight
-            ylabel('T2P')
+            ylabel('T2P [V]')
             xlim(time_range)
             grid on
             datetick('x')
@@ -186,7 +186,7 @@ if plotit==1
             axes(ax(4))
             plot(big.datenum,big.AX,big.datenum,big.AY,big.datenum,big.AZ);
             axis tight
-            ylabel('A')
+            ylabel('A [V]')
             xlim(time_range)
             legend('Ax','AY','Az','location','best')
             datetick('x')
@@ -197,14 +197,14 @@ if plotit==1
 %            linkaxes([ax(2) ax(3)],'y')
             
         else
-            figure(77);clf
+            figure;clf
             agutwocolumn(1)
             wysiwyg
             ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.02, 1,3);
             
             axes(ax(1))
             plot(big.datenum,big.T1);
-            ylabel('T1')
+            ylabel('T1 [V]')
             axis tight
             xlim(time_range)
             datetick('x')
@@ -214,7 +214,7 @@ if plotit==1
             axes(ax(2))
             plot(big.datenum,big.T1P);
             axis tight
-            ylabel('T1P')
+            ylabel('T1P [V]')
             xlim(time_range)
             grid on
             datetick('x')
@@ -222,7 +222,7 @@ if plotit==1
             axes(ax(3))
             plot(big.datenum,big.AX,big.datenum,big.AZ);
             axis tight
-            ylabel('A')
+            ylabel('A [V]')
             xlim(time_range)
             legend('Ax','Az','location','best')
             datetick('x')

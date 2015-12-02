@@ -56,8 +56,9 @@ if test_dtdt
     subplot(211)
     plot(chidat.datenum,cal.dTdt_dig,chidat.datenum,cal.T1P);
     ylim(5*[-1 1])
-    %    gridxy
+    grid on
     datetick('x')
+    title(['SN ' chidat.Info.loggerSN])
     %    pause
     %    ax=axis
     %    ginds2=find((chidat.datenum-oset)>ax(1) & (chidat.datenum-oset)<ax(2));
@@ -72,7 +73,6 @@ if test_dtdt
     [p2,f]=fast_psd(cal.dTdt_dig(ginds2),256,100);
     
     % plot the two spectra
-    %    figure;clf
     subplot(212)
     loglog(f,p2,f,p,'linewidth',2);
     axis tight

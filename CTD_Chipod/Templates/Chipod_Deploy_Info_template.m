@@ -5,51 +5,60 @@
 % Deployment info for CTD chipods. For loading during chipod
 % processing.
 %
-% Note that the sign of az_correction is not always consistent with the
-% chipod deployment direction; the correct sign can be determined from
-% aligning the chipod and CTD (AlignChipodCTD.m in the processing script).
+% Notes:
 %
+% (1) The sign of az_correction is not always consistent with the
+% chipod deployment direction (some units are wired oppositely);
+% the correct sign needs to be determined from aligning the chipod and 
+% CTD (AlignChipodCTD.m in the processing script).
+%
+% (2) 
+%
+%---------------
 % May 18, 2015 - A.Pickering - apickering@coas.oregonstate.edu
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
 ChiInfo=struct();
-ChiInfo.Project='Test';
-ChiInfo.SNs={'SN1012','SN1002'};
-ChiInfo.CastString='TestData';
+ChiInfo.Project='Test';          % Description of project
+ChiInfo.SNs={'SN1012','SN1002'}; % list of chipod SNs
+ChiInfo.CastString='TestData';   % identifying string in CTD cast files
 
 %~~~~~~~~~~~~~~~~~~~
 % Example 'mini' chipod
 %~~~~~~~~~~~~~~~~~~~
 %%~~~~~~~~~~~~~~~~~~~
 % SN 1012 
-SN1012.loggerSN='1012'; % logger serial number
-SN1012.pcaseSN='Ti88-3';
-SN1012.sensorSN='11-21D';
-SN1012.InstDir='up';
-SN1012.InstType='mini';
-SN1012.az_correction=-1; %
-SN1012.suffix='A1012'; % suffix for data filenames
-SN1012.isbig=0; %
-SN1012.cal.coef.T1P=0.097;
+clear S
+S.loggerSN='1012';   % logger serial number
+S.pcaseSN='Ti88-3';  % pressure case SN
+S.sensorSN='11-21D'; % sensor SN
+S.InstDir='up';      % mounting direction (of sensor) on CTD
+S.InstType='mini';   % Instrument type ('mini' or 'big')
+S.isbig=0; %
+S.az_correction=-1;  % See note above
+S.suffix='A1012';    % suffix for chipod raw data filenames
+S.cal.coef.T1P=0.097;% TP calibration coeff (time constant)
+SN1012=S;clear S
 
 %~~~~~~~~~~~~~~~~~~~
 % Example 'big' chipod
 %~~~~~~~~~~~~~~~~~~~
 % SN 1002 
-SN1002.loggerSN='1002'; % logger serial number
-SN1002.pcaseSN='1002';
-SN1002.sensorSN.T1='13-10D';
-SN1002.sensorSN.T2='11-23D';
-SN1002.InstDir.T1='up';
-SN1002.InstDir.T2='down';
-SN1002.InstType='big';
-SN1002.cal.coef.T1P=0.105;
-SN1002.cal.coef.T2P=0.105;
-SN1002.suffix='A1002';
-SN1002.isbig=1;
-SN1002.az_correction=-1; % check this ?
-
+clear S
+S.loggerSN='1002'; 
+S.pcaseSN='1002';
+S.sensorSN.T1='13-10D';
+S.sensorSN.T2='11-23D';
+S.InstDir.T1='up';
+S.InstDir.T2='down';
+S.InstType='big';
+S.isbig=1;
+S.cal.coef.T1P=0.105;
+S.cal.coef.T2P=0.105;
+S.suffix='A1002';
+S.az_correction=-1; 
+SN1002=S;clear S
 
 ChiInfo.SN1012=SN1012;
 ChiInfo.SN1002=SN1002;

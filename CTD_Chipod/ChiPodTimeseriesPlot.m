@@ -9,7 +9,7 @@ function ax=ChiPodTimeseriesPlot(CTD_24hz,chidat)
 %%
 
 xls=[min(CTD_24hz.datenum) max(CTD_24hz.datenum)];
-hf=figure(2);clf
+hf=figure;clf
 agutwocolumn(1)
 wysiwyg
 
@@ -64,7 +64,7 @@ else
 end
 ylabel('T [\circ C]')
 xlim(xls)
-ylim([0 30])
+%ylim([0 30])
 datetick('x')
 grid on
 xtloff

@@ -45,7 +45,7 @@ w_from_chipod=w_from_chipod-nanmean(w_from_chipod); % remove mean
 
 if makeplot==1
 % plot:
-figure(1);clf
+figure;clf
 ax1= subplot(2,1,1);
 plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'k',chidat.datenum,w_from_chipod,'r'),hold on
 %ylim(nanmin([nanmax(CTD_24hz.dpdt_hp(:)) nanmax(w_from_chipod(:)) 1.5])*[-1 1])

@@ -1,15 +1,18 @@
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% MakeResultsTextFile.m
+% MakeResultsTextFile_ChiCalc.m
 %
-% Initialize a text file for results of CTD-chipod processing
+% Initialize a text file for results of CTD-chipod processing 
+%
+% * specifically for the 'DoChiCalc' part of processing *
 %
 % Replaces a bunch of lines in processing script (deletes any files of same
 % name already existing in chi_proc_path).
 % 
+% see also MakeResultsTextFile.m
+%
 %---------------
-% 10/07/15 - AP - apickering@coas.oregonstate.edu - initial coding
-% 10/26/15 - AP - 
+% 10/26/15 - AP - apickering@coas.oregonstate.edu - initial coding
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
@@ -40,8 +43,9 @@ fprintf(fileID,'\n Raw chipod data path: \n');
 fprintf(fileID,[chi_data_path '\n']);
 fprintf(fileID,'\n Processed chipod path: \n');
 fprintf(fileID,[chi_proc_path '\n']);
+fprintf(fileID,['\n ~~~~~~~~~~~~~~~~~~~~~~~~\n']);
 %fprintf(fileID,'\n figure path \n');
 %fprintf(fileID,[chi_fig_path '\n \n']);
-fprintf(fileID,[' \n There are ' num2str(length(CTD_list)) ' CTD files' ]);
+%fprintf(fileID,[' \n There are ' num2str(length(CTD_list)) ' CTD files' ]);
 
 %%

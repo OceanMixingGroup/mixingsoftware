@@ -12,7 +12,7 @@ clear h d
 h = fdesign.bandpass('N,F3dB1,F3dB2',6,0.1,1,1./nanmean(diff(t2*86400)));
 d = design(h,'butter');
 y2 = filtfilt(d.sosMatrix,d.ScaleValues,x2);
-
+%
 y1=interp1(t1,y1,t2);
     
 xx=y1(~isnan(y1+y2)); xx=xx-nanmean(xx);

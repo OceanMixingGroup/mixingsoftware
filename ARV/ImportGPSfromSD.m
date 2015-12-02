@@ -10,6 +10,7 @@ function gps=ImportGPSfromSD(datfilename)
 % Text file made using instructions and code at
 % https://learn.adafruit.com/adafruit-ultimate-gps-logger-shield
 %
+%
 % Columns in file (for $GPRMC strings):
 % 1) NMEA code ($GPRMC)
 % 2) Status code ('V'=void, 'A'=active)
@@ -19,12 +20,11 @@ function gps=ImportGPSfromSD(datfilename)
 % 7) Lon direction (E/W)
 % 8) Speed [kts]
 % 9) Heading [deg] (from gps locations, NOT compass, so only good when moving ~straight)
-%10)
-%11)
-%12)
 %
-%
-% 8 April 2015 - A. Pickering - apickering@coas.oregonstate.edu
+%--------------------------
+% 04/08/15 - A. Pickering - apickering@coas.oregonstate.edu
+% 12/01/15 - AP - Convert speed to m/s here to avoid mistakes later.
+%   - Also rename declat/declon to just lat/lon
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %% Initialize variables.
 
@@ -158,8 +158,8 @@ end
 % degrees, for example '4522.30' is 45 deg, 22.30 mins
 % Lon is 'DDDMM.MM'
 
-gps.declat=nan*ones(size(Date));
-gps.declon=nan*ones(size(Date));
+gps.lat=nan*ones(size(Date));
+gps.lon=nan*ones(size(Date));
 
 for a=1:length(Date)
     
@@ -171,21 +171,24 @@ for a=1:length(Date)
         minlat=rawlat(3:end);
         
         % make decimal lat
-        gps.declat(a)=str2num(deglat) + str2num(minlat)/60;
+        gps.lat(a)=str2num(deglat) + str2num(minlat)/60;
         
         rawlon=Lon{a};
         deglon=rawlon(1:3);
         minlon=rawlon(4:end);
         
         % make decimal lon
-        gps.declon(a)=str2num(deglon) + str2num(minlon)/60;
+        gps.lon(a)=str2num(deglon) + str2num(minlon)/60;
     end
 end
 
 %%
 
-gps.Speed=Speed;
+% convert speed from kts to m/s
+gps.Speed=Speed*0.51444;
+%
 gps.Heading=Heading;
+gps.Note='Speed in m/s'
 gps.MakeInfo=['Made ' datestr(now) ' w/ ' mfilename]
 gps.DataSource=datfilename;
 
@@ -195,23 +198,28 @@ gps.DataSource=datfilename;
 figure(1);clf
 agutwocolumn(1)
 wysiwyg
+
 ax1=subplot(411)
-plot(gps.dnum,gps.declat);datetick('x')
+plot(gps.dnum,gps.lat);datetick('x')
 ylabel('Latitude')
-%title(['Yaquina Bay April 2 2015'])
+grid on
+title(datfilename)
 
 ax2=subplot(412)
-plot(gps.dnum,gps.declon);datetick('x')
+plot(gps.dnum,gps.lon);datetick('x')
 ylabel('Longitude')
+grid on
 
 ax3=subplot(413)
 plot(gps.dnum,gps.Speed);datetick('x')
-ylabel('Speed [kts]')
+ylabel('Speed [m/s]')
+grid on
 
 ax4=subplot(414)
 plot(gps.dnum,gps.Heading,'.');datetick('x')
 ylabel('Heading [^o]')
 xlabel(['Time on ' datestr(floor(nanmean(gps.dnum)))])
+grid on
 %
 linkaxes([ax1 ax2 ax3 ax4],'x')
 

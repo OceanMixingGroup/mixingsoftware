@@ -105,8 +105,7 @@ if exist([dpath filesep 'transfer_fcn' filesep 'transfer_functions.mat'])
     trans_fcn1=1;
     trans_fcn2=1;
 else
-    disp('Transfer function not found.')
-    disp('Use default: filter order 2, cutoff frequency 32')
+    disp('Using default transfer function: filter order 2, cutoff frequency 32')
     trans_fcn=0;
     trans_fcn1=0;
     trans_fcn2=0;
@@ -218,7 +217,7 @@ for itime=1:niter
         if length(id)>5
             
             % tstart is 1 min before avg.time(ik) and tend is 1min after
-            % avg.time(ik)
+            % avg.time(ik) (for calculating dT/dz only)
             tstart = avg.time(ik)-60/24/3600;
             tend   = avg.time(ik)+60/24/3600;
             
@@ -276,13 +275,15 @@ for itime=1:niter
                 
             % case with different header versions  (timing indices have to 
             % be calculated differently than above). Find means, etc.
+            % header version 80 (RAMA13, etc) is covered by this else statement
             else
                 % calculate time index
                 idfast=id;
-                id=floor(idfast(1)/head.oversample(head.sensor_index.T1)) + ...
-                    1:floor((1+idfast(end))/head.oversample(head.sensor_index.T1));
-                idslow=floor(idfast(1)/head.oversample(head.sensor_index.CMP)) + ...
-                    1:floor((1+idfast(end))/head.oversample(head.sensor_index.CMP));
+                id=floor(idfast(1)/head.oversample(head.sensor_index.T1))+1:...
+                    floor((1+idfast(end))/head.oversample(head.sensor_index.T1));
+                
+                idslow=floor(idfast(1)/head.oversample(head.sensor_index.CMP))+1:...
+                    floor((1+idfast(end))/head.oversample(head.sensor_index.CMP));
                 
                 % calculate dT/dz from chipod temperature
                 avg.dT1dz(ik)=get_dTdz_byslope(cal.DEPTH,cal.T1,cal.time_acc,tstart,tend);
@@ -405,7 +406,9 @@ for itime=1:niter
             % determine that dTdz is larger than the minium acceptible value, 
             % and that alpha and fspd are within acceptible ranges. If they
             % are not, chi1 is left as NaN.
-            if avg.fspd(ik) >= 0.04 && alpha1>0 && abs(dTdz)>min_dTdz
+%             if avg.fspd(ik) >= 0.04 && alpha1>0 && abs(dTdz)>min_dTdz 
+            if avg.fspd(ik) >= 0.04 && alpha1>0 && dTdz>min_dTdz 
+                % (sjw 2016/01/13) removed the abs statement, otherwise imaginary values of chi are calcuated
 
                 % calculate psd of dT/dt (apply a correction if coef is ~=0)
                 if head.coef.T1P(3)~=0
@@ -480,7 +483,9 @@ for itime=1:niter
                 thermistor_filter_order=2;
                 thermistor_cutoff_frequency=32;
             end
-            if avg.fspd(ik) >= 0.04 && alpha2>0 && abs(dTdz)>min_dTdz
+%             if avg.fspd(ik) >= 0.04 && alpha2>0 && abs(dTdz)>min_dTdz
+            if avg.fspd(ik) >= 0.04 && alpha2>0 && dTdz>min_dTdz
+                 % (sjw 2016/01/13) removed the abs statement, otherwise imaginary values of chi are calcuated
                 if head.coef.T2P(3)~=0
                     [tp_power,freq]=fast_psd(cal.T2Pt(idfast),nfft,samplerate);%psd of dT/dt
                     tp_power=tp_power./(10.^(head.coef.T2P(3).*log10(freq)+head.coef.T2P(4)));
@@ -513,9 +518,11 @@ for itime=1:niter
             %%%%%%%%%%%%%%%%%%%%%% END chi2 %%%%%%%%%%%%%%%%%%%%%%
             
             
-            % print time step and chi1 and chi2 to screen
-            if round((ik-1)/120)==(ik-1)/120
-                disp([datestr(avg.time(ik)),', chi1=' num2str(avg.chi1(ik))...
+            % print time step, dT/dz, chi1 and chi2 to screen every minute
+            if round((ik-1)/60)==(ik-1)/60
+                disp([datestr(avg.time(ik)),...
+                    ', dT/dz=' num2str(dTdz)...
+                    ', chi1=' num2str(avg.chi1(ik))...
                     ', chi2=' num2str(avg.chi2(ik))])
             end
         end

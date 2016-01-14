@@ -86,6 +86,10 @@ end
 %% calcualte chipod motion and current speeds
 
 % calculate accelerometer time
+% (sjw 1/2016) Note, it is OKAY that with older 120 Hz chipods (version48)
+% cal.time_acc is at 120Hz (frequency of T1P, T2P, AX, AY, Ax, etc.; cal.time at 10 Hz), 
+% whereas for the newer chipods (version80) cal.time_acc is at 50Hz
+% (frequency of AX, AY, AZ) and not at 100Hz (frequency of T1P, T2P and time)
 if any(head.version==[16 32 48 64])
     cal.time_acc=interp1(1:length(cal.time),cal.time,[1:length(cal.AX)]/...
         head.submax_oversample,'linear','extrap');

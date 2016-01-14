@@ -63,6 +63,8 @@ fnam=[pname,preffix,dfs(id(1),:),'.',num2str(unit)];
 
 
 %% load the correct file
+% dat is the data from each file that has been loaded
+% dt is the concatenation of all loaded files
 
 if exist(fnam,'file') == 2
     [dat,head]=raw_load_chipod(fnam);
@@ -72,6 +74,7 @@ if exist(fnam,'file') == 2
         [dat,head]=eval(['clean_raw_chipod_' dpl '(dat,head,unit)']);
     end
     names=fieldnames(dat);
+    % change orientation of variables
     for ii=1:length(names)
         dt.(char(names(ii)))=dat.(char(names(ii)))';
     end
@@ -154,19 +157,79 @@ if ~isempty(dt.datenum)
                 data.(char(names(i)))=dt.(char(names(i)))(idfast);
             end
         end
+        
+    elseif head.version == 80 % RAMA13
+
+    % get index that matches T1, T2, AX, AY, AZ, W1, W, etc
+        idslow=floor(idt(1)/head.oversample(head.sensor_index.T1)) + ...
+            1:floor((1+idt(end))/head.oversample(head.sensor_index.T1));
+        % get index that matches CMP
+        idslow2=floor(idt(1)/head.oversample(head.sensor_index.CMP)) + ...
+            1:floor((1+idt(end))/head.oversample(head.sensor_index.CMP));
+        % rematch the time index
+        idt=idslow(1)*head.oversample(head.sensor_index.T1) - ...
+            1:(1+idslow(end))*head.oversample(head.sensor_index.T1)-2;
+        
+        % extract all variables over the correct indices
+        for i=1:length(names)
+            % extract variables that are collected at the same freq as datenum
+            if length(dat.datenum)>=length(dat.(char(names(i))))-20 && ...
+                    length(dat.datenum)<=length(dat.(char(names(i))))+20
+                data.(char(names(i)))=dt.(char(names(i)))(idt);
+            % extract variables that are collected at the same rate as T1
+            elseif length(dat.datenum)>=head.oversample(head.sensor_index.T1)*...
+                    length(dat.(char(names(i))))-20 && ...
+                    length(dat.datenum)<=head.oversample(head.sensor_index.T1)*...
+                    length(dat.(char(names(i))))+20
+                data.(char(names(i)))=dt.(char(names(i)))(idslow);
+            % extract variables that are collected at the same rate as CMP
+            elseif length(dat.datenum)>=head.oversample(head.sensor_index.CMP)*...
+                    length(dat.(char(names(i))))-20 && ...
+                    length(dat.datenum)<=head.oversample(head.sensor_index.CMP)*...
+                    length(dat.(char(names(i))))+20
+                data.(char(names(i)))=dt.(char(names(i)))(idslow2);
+            end
+        end
+        % (sjw) In newer version of chipods, there are lots of extraneous
+        % fields that are saved like R1, R2, R3, R4, VA, MK0, MK1, QUE, VD,
+        % MK5 and MK6. We don't need to include these in 'data'. The above 
+        % step removes these fields (because they are saved at weird
+        % intervals). But here now they need to be skipped also, so need a
+        % new fieldnames variable called 'namesgood'. (If these variables are
+        % collected at regular intervals, they will be included in 'data')
+        namesgood = fieldnames(data);
+        for i=1:length(namesgood)
+            if length(data.(char(namesgood(i))))==length(idslow)
+                data.(char(namesgood(i)))=data.(char(namesgood(i)))(1:10*length(idslow2));
+            elseif length(data.(char(namesgood(i))))==length(idt)
+                data.(char(namesgood(i)))=data.(char(namesgood(i)))(1:20*length(idslow2));
+            end
+        end
+        
     else
-        idslow=floor(idt(1)/head.oversample(head.sensor_index.T1))+1:floor((1+idt(end))/head.oversample(head.sensor_index.T1));
-        idslow2=floor(idt(1)/head.oversample(head.sensor_index.CMP))+1:floor((1+idt(end))/head.oversample(head.sensor_index.CMP));
-        idt=idslow(1)*head.oversample(head.sensor_index.T1)-1:(1+idslow(end))*head.oversample(head.sensor_index.T1)-2;
+        % get index that matches T1, T2, AX, AY, AZ, W1, W, etc
+        idslow=floor(idt(1)/head.oversample(head.sensor_index.T1)) + ...
+            1:floor((1+idt(end))/head.oversample(head.sensor_index.T1));
+        % get index that matches CMP
+        idslow2=floor(idt(1)/head.oversample(head.sensor_index.CMP)) + ...
+            1:floor((1+idt(end))/head.oversample(head.sensor_index.CMP));
+        % rematch the time index
+        idt=idslow(1)*head.oversample(head.sensor_index.T1) - ...
+            1:(1+idslow(end))*head.oversample(head.sensor_index.T1)-2;
+        % extract all variables over the correct indices
         for i=1:length(names)
             if length(dat.datenum)>=length(dat.(char(names(i))))-20 && ...
                     length(dat.datenum)<=length(dat.(char(names(i))))+20
                 data.(char(names(i)))=dt.(char(names(i)))(idt);
-            elseif length(dat.datenum)>=head.oversample(head.sensor_index.T1)*length(dat.(char(names(i))))-20 && ...
-                    length(dat.datenum)<=head.oversample(head.sensor_index.T1)*length(dat.(char(names(i))))+20
+            elseif length(dat.datenum)>=head.oversample(head.sensor_index.T1)*...
+                    length(dat.(char(names(i))))-20 && ...
+                    length(dat.datenum)<=head.oversample(head.sensor_index.T1)*...
+                    length(dat.(char(names(i))))+20
                 data.(char(names(i)))=dt.(char(names(i)))(idslow);
-            elseif length(dat.datenum)>=head.oversample(head.sensor_index.CMP)*length(dat.(char(names(i))))-20 && ...
-                    length(dat.datenum)<=head.oversample(head.sensor_index.CMP)*length(dat.(char(names(i))))+20
+            elseif length(dat.datenum)>=head.oversample(head.sensor_index.CMP)*...
+                    length(dat.(char(names(i))))-20 && ...
+                    length(dat.datenum)<=head.oversample(head.sensor_index.CMP)*...
+                    length(dat.(char(names(i))))+20
                 data.(char(names(i)))=dt.(char(names(i)))(idslow2);
             end
         end
@@ -177,6 +240,7 @@ if ~isempty(dt.datenum)
                 data.(char(names(i)))=data.(char(names(i)))(1:20*length(idslow2));
             end
         end
+
     end
 else
     data=[];head=[];

@@ -61,3 +61,20 @@ theta=atan2(moor.u,moor.v).*180./pi;
 idtheta=find(theta<0);
 theta(idtheta)=theta(idtheta)+360;
 moor.dir=theta;
+
+% change Nsq to N2
+if isfield(moor,'Nsq')
+    moor.N2 = moor.Nsq;
+    moor = rmfield(moor,'Nsq');
+end
+
+% remove density, temperature and salinity fields if they exist
+if isfield(moor,'T')
+    moor = rmfield(moor,'T');
+end
+if isfield(moor,'rho')
+    moor = rmfield(moor,'rho');
+end
+if isfield(moor,'S')
+    moor = rmfield(moor,'S');
+end

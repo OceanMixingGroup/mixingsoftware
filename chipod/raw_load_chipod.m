@@ -57,15 +57,17 @@ if head.version==80; % Chipod2
         head.offset(n) = fread(fid, 1, 'uint16=>double');
         head.das_channel_num(n) = fread(fid, 1, 'uint16=>double');
         head.sensor_id(n,1:12) = fread(fid, 12, 'char=>char')';
-        head.coef.(head.sensor_name(n,1:5))=fread(fid,5,'float32=>double');
-        head.sensor_index.(head.sensor_name(n,:))=n;
-    end
+         head.coef.(head.sensor_name(n, regexpi(head.sensor_name(n,1:5),'\w'))) = ...
+               fread(fid,5,'float32=>double');
+         head.sensor_index.(head.sensor_name(n, regexpi(head.sensor_name(n,:),'\w'))) = n;
+    end 
     head.samplerate=head.primary_sample_rate./head.oversample;
     head.submax_oversample=max(setdiff(head.oversample,20));
     head.slow_samp_rate=min(head.samplerate);
     head.modulas=head.samplerate./head.slow_samp_rate;
     for n = 1:head.maxsensors
-        head.irep.(head.sensor_name(n,:))=head.samplerate(n)./head.slow_samp_rate;
+         head.irep.(head.sensor_name(n, regexpi(head.sensor_name(n,:),'\w')))  = ...
+               head.samplerate(n)./head.slow_samp_rate;
     end
     status = fseek(fid,76*(head.numberchannels-head.maxsensors),'cof');
     head.filename=fread(fid,32, 'char=>char')';
@@ -102,7 +104,9 @@ if head.version==80; % Chipod2
 %         +max(head.modulas)./head.modulas;
     rate=11*head.primary_sample_rate./head.samplerate;
     for ii=1:head.maxsensors
-        data.(head.sensor_name(ii,:))=dta(offset(ii):rate(ii):end);
+          data.(head.sensor_name(ii, regexpi(head.sensor_name(ii,:),'\w'))) = ...
+             dta(offset(ii):rate(ii):end);
+
     end
     names=fieldnames(data);
     % do not convert following signals
@@ -132,15 +136,17 @@ elseif head.version==96; % MPChipod2
         head.offset(n) = fread(fid, 1, 'uint16=>double');
         head.das_channel_num(n) = fread(fid, 1, 'uint16=>double');
         head.sensor_id(n,1:12) = fread(fid, 12, 'char=>char')';
-        head.coef.(head.sensor_name(n,1:5))=fread(fid,5,'float32=>double');
-        head.sensor_index.(head.sensor_name(n,:))=n;
+         head.coef.(head.sensor_name(n, regexpi(head.sensor_name(n,1:5),'\w'))) = ...
+               fread(fid,5,'float32=>double');
+         head.sensor_index.(head.sensor_name(n, regexpi(head.sensor_name(n,:),'\w'))) = n;
     end
     head.samplerate=head.primary_sample_rate./head.oversample;
     head.submax_oversample=max(setdiff(head.oversample,20));
     head.slow_samp_rate=min(head.samplerate);
     head.modulas=head.samplerate./head.slow_samp_rate;
     for n = 1:head.maxsensors
-        head.irep.(head.sensor_name(n,:))=head.samplerate(n)./head.slow_samp_rate;
+         head.irep.(head.sensor_name(n, regexpi(head.sensor_name(n,:),'\w')))  = ...
+               head.samplerate(n)./head.slow_samp_rate;
     end
     status = fseek(fid,76*(head.numberchannels-head.maxsensors),'cof');
     head.filename=fread(fid,32, 'char=>char')';

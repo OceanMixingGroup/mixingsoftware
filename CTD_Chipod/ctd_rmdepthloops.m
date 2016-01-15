@@ -1,7 +1,7 @@
 function [data,loop_inds] = ctd_rmdepthloops(data,extra_z,wthresh)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % function [data,loop_inds] = ctd_rmdepthloops(data,extra_z,wthresh)
-% 
+%
 % Eliminate depth loops in CTD data.
 %
 % INPUT

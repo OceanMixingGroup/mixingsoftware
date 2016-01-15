@@ -1,4 +1,4 @@
-function big=load_chipod_data(the_path,time_range,suffix,isbig,plotit)
+function big=load_chipod_data(the_path,time_range,suffix,isbig,plotit,bad_file_list)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % function big=load_chipod_data(the_path,time_range,suffix,isbig)
@@ -28,9 +28,10 @@ function big=load_chipod_data(the_path,time_range,suffix,isbig,plotit)
 % calls mixingsoftware/adcp/mergefields_jn.m
 % notes:
 %
-%
+%--------------------------
 % Original - J. Nash, J. Marion?
 % Comments and updates by A. Pickering
+% 12/14/15 - AP - Add option to give list of bad files to skip
 %%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
@@ -43,8 +44,35 @@ if nargin<5
     plotit=0;
 end
 
+if nargin<6
+    check_bad_files=0;
+else
+    check_bad_files=1;
+end
+
 
 the_files=dir([the_path '/*.' suffix]);
+%%
+%check_bad_files=1;
+
+% remove bad files from list if specified
+if check_bad_files==1
+    binds=[];
+    for ifile=1:length(the_files)
+        clear ib
+        ib=strcmp(the_files(ifile).name,bad_file_list);
+        if any(ib)
+            binds=[binds ifile];
+        end
+    end
+    all_inds=1:length(the_files);
+    ginds=setdiff(all_inds,binds);
+    the_files=the_files(ginds);
+    clear ginds all_inds
+    
+end
+
+%%
 %t_extra=2;%
 t_extra=24;% AP
 if isbig==1
@@ -57,6 +85,7 @@ fcount=1;
 for a=1:nfiles
     a;%
     fname=the_files(a).name;
+    
     time_inds=findstr(fname,'.')+[-8:-1];
     file_time=fname(time_inds);
     
@@ -194,7 +223,7 @@ if plotit==1
             xlabel(['Time on ' datestr(floor(nanmin(chidat.datenum))) ])
             linkaxes(ax,'x')
             
-%            linkaxes([ax(2) ax(3)],'y')
+            %            linkaxes([ax(2) ax(3)],'y')
             
         else
             figure;clf

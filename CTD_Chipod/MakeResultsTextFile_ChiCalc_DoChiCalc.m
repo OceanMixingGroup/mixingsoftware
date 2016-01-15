@@ -1,6 +1,6 @@
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% MakeResultsTextFile_ChiCalc.m
+% MakeResultsTextFile_ChiCalc_DoChiCalc.m
 %
 % Initialize a text file for results of CTD-chipod processing 
 %
@@ -17,7 +17,7 @@
 %%
 
 % make a text file to print a summary of results to
-txtfname=['Results' datestr(floor(now)) '.txt'];
+txtfname=['DoChiCalc_Results' datestr(floor(now)) '.txt'];
 
 if exist(fullfile(chi_proc_path,txtfname),'file')==2
     % results file for this day exists, append a # to it to make new file

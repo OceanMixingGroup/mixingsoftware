@@ -11,8 +11,9 @@
 %
 % Calls: MakeCtdChiWindows.m
 %
-%------------
+%----------------
 % 10/26/15 - AP - Initial coding
+% 01/03/16 - AP - Modify for files saved as separate upcasts/downcasts
 %~~~~~~~~~~~~~~~~~~~~~~
 %%
 
@@ -68,9 +69,9 @@ for iSN=1:length(ChiInfo.SNs)
             close all
             
             if ChiInfo.(whSN).isbig==1 && do_T2_big==1
-                Ncasestodo=4;
-            else
                 Ncasestodo=2;
+            else
+                Ncasestodo=1;
             end
             
             whfig=6; % # for figure filename, so they can be viewed in order in Finder
@@ -81,34 +82,42 @@ for iSN=1:length(ChiInfo.SNs)
                 close all
                 switch whcasetodo
                     
-                    case 1 % downcast T1
-                        clear ctd chi_todo_now
-                        % ~~ Choose which dT/dt to use (for mini
-                        % chipods, only T1P. For big, we will do T1P
-                        % and T2P).
+                    % do T1
+                    case 1
                         whsens='T1';
-                        castdir='down';
-                        disp('Doing T1 downcast')
-                    case 2 % upcast T1
-                        clear avg ctd chi_todo_now
-                        whsens='T1';
-                        castdir='up';
-                        disp('Doing T1 upcast')
-                    case 3 %downcast T2
-                        clear ctd chi_todo_now
+                        
+                        % do T2
+                    case 2
                         whsens='T2';
-                        castdir='down';
-                        disp('Doing T2 downcast')
-                    case 4 % upcast T2
-                        clear avg ctd chi_todo_now
-                        whsens='T2';
-                        castdir='up';
-                        disp('Doing T2 upcast')
                 end
+%                     case 1 % downcast T1
+%                         clear ctd chi_todo_now
+%                         % ~~ Choose which dT/dt to use (for mini
+%                         % chipods, only T1P. For big, we will do T1P
+%                         % and T2P).
+%                         whsens='T1';
+%                         castdir='down';
+%                         disp('Doing T1 downcast')
+%                     case 2 % upcast T1
+%                         clear avg ctd chi_todo_now
+%                         whsens='T1';
+%                         castdir='up';
+%                         disp('Doing T1 upcast')
+%                     case 3 %downcast T2
+%                         clear ctd chi_todo_now
+%                         whsens='T2';
+%                         castdir='down';
+%                         disp('Doing T2 downcast')
+%                     case 4 % upcast T2
+%                         clear avg ctd chi_todo_now
+%                         whsens='T2';
+%                         castdir='up';
+%                         disp('Doing T2 upcast')
+%                end
                 
                 fprintf(fileID,['\n----\n' castdir 'cast, sensor ' whsens]);
                 
-                %-- load appropriate data for this case
+                %-- load data
                 clear fname castfile id1
                 castfile=Flist(icast).name;
                 id1=strfind(castfile,['_' whSN]);

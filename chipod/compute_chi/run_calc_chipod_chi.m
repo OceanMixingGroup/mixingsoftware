@@ -131,7 +131,7 @@ for itime=1:niter
     
     % load in the data from individual raw data files (calibrated and
     % converted from voltages to the real units in cal
-    [cal,data,head]=get_chipod_cals(dpath,dpl,unit,ts,tf,depth,...
+    [cal,~,head]=get_chipod_cals(dpath,dpl,unit,ts,tf,depth,...
         hpf_cutoff,use_n2,time_offset);
     
     % load in other raw files if needed to get files in the correct time
@@ -139,10 +139,10 @@ for itime=1:niter
     while isempty(cal) && itime<=niter
         ts=ts+dt;tf=ts+dt;
         itime=itime+1;
-        [cal,data,head]=get_chipod_cals(dpath,dpl,unit,ts,tf,depth,...
+        [cal,~,head]=get_chipod_cals(dpath,dpl,unit,ts,tf,depth,...
             hpf_cutoff,use_n2,time_offset);
     end
-    clear data avg
+    clear avg
     
     % create time vector (even 1s spacing between ts and tf)
     avg.time=ts+1/86400:1/86400:tf;

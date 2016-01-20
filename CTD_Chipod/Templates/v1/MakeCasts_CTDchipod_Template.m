@@ -34,11 +34,11 @@ Load_chipod_paths_TestData
 
 %*** Load chipod deployment info
 Chipod_Deploy_Info_template
-%
-% Make a list of all ctd files
+
+% Make a list of all ctd files we have
 CTD_list=dir(fullfile(CTD_out_dir_24hz,['*' ChiInfo.CastString '*.mat*']));
 disp(['There are ' num2str(length(CTD_list)) ' CTD casts to process in ' CTD_out_dir_24hz])
-%
+
 % make a text file to print a summary of results to
 MakeResultsTextFile
 %

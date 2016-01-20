@@ -147,7 +147,7 @@ for a=1:length(Date)
     rawdate=Date{a};
 %    blah=datevec(now);
 %    thisyear=blah(1)
-    if str2num(rawdate(5:6))==15 % only save data from current year
+    if str2num(rawdate(5:6))==15 || str2num(rawdate(5:6))==16 % only save data from current year
         gps.dnum(a)=datenum(str2num(['20' rawdate(5:6)]),str2num(rawdate(3:4)),str2num(rawdate(1:2)),str2num(rawtime(1:2)),str2num(rawtime(3:4)),str2num(rawtime(5:10)));
     end
 end

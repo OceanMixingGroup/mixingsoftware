@@ -1,6 +1,6 @@
 function out=calibrate_chipod_dtdt(tp,coeff_tp,t,coeff_t)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% function out=calibrate_tp(tp,coeff_tp,t,coeff_t,fspd)
+% function out=calibrate_tp(tp,coeff_tp,t,coeff_t)
 %
 % This function does a polynomial calibration on the
 % vector tp with time constant given in coeff_tp, dc time series
@@ -15,6 +15,7 @@ function out=calibrate_chipod_dtdt(tp,coeff_tp,t,coeff_t)
 % OUTPUT
 % out      : The calibrated TP
 %
+%------------------
 % Original - J. Nash?
 % Commented and cleaned up 11 June 2015 - A. Pickering
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

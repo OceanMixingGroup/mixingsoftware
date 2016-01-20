@@ -132,7 +132,7 @@ for b=1:n_iterations
     %  freq=tp_freq';
     chi_part= 6*tdif* integrate(f_start,f_stop,freq',spec_time','inclusive');
     chi=chi_part;
-    if isnan(chi)
+    if(isnan(chi) || chi==0) % additional catch for chi==0, associated to a zero spectrum
         epsil=NaN;k_kraich=NaN;spec_kraich=NaN;
         stats.k_start=NaN;
         stats.k_stop=NaN;

@@ -1,14 +1,19 @@
 function ax=ChiPodTimeseriesPlot(CTD_24hz,chidat)
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% function h=ChiPodTimeseriesPlot(CTD_24hz,chidat)
+% function ax=ChiPodTimeseriesPlot(CTD_24hz,chidat)
 %
+% Function to make a summary plot of chipod data.
 %
-% July 13, 2015 - A. Pickering - apickering@coas.oregonstate.edu
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Part of CTD-chipod processing routines.
+%
+%----------------------------
+% 07/13/15 - A. Pickering - apickering@coas.oregonstate.edu
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
 xls=[min(CTD_24hz.datenum) max(CTD_24hz.datenum)];
+
 hf=figure;clf
 agutwocolumn(1)
 wysiwyg
@@ -64,7 +69,6 @@ else
 end
 ylabel('T [\circ C]')
 xlim(xls)
-%ylim([0 30])
 datetick('x')
 grid on
 xtloff
@@ -72,10 +76,6 @@ xtloff
 %
 axes(ax(5))
 plot(chidat.datenum,chidat.cal.T1P)
-% hold on
-% if chidat.Info.isbig
-%     plot(chidat.datenum,chidat.cal.T2P+.01)
-% end
 ylabel('dT/dt [K/s]')
 xlim(xls)
 ylim(1*[-1 1])
@@ -85,23 +85,18 @@ gridxy
 SubplotLetterMW('T1P')
 %
 if chidat.Info.isbig
-
-axes(ax(6))
-plot(chidat.datenum,chidat.cal.T2P)
-ylabel('dT/dt [K/s]')
-xlim(xls)
-ylim(1*[-1 1])
-datetick('x')
-grid on
-gridxy
-SubplotLetterMW('T2P')
-
-%linkaxes([ax(5) ax(6)])
+    
+    axes(ax(6))
+    plot(chidat.datenum,chidat.cal.T2P)
+    ylabel('dT/dt [K/s]')
+    xlim(xls)
+    ylim(1*[-1 1])
+    datetick('x')
+    grid on
+    gridxy
+    SubplotLetterMW('T2P')
+    
 end
-
-%xlabel(['Time on ' datestr(time_range(1),'dd-mmm-yyyy')])
-
-%
 
 
 linkaxes(ax,'x');

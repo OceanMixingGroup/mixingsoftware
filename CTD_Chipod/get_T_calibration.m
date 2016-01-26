@@ -18,6 +18,7 @@ function [coef,out]=get_T_calibration(ref_time,ref_T,raw_time,raw_T)
 % coef : Coefficients of polynomial fit
 % out  : The fit (ie the 'calibrated' temperature)
 %
+%------------------------
 % Original - J. Nash?
 % Commented and cleaned up 26 Mar 2015 - A. Pickering
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,13 +27,12 @@ function [coef,out]=get_T_calibration(ref_time,ref_T,raw_time,raw_T)
 % interpolate raw data to ref time
 raw_T_star=interp1(raw_time,raw_T,ref_time);
 
-% 
+%
 b=regress(ref_T,[ones(size(raw_T_star)) raw_T_star raw_T_star.^2 raw_T_star.^3]);
 
 out=b(1)+raw_T*b(2)+raw_T.^2*b(3)+raw_T.^3*b(4);
 
 coef=[b' 1];
 
-%	plot(ref_time,ref_T,raw_time,out);
 
 %%

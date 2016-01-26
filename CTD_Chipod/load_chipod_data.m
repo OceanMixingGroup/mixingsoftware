@@ -1,17 +1,20 @@
 function big=load_chipod_data(the_path,time_range,suffix,isbig,plotit,bad_file_list)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% function big=load_chipod_data(the_path,time_range,suffix,isbig)
+% function big=load_chipod_data(the_path,time_range,suffix,isbig,plotit,bad_file_list)
 %
 % Load chipod data for a specified time range. If time range spans multiple
-% chipod files, get data from both and combine.
+% chipod files, get data from both and combine. The chipod file name
+% contains a timestamp that is used to find the right files for a given
+% time range.
 %
 % INPUT
 % the_path   : Path to folder containing chipod data files
-% time_range : Time range of ctd profile (datenum)
+% time_range : Time range of ctd profile (datenum format)
 % suffix     : Suffix for chipod filenames (usually the chipod SN)
 % isbig      : Specify if 'big' chipod (data structure is different)
 % plotit     : Option to plot data
+% bad_file_list: Optional list of bad files to ignore.
 %
 % OUTPUT
 % big        : Structure with chipod data for this time range
@@ -26,7 +29,6 @@ function big=load_chipod_data(the_path,time_range,suffix,isbig,plotit,bad_file_l
 %
 % Dependencies:
 % calls mixingsoftware/adcp/mergefields_jn.m
-% notes:
 %
 %--------------------------
 % Original - J. Nash, J. Marion?
@@ -50,10 +52,7 @@ else
     check_bad_files=1;
 end
 
-
 the_files=dir([the_path '/*.' suffix]);
-%%
-%check_bad_files=1;
 
 % remove bad files from list if specified
 if check_bad_files==1
@@ -72,8 +71,7 @@ if check_bad_files==1
     
 end
 
-%%
-%t_extra=2;%
+%
 t_extra=24;% AP
 if isbig==1
     t_extra=24;
@@ -82,6 +80,8 @@ nfiles=length(the_files);
 big=[];
 fnamelist={} ; % list of chipod files for this time range
 fcount=1;
+
+% loop through files and find any in the specified time range
 for a=1:nfiles
     a;%
     fname=the_files(a).name;
@@ -94,7 +94,6 @@ for a=1:nfiles
         
         % we've got the right file, so let's load it.
         fname=fullfile(the_path,the_files(a).name);
-        %        disp('found a file')
         
         % save the filename
         fnamelist{fcount}=the_files(a).name;
@@ -150,20 +149,18 @@ for a=1:nfiles
             big=mergefields_jn(big,chidat,1,1);
         catch
         end
-        %	else
-        % do nothing.
+        
     else
         %        disp('didnt find any files in time range');
     end
     
-end
+end % loop though files
 
 if isempty(big)
     big.datenum=NaN;
     big.fname='Did not find any files';
 end
 
-%datestr([big.datenum(1) big.datenum(end)])
 ginds=find(big.datenum>time_range(1) & big.datenum<time_range(2));
 fnames=fieldnames(big);
 for a=1:length(fnames)
@@ -171,6 +168,7 @@ for a=1:length(fnames)
 end
 
 big.MakeInfo=['Made ' datestr(now) ' w/ ' mfilename ' in ' version];
+
 % also save name of chi file data is from - AP
 big.chi_files=fnamelist;
 
@@ -223,9 +221,8 @@ if plotit==1
             xlabel(['Time on ' datestr(floor(nanmin(chidat.datenum))) ])
             linkaxes(ax,'x')
             
-            %            linkaxes([ax(2) ax(3)],'y')
-            
         else
+            
             figure;clf
             agutwocolumn(1)
             wysiwyg

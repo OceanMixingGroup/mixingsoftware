@@ -20,17 +20,19 @@ function out=calibrate_chipod_dtdt(tp,coeff_tp,t,coeff_t)
 % Commented and cleaned up 11 June 2015 - A. Pickering
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
+
 if size(t,2)==2
-  t=ch(t);
+    t=ch(t);
 end
 if size(tp,2)==2
-  tp=ch(tp);
+    tp=ch(tp);
 end
+
 ltp=length(tp);
 t=makelen(t,ltp);
 warning off
 tp=tp-nanmedian(tp);
-out=-(coeff_t(2)+2*coeff_t(3)*t+3*coeff_t(4)*t.^2).*tp ... 
+out=-(coeff_t(2)+2*coeff_t(3)*t+3*coeff_t(4)*t.^2).*tp ...
     ./coeff_tp;
 
 %out=coeff_t(2).*tp./coeff_tp;

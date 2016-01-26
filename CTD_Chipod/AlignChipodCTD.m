@@ -1,15 +1,18 @@
 function [CTD_24hz chidat]=AlignChipodCTD(CTD_24hz,chidat,az_correction,makeplot)
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% function [CTD_raw chidat]=AlignChipodCTD.m
+% function [CTD_24hz chidat]=AlignChipodCTD(CTD_24hz,chidat,az_correction,makeplot)
 %
-% For CTD chipod processing
+% Function to align chipod data with CTD. Finds time offset to best align
+% dp/dt from CTD with w from chipod (estimated by integrating vertical
+% acceleration).
 %
-% Function to align chipod data with CTD.
+% Part of CTD-chipod processing routines. Calls function TimeOffset.m
+%
 %
 % INPUT
-% CTD_24hz       : 24hz CTD data (includes downcast and upcast)
-% chidat         : Chipod data for this period.
+% CTD_24hz       : 24hz CTD data
+% chidat         : Chipod data structure
 % az_correction  : Correction for accelerometer mounted up/down on Rosette
 % makeplot       : option to make figure
 %
@@ -18,15 +21,17 @@ function [CTD_24hz chidat]=AlignChipodCTD(CTD_24hz,chidat,az_correction,makeplot
 % chidat    : Same, w/ time offset computed and added
 % Also computes fspd (lowpassed dp/dt) and adds to chidat
 %
-% June 14, 2015 - A. Pickering - apickering@coas.oregonstate.edu
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%------------------------------------
+% 06/14/15 - A. Pickering - apickering@coas.oregonstate.edu
+% 01/22/16 - AP - clean up and comment a bit
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
 if ~exist('makeplot','var')
     makeplot=0
 end
- 
-% % low-passed dp/dt
+
+% compute low-passed dp/dt
 CTD_24hz.p_lp=conv2(medfilt1(CTD_24hz.p),hanning(30)/sum(hanning(30)),'same');
 CTD_24hz.dpdt=gradient(CTD_24hz.p_lp,nanmedian(diff(CTD_24hz.datenum*86400)));
 CTD_24hz.dpdt(abs(CTD_24hz.dpdt)>10)=mean(CTD_24hz.dpdt); % JRM added to remove large spike spikes in dpdt
@@ -44,18 +49,18 @@ w_from_chipod=cumsum(tmp2*nanmedian(diff(chidat.datenum*86400)));
 w_from_chipod=w_from_chipod-nanmean(w_from_chipod); % remove mean
 
 if makeplot==1
-% plot:
-figure;clf
-ax1= subplot(2,1,1);
-plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'k',chidat.datenum,w_from_chipod,'r'),hold on
-%ylim(nanmin([nanmax(CTD_24hz.dpdt_hp(:)) nanmax(w_from_chipod(:)) 1.5])*[-1 1])
-ylim([-1 1])
-legend('ctd dp/dt','w_{chi}','orientation','horizontal','location','best')
-%title([castname ' ' short_labs{up_down_big}],'interpreter','none')
-title([chidat.castname ' - SN' chidat.Info.loggerSN ],'interpreter','none')
-ylabel('w [m/s]')
-datetick('x')
-grid on
+    % plot:
+    figure;clf
+    ax1= subplot(2,1,1);
+    plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'k',chidat.datenum,w_from_chipod,'r'),hold on
+    %ylim(nanmin([nanmax(CTD_24hz.dpdt_hp(:)) nanmax(w_from_chipod(:)) 1.5])*[-1 1])
+    ylim([-1 1])
+    legend('ctd dp/dt','w_{chi}','orientation','horizontal','location','best')
+    %title([castname ' ' short_labs{up_down_big}],'interpreter','none')
+    title([chidat.castname ' - SN' chidat.Info.loggerSN ],'interpreter','none')
+    ylabel('w [m/s]')
+    datetick('x')
+    grid on
 end
 
 % Find profile inds for CTD data (ctd profile 'starts' at 10m )
@@ -73,16 +78,16 @@ chidat.datenum=chidat.datenum+offset; %
 chidat.time_offset_correction_used=offset;
 chidat.fspd=interp1(CTD_24hz.datenum,-CTD_24hz.dpdt,chidat.datenum);
 
+% option to plot results
 if makeplot==1
-ax2=subplot(2,1,2);
-plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'k',chidat.datenum,w_from_chipod,'r')
-%ylim(nanmin([nanmax(CTD_24hz.dpdt_hp) 1.5])*[-1 1])
-legend('ctd dp/dt','corrected w_{chi}','orientation','horizontal','location','best')
-title(['time offset=' num2str(offset*86440) 's'])
-grid on
-datetick('x')
-ylabel('w [m/s]')
-linkaxes([ax1 ax2])
+    ax2=subplot(2,1,2);
+    plot(CTD_24hz.datenum,CTD_24hz.dpdt_hp,'k',chidat.datenum,w_from_chipod,'r')
+    legend('ctd dp/dt','corrected w_{chi}','orientation','horizontal','location','best')
+    title(['time offset=' num2str(offset*86440) 's'])
+    grid on
+    datetick('x')
+    ylabel('w [m/s]')
+    linkaxes([ax1 ax2])
 end
-%print('-dpng',[fig_path  'chi_' short_labs{up_down_big} '/cast_' cast_suffix '_w_TimeOffset'])
+
 %%

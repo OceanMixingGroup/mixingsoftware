@@ -23,7 +23,8 @@ function avg=ComputeChi_for_CTDprofile(avg,nfft,fspd,TP,good_inds,todo_inds)
 %
 % Copied from part of process_chipod_script_AP.m
 %
-% May 5, 2015 - A. Pickering - apickering@coas.oregonstate.edu
+%------------------------------
+% 05/05/15 - A. Pickering - apickering@coas.oregonstate.edu
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 

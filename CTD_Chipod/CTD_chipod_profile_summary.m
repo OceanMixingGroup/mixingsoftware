@@ -1,13 +1,13 @@
 function ax=CTD_chipod_profile_summary(avg,chi_todo_now,TP)
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% function h=CTD_chipod_profile_summary(avg,chi_todo_now)
+% function ax=CTD_chipod_profile_summary(avg,chi_todo_now,TP)
 %
-% 
+% Make a summary plot of CTD-chipod processing.
 %
+%--------------------------
 % A. Pickering - apickering@coas.oregonstate.edu
-%
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
 figure;clf
@@ -41,14 +41,11 @@ ytloff
 ylim([0 nanmax(avg.P)])
 gridxy
 
-%interval=50;
 minobs=3;
 
 axes(ax(4))
 plot(log10(avg.chi1),avg.P,'.','color',0.5*[1 1 1]),axis ij
 hold on
-% [xout ]=BinProfiles(avg.chi1,avg.P,interval,0);
-% plot(log10(xout),avg.P,'k','linewidth',3)
 [dataout zout] = binprofile(avg.chi1,avg.P, 0, 10, nanmax(avg.P),minobs);
 plot(log10(dataout),zout,'k')
 xlabel('log_{10}(avg chi)')
@@ -61,8 +58,6 @@ ylim([0 nanmax(avg.P)])
 axes(ax(5))
 plot(log10(avg.KT1),avg.P,'.','color',0.5*[1 1 1]),axis ij
 hold on
-% [xout ]=BinProfiles(avg.KT1,avg.P,interval,0);
-% plot(log10(xout),avg.P,'k','linewidth',3)
 [dataout zout] = binprofile(avg.KT1,avg.P, 0, 10, nanmax(avg.P),minobs);
 plot(log10(dataout),zout,'k')
 axis tight
@@ -75,7 +70,6 @@ ylim([0 nanmax(avg.P)])
 axes(ax(6))
 plot(log10(avg.eps1),avg.P,'.','color',0.5*[1 1 1]),axis ij
 hold on
-%[xout ]=BinProfiles(avg.eps1,avg.P,interval,0);
 [dataout zout] = binprofile(avg.eps1,avg.P, 0, 10, nanmax(avg.P),minobs);
 plot(log10(dataout),zout,'k')
 axis tight

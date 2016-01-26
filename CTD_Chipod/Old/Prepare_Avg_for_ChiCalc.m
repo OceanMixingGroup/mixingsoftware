@@ -1,9 +1,13 @@
 function [avg todo_inds]=Prepare_Avg_for_ChiCalc(nfft,chi_todo_now,ctd)
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% function avg=Prepare_Avg_for_ChiCalc(nfft,chi_todo_now,ctd)
+% function [avg todo_inds]=Prepare_Avg_for_ChiCalc(nfft,chi_todo_now,ctd)
 %
 % Prepare for chi calculation (see ComputeChi_for_CTDprofile.m).
+%
+% NOTE - 01/21/16 - AP - This was part of older original processing
+% routines. 
+%
 %
 % INPUT
 % nfft          : # points to use for chi calculation
@@ -17,8 +21,9 @@ function [avg todo_inds]=Prepare_Avg_for_ChiCalc(nfft,chi_todo_now,ctd)
 % todo_inds     : Indices of chipod data to do caluclation for (depends on
 % nfft).
 %
-% May 11, 2015 - A. Pickering - apickering@coas.oregonstate.edu
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%----------------------------
+% 05/11/15 - A. Pickering - apickering@coas.oregonstate.edu
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 % make a structure 'avg' that will contain the results
 % of chi computed in overlapping windows

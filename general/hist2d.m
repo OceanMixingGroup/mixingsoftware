@@ -1,5 +1,5 @@
-function [hist,mn,mdn,md]=twodhist(timebins,valuebins,timein,timelogbool,signalin,signallogbool,normal);
-%function [hist,mn,mdn,md]=twodhist(timebins,valuebins,timein,timelogbool,signalin,signallogbool,normal);
+function [hist,mn,mdn,md]=hist2d(timebins,valuebins,timein,timelogbool,signalin,signallogbool,normal);
+%function [hist,mn,mdn,md]=hist2d(timebins,valuebins,timein,timelogbool,signalin,signallogbool,normal);
 %timebins - bins for x axis (or independent variable)
 %valuebins - bins for y axis (or dependent variable)
 %timein - independent variable time series
@@ -11,7 +11,16 @@ function [hist,mn,mdn,md]=twodhist(timebins,valuebins,timein,timelogbool,signali
 %(normalize m horizontal one-d-pdfs).  If 3, normalize 2d-pdf by total
 %number of realizations.
 
+% Example to plot data:
+% h=pcolor(timebins,valuebins,hist)
+% set(h,'edgecolor','none')
+% colormap(flipud(hot))
 
+
+%------------------------
+% 01/26/16 - A.Pickering - Make function name same as file, and plotting
+% example
+%%
 Lt=length(timebins);
 Lv=length(valuebins);
 

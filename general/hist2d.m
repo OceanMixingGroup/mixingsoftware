@@ -10,13 +10,13 @@ function [hist,mn,mdn,md]=hist2d(timebins,valuebins,timein,timelogbool,signalin,
 %by number of realizations along x axis (normalize n vertical one-d-pdf).  If 2, normalize pdf by number of realizations along y axis
 %(normalize m horizontal one-d-pdfs).  If 3, normalize 2d-pdf by total
 %number of realizations.
-
+%
 % Example to plot data:
 % h=pcolor(timebins,valuebins,hist)
 % set(h,'edgecolor','none')
 % colormap(flipud(hot))
-
-
+%
+%
 %------------------------
 % 01/26/16 - A.Pickering - Make function name same as file, and plotting
 % example

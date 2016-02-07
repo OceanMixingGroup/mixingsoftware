@@ -28,6 +28,7 @@
 %----------------
 % 10/26/15 - AP - Initial coding
 % 01/03/16 - AP - Modify for files saved as separate upcasts/downcasts
+% 02/07/16 - AP - Add fmax to specified params
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
@@ -49,6 +50,7 @@ Params.nfft=128;     % nfft to use in computing wavenumber spectra
 Params.extra_z=2;    % number of extra meters to get rid of due to CTD pressure loops.
 Params.wthresh = 0.3;% w threshold for removing CTD pressure loops
 Params.TPthresh=1e-6 % minimum TP variance to do calculation
+Params.fmax=20;      % max freq to integrate TP spectrum to in chi calc
 %~~
 
 % initialize a text file for summary of processing
@@ -231,7 +233,7 @@ for iSN=1:length(ChiInfo.SNs)
                         
                         % compute chi using iterative procedure
                         [chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,abs(avg.fspd(iwind)),avg.nu(iwind),...
-                            avg.tdif(iwind),avg.dTdz(iwind),'nsqr',avg.N2(iwind));
+                            avg.tdif(iwind),avg.dTdz(iwind),'nsqr',avg.N2(iwind),'fmax',Params.fmax);
                         %            'doplots',1 for plots
                         avg.chi1(iwind)=chi1(1);
                         avg.eps1(iwind)=epsil1(1);

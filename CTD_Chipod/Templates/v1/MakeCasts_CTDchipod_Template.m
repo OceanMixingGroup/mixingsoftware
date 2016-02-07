@@ -2,10 +2,20 @@
 %
 % MakeCasts_CTDchipod_Template.m
 %
-% Find data for each cast, align and calibrate etc.. save files for each
-% cast.
+% This is the 1st part of the CTD-chipod processing. Here we find raw chipod
+% data for each cast, align the data and calibrate etc.. . A mat file is saved 
+% for each upcast and downcast.
 %
-% *Next step in processing is DoChiCalc_Template.m
+% Before running this you will need the Load_Chipod _paths... and 
+% Chipod_Deploy_Info.... m-files.
+%
+% The next step in processing is DoChiCalc_Template.m
+%
+% '***' indicates where changes need to be made to modify the template for
+% specific cruises
+%
+% This script is part of CTD-chipod routines maintained in a github repo at
+% https://github.com/OceanMixingGroup/mixingsoftware/tree/master/CTD_Chipod 
 %
 %---------------------
 % 10/26/15 - A.Pickering - Initial coding
@@ -14,6 +24,7 @@
 
 clear ; close all ; clc
 
+% ***
 this_script_name='ProcessCTDchipod_Template.m'
 
 % start a timer
@@ -32,7 +43,7 @@ addpath(fullfile(mixpath,'adcp')); % need for mergefields_jn.m in load_chipod_da
 % *** Load paths for CTD and chipod data
 Load_chipod_paths_TestData
 
-%*** Load chipod deployment info
+% *** Load chipod deployment info
 Chipod_Deploy_Info_template
 
 % Make a list of all ctd files we have
@@ -41,7 +52,7 @@ disp(['There are ' num2str(length(CTD_list)) ' CTD casts to process in ' CTD_out
 
 % make a text file to print a summary of results to
 MakeResultsTextFile
-%
+
 % Loop through each ctd file
 hb=waitbar(0,'Looping through ctd files');
 for a=1:length(CTD_list)

@@ -55,16 +55,16 @@ MakeResultsTextFile
 
 % Loop through each ctd file
 hb=waitbar(0,'Looping through ctd files');
-for a=1:length(CTD_list)
+for icast=1:length(CTD_list)
     %
     close all
     clear castname tlim time_range cast_suffix_tmp cast_suffix CTD_24hz
     
     % update waitbar
-    waitbar(a/length(CTD_list),hb)
+    waitbar(icast/length(CTD_list),hb)
     
     % CTD castname we are working with
-    castname=CTD_list(a).name
+    castname=CTD_list(icast).name
     
     fprintf(fileID,[ '\n\n\n ~~~~~~~~~~~~~~~~~~~~' ]);
     fprintf(fileID,[' \n \n ~' castname ]);

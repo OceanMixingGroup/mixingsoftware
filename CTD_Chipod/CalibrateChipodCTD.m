@@ -25,7 +25,7 @@ function [CTD_24hz chidat]=CalibrateChipodCTD(CTD_24hz,chidat,az_correction,make
 %%
 
 if ~exist('makeplot','var')
-    makeplot=0
+    makeplot=0;
 end
 
 % Find profile inds for CTD data (ctd profile 'starts' at 10m )
@@ -48,7 +48,7 @@ chidat.cal.T1P=calibrate_chipod_dtdt(chidat.T1P , chidat.cal.coef.T1P , chidat.T
 
 test_dtdt=1; %%% this does a digital differentiation to determine whether the differentiator time constant is correct.
 if test_dtdt
-    cal=chidat.cal
+    cal=chidat.cal;
     dt=median(diff(chidat.datenum))*3600*24;
     cal.dTdt_dig=[0 ; diff(cal.T1)/dt];
     
@@ -63,8 +63,8 @@ if test_dtdt
     lim1=chidat.datenum(round(length(chidat.datenum)/3));
     lim2=chidat.datenum(round(length(chidat.datenum)/2));
     ginds2=find( (chidat.datenum)>lim1 & (chidat.datenum)<lim2 );
-    vline(lim1,'b--')
-    vline(lim2,'b--')
+    vline(lim1,'b--');
+    vline(lim2,'b--');
     
     % compute spectrum of analog differentiation
     [p,f]=fast_psd(cal.T1P(ginds2),256,100);
@@ -81,8 +81,8 @@ if test_dtdt
     xlabel('Frequency [hz]')
     title(['Spectra of dT/dt - \tau =' num2str(chidat.cal.coef.T1P)])
     ylabel('\Phi_{T_z} [^oC^2/s^{-2}]')
-    freqline(0)
-    freqline(20)
+    freqline(0);
+    freqline(20);
     
 end
 %%

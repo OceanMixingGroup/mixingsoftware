@@ -12,4 +12,4 @@ The chi pod processing requires CTD data as well, the processing of the CTD data
 
 The file ‘process_chipod_script_template.m’ contains an example script that can be modified for a specific cruise. The folder ‘TestData’ contains processed CTD data and raw chi pod data for 1 cast (the processing template is set up to run for these files). This can be run to gain a better understanding of the processing and output, as well as testing after any changes to codes to ensure they still work. 
 
-*Note* CTD-chipod processing and analysis is a work in progress. Any results should be considered with caution. If you have any questions about the processing, or plan to make any major changes to the codes, please contact Andy Pickering. (apickering@coas.oregon.state.edu)
+*Note* CTD-chipod processing and analysis is a work in progress. Any results should be considered with caution. If you have any questions about the processing, or plan to make any major changes to the codes, please contact Andy Pickering. (apickering@coas.oregonstate.edu)

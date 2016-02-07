@@ -15,7 +15,6 @@
 % specific cruises
 %
 % Output files are saved under /chi_proc_path/
-% 
 %
 %
 % This script is part of CTD-chipod routines maintained in a github repo at

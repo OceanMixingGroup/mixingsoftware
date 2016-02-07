@@ -63,9 +63,9 @@ hold on
 plot(chidat.datenum,chidat.cal.T1)
 if chidat.Info.isbig
     plot(chidat.datenum,chidat.cal.T2-.5)
-    legend('CTD','T1','T2-.5','location','best')
+    legend('CTD','T1','T2-.5','location','best');
 else
-    legend('CTD','chi','location','best')
+    legend('CTD','chi','location','best');
 end
 ylabel('T [\circ C]')
 xlim(xls)
@@ -81,8 +81,8 @@ xlim(xls)
 ylim(1*[-1 1])
 datetick('x')
 grid on
-gridxy
-SubplotLetterMW('T1P')
+gridxy;
+SubplotLetterMW('T1P');
 %
 if chidat.Info.isbig
     
@@ -93,8 +93,8 @@ if chidat.Info.isbig
     ylim(1*[-1 1])
     datetick('x')
     grid on
-    gridxy
-    SubplotLetterMW('T2P')
+    gridxy;
+    SubplotLetterMW('T2P');
     
 end
 

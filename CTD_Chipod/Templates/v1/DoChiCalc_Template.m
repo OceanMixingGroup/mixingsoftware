@@ -1,20 +1,34 @@
-%~~~~~~~~~~~~~~~~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % DoChiCalc_Template.m
 %
-% Do chi calculations for CTD-chipod data.
+% Template for script to do chi calculations for CTD-chipod data. This is
+% second step of CTD-chipod processing.
 %
-% *MakeCasts_CTDchipod_Template.m should be run first*
+% '***' indicates where changes need to be made to modify the template for
+% specific cruises
 %
-% Trying to make general so that after specifying a few things at top
-% specific to deployment, will run for any deployment.
+% *MakeCasts_CTDchipod_Template.m needs to be run first*
+%
+% The actual iterative chi computation is done with get_chipod_chi.m, which
+% is in /mixingsoftware/chipod/compute_chi/.
 %
 % Calls: MakeCtdChiWindows.m
+%
+% This script is part of CTD-chipod routines maintained in a github repo at
+% https://github.com/OceanMixingGroup/mixingsoftware/tree/master/CTD_Chipod
+%
+% Dependencies:
+% Compute_N2_dTdz_forChi.m
+% ctd_rmdepthloops.m
+% MakeCtdChiWindows.m
+% fast_psd.m
+% get_chipod_chi.m
 %
 %----------------
 % 10/26/15 - AP - Initial coding
 % 01/03/16 - AP - Modify for files saved as separate upcasts/downcasts
-%~~~~~~~~~~~~~~~~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
 clear ; close all
@@ -29,13 +43,12 @@ Load_chipod_paths_TestData
 Chipod_Deploy_Info_template
 
 %~~ set some params for following calcs
-do_T2_big=1; % do calc for T2 if big chipod
-% define some parameters that are the same for up/down and
-% T1/T2:
-Params.z_smooth=20;
-Params.nfft=128;
-Params.extra_z=2; % number of extra meters to get rid of due to CTD pressure loops.
-Params.wthresh = 0.3;
+do_T2_big=1;         % do calc for T2 if big chipod
+Params.z_smooth=20;  % distance (m) over which to smooth N^2 and dT/dz
+Params.nfft=128;     % nfft to use in computing wavenumber spectra
+Params.extra_z=2;    % number of extra meters to get rid of due to CTD pressure loops.
+Params.wthresh = 0.3;% w threshold for removing CTD pressure loops
+Params.TPthresh=1e-6 % minimum TP variance to do calculation
 %~~
 
 % initialize a text file for summary of processing
@@ -56,7 +69,7 @@ for iSN=1:length(ChiInfo.SNs)
     
     % get list of cast files we have
     clear Flist
-    Flist=dir(fullfile(savedir_cal,['*' whSN '.mat']))
+    Flist=dir(fullfile(savedir_cal,['*' whSN '.mat']));
     disp(['There are ' num2str(length(Flist)) ' casts to process '])
     fprintf(fileID,['\n There are ' num2str(length(Flist)) ' casts to process \n\n ']);
     
@@ -90,30 +103,6 @@ for iSN=1:length(ChiInfo.SNs)
                     case 2
                         whsens='T2';
                 end
-%                     case 1 % downcast T1
-%                         clear ctd chi_todo_now
-%                         % ~~ Choose which dT/dt to use (for mini
-%                         % chipods, only T1P. For big, we will do T1P
-%                         % and T2P).
-%                         whsens='T1';
-%                         castdir='down';
-%                         disp('Doing T1 downcast')
-%                     case 2 % upcast T1
-%                         clear avg ctd chi_todo_now
-%                         whsens='T1';
-%                         castdir='up';
-%                         disp('Doing T1 upcast')
-%                     case 3 %downcast T2
-%                         clear ctd chi_todo_now
-%                         whsens='T2';
-%                         castdir='down';
-%                         disp('Doing T2 downcast')
-%                     case 4 % upcast T2
-%                         clear avg ctd chi_todo_now
-%                         whsens='T2';
-%                         castdir='up';
-%                         disp('Doing T2 upcast')
-%                end
                 
                 fprintf(fileID,['\n----\n' castdir 'cast, sensor ' whsens]);
                 
@@ -133,8 +122,6 @@ for iSN=1:length(ChiInfo.SNs)
                 clear ctd
                 ctd=Compute_N2_dTdz_forChi(C.ctd.bin,Params.z_smooth);
                 
-                %~~~ now let's do the chi computations:
-                
                 % remove loops in CTD data
                 clear datau2 bad_inds tmp
                 [datau2,bad_inds] = ctd_rmdepthloops(C.ctd.raw,Params.extra_z,Params.wthresh);
@@ -150,7 +137,6 @@ for iSN=1:length(ChiInfo.SNs)
                 fprintf(fileID,['\n  ' num2str(round(Nloop/length(C.datenum)*100)) ' percent of points removed for depth loops ']);
                 disp(['\n  ' num2str(round(Nloop/length(C.datenum)*100)) ' percent of points removed for depth loops ']);
                 
-                %
                 figure(55);clf
                 plot(C.datenum,C.P)
                 xlabel(['Time on ' datestr(floor(nanmin(C.datenum)))])
@@ -195,7 +181,7 @@ for iSN=1:length(ChiInfo.SNs)
                 end
                 
                 %~~ plot histogram of avg.P to see how many good windows we have in
-                %each 10m bin
+                % each 10m bin
                 figure
                 hi=histogram(avg.P,0:10:nanmax(avg.P));
                 hi.Orientation='Horizontal';axis ij;
@@ -224,10 +210,11 @@ for iSN=1:length(ChiInfo.SNs)
                     inds=todo_inds(iwind,1) : todo_inds(iwind,2);
                     
                     % integrate dT/dt spectrum
+                    clear tp_power freq
                     [tp_power,freq]=fast_psd(TP(inds),Params.nfft,avg.samplerate);
                     avg.TP1var(iwind)=sum(tp_power)*nanmean(diff(freq));
                     
-                    if avg.TP1var(iwind)>1e-4
+                    if avg.TP1var(iwind)>Params.TPthresh
                         
                         % apply filter correction for sensor response?
                         fixit=0;
@@ -251,6 +238,7 @@ for iSN=1:length(ChiInfo.SNs)
                         avg.KT1(iwind)=0.5*chi1(1)/avg.dTdz(iwind)^2;
                         
                     end % if T1Pvar>threshold
+                    
                 end % windows
                 
                 
@@ -266,20 +254,17 @@ for iSN=1:length(ChiInfo.SNs)
                 whfig=whfig+1;
                 %~~~
                 
-                % add lat/lon to avg structure
-                avg.lat=nanmean(ctd.lat);
-                avg.lon=nanmean(ctd.lon);
-                
                 castname=cast_suffix;
                 
+                % add lat/lon to avg structure
+                avg.lat=nanmean(ctd.lat);
+                avg.lon=nanmean(ctd.lon);               
                 avg.castname=castname;
                 avg.castdir=C.castdir;
                 avg.Info=C.Info;
-                ctd.castname=castname;
-                
-                avg.castname=castname;
-                ctd.castname=castname;
                 avg.MakeInfo=['Made ' datestr(now) ' w/ ' this_script_name ];
+                
+                ctd.castname=castname;
                 ctd.MakeInfo=['Made ' datestr(now) ' w/ ' this_script_name ];
                 
                 chi_proc_path_avg=fullfile(chi_proc_path_specific,'avg');

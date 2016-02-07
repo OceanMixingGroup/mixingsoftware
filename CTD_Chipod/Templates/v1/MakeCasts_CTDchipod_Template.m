@@ -14,6 +14,10 @@
 % '***' indicates where changes need to be made to modify the template for
 % specific cruises
 %
+% Output files are saved under /chi_proc_path/
+% 
+%
+%
 % This script is part of CTD-chipod routines maintained in a github repo at
 % https://github.com/OceanMixingGroup/mixingsoftware/tree/master/CTD_Chipod 
 %
@@ -56,7 +60,7 @@ MakeResultsTextFile
 % Loop through each ctd file
 hb=waitbar(0,'Looping through ctd files');
 for icast=1:length(CTD_list)
-    %
+    
     close all
     clear castname tlim time_range cast_suffix_tmp cast_suffix CTD_24hz
     
@@ -74,22 +78,23 @@ for icast=1:length(CTD_list)
     CTD_24hz=data2;clear data2
     CTD_24hz.ctd_file=castname;
     
-    % Sometimes the 24hz ctd time needs to be converted from computer time into matlab (datenum?) time.
+    % Sometimes the 24hz ctd time needs to be fixed
     tlim=now+5*365;
     if CTD_24hz.time > tlim
         tmp=linspace(CTD_24hz.time(1),CTD_24hz.time(end),length(CTD_24hz.time));
         CTD_24hz.datenum=tmp'/24/3600+datenum([1970 1 1 0 0 0]);
     end
     
+    % Time range of CTD cast
     clear tlim tmp
     time_range=[min(CTD_24hz.datenum) max(CTD_24hz.datenum)];
-    d.time_range=datestr(time_range); % Time range of CTD cast
+    d.time_range=datestr(time_range); 
     
     % regular file, just use cast # for name
     id1=strfind(castname,ChiInfo.CastString);
     cast_suffix=castname(id1+length(ChiInfo.CastString)+1 : id1+length(ChiInfo.CastString)+3)
     
-    %-- For multiple chipods, would have loop here --
+    %-- Loop through each chipod SN --
     for iSN=1%:length(ChiInfo.SNs)
         
         close all
@@ -109,12 +114,12 @@ for icast=1:length(CTD_list)
         fprintf(fileID,[ ' \n ---------\n' ]);
         
         %~~ specific paths for this chipod
+        
         chi_proc_path_specific=fullfile(chi_proc_path,[whSN]);
         ChkMkDir(chi_proc_path_specific)
         
         chi_fig_path_specific=fullfile(chi_proc_path_specific,'figures')
         ChkMkDir(chi_fig_path_specific)
-        %~~
         
         % filename for processed chipod data (will check if already exists)
         processed_file=fullfile(chi_proc_path_specific,['cast_' cast_suffix '_' whSN '.mat'])
@@ -249,17 +254,19 @@ for icast=1:length(CTD_list)
                     % save these data here now
                     clear fname_dn fname_up
                     fname_dn=fullfile(savedir_cal,['cast_' cast_suffix '_' whSN '_downcast.mat']);
-                    % fname_dn=fullfile(chi_proc_path_specific,['cast_' cast_suffix '_' whSN '_downcast.mat']);
                     clear C;C=chi_dn;
                     save(fname_dn,'C')
-                    %fname_up=fullfile(chi_proc_path_specific,['cast_' cast_suffix '_' whSN '_upcast.mat']);
+
                     fname_up=fullfile(savedir_cal,['cast_' cast_suffix '_' whSN '_upcast.mat']);
                     clear C;C=chi_up;
                     save(fname_up,'C')
-                    clear C
                     %~~~
-                    %
+                    %                    
                     
+                else
+                    
+                    fprintf(fileID,' No binned CTD data for this cast ');
+                    disp('No binned CTD data for this cast')
                     
                 end % if we have binned ctd data
                 

@@ -13,7 +13,8 @@
 % The actual iterative chi computation is done with get_chipod_chi.m, which
 % is in /mixingsoftware/chipod/compute_chi/.
 %
-% Calls: MakeCtdChiWindows.m
+% OUTPUT:
+% For each cast, produces and saves a structure 'avg' with results
 %
 % This script is part of CTD-chipod routines maintained in a github repo at
 % https://github.com/OceanMixingGroup/mixingsoftware/tree/master/CTD_Chipod

@@ -34,6 +34,8 @@ function big=load_chipod_data(the_path,time_range,suffix,isbig,plotit,bad_file_l
 % Original - J. Nash, J. Marion?
 % Comments and updates by A. Pickering
 % 12/14/15 - AP - Add option to give list of bad files to skip
+% 02/16/16 - AP - Add 'try' loop to make robust for filenames that don't
+% follow convention.
 %%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
@@ -88,6 +90,8 @@ for a=1:nfiles
     
     time_inds=findstr(fname,'.')+[-8:-1];
     file_time=fname(time_inds);
+    
+    try
     
     %    if datenum(file_time,'yymmddhh')>(time_range(1)-t_extra/24) & datenum(file_time,'yymmddhh')<(time_range(2)+t_extra/24)
     if datenum(file_time,'yymmddhh')>(time_range(1)-t_extra/24) && datenum(file_time,'yymmddhh')<(time_range(2))% AP start time of file has to be before end of time_range...
@@ -151,8 +155,11 @@ for a=1:nfiles
         end
         
     else
-        %        disp('didnt find any files in time range');
+ %     disp('didnt find any files in time range');
     end
+    
+    end % try
+    
     
 end % loop though files
 

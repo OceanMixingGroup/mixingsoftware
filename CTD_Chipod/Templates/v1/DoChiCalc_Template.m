@@ -271,7 +271,9 @@ for iSN=1:length(ChiInfo.SNs)
                 ctd.castname=castname;
                 ctd.MakeInfo=['Made ' datestr(now) ' w/ ' this_script_name ];
                 
-                chi_proc_path_avg=fullfile(chi_proc_path_specific,'avg');
+                %chi_proc_path_avg=fullfile(chi_proc_path_specific,'avg');
+                chi_proc_path_avg=fullfile(chi_proc_path_specific,'avg',...
+                    ['zsm' num2str(Params.z_smooth) 'm_fmax' num2str(Params.fmax) 'Hz_respcorr' num2str(Params.resp_corr)]);     
                 ChkMkDir(chi_proc_path_avg)
                 processed_file=fullfile(chi_proc_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' whSN '_' whsens '.mat']);
                 save(processed_file,'avg','ctd')

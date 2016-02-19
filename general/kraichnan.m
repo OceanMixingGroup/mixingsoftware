@@ -1,11 +1,16 @@
 function [spec_vals]=kraichnan(nu,k,kb,D,chi,qq)
-% [spec_vals]=batch(nu,k,kb,D,chi,q)
-% B_SPEC determines the Kraichnan Spectra at a given wavenumber k
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%
+% [spec_vals]=kraichnan(nu,k,kb,D,chi,qq)
+%
+% kraichnan determines the Kraichnan Spectra at a given wavenumber k
 % this requires chi, kb (the batchelor wavenumber) and the diffusivity D.
 % q could be set to 2.42
 % q=2.42;
 % but instead I have it at q=3.7
 % C_star is from Dillon and Caldwell 1980 0.024 \pm 0.008
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%%
 warning off
 if nargin~=6
 %   q=5.3; was used as default untill 2012, but calc_chi explicitly calls

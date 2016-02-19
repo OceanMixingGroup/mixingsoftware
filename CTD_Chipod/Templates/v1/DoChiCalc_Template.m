@@ -53,7 +53,7 @@ Params.extra_z=2;    % number of extra meters to get rid of due to CTD pressure 
 Params.wthresh = 0.3;% w threshold for removing CTD pressure loops
 Params.TPthresh=1e-6 % minimum TP variance to do calculation
 Params.fmax=20;      % max freq to integrate TP spectrum to in chi calc
-Params.corr_filt_resp=1; % correct TP spectra for freq response of thermistor
+Params.resp_corr=1; % correct TP spectra for freq response of thermistor
 %~~
 
 % initialize a text file for summary of processing
@@ -222,7 +222,7 @@ for iSN=1:length(ChiInfo.SNs)
                     if avg.TP1var(iwind)>Params.TPthresh
                         
                         % apply filter correction for sensor response?
-                        if Params.corr_filt_resp==1
+                        if Params.resp_corr==1
                             trans_fcn=0;
                             trans_fcn1=0;
                             thermistor_filter_order=2;

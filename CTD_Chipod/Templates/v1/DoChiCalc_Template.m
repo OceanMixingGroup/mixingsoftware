@@ -53,7 +53,8 @@ Params.extra_z=2;    % number of extra meters to get rid of due to CTD pressure 
 Params.wthresh = 0.3;% w threshold for removing CTD pressure loops
 Params.TPthresh=1e-6 % minimum TP variance to do calculation
 Params.fmax=20;      % max freq to integrate TP spectrum to in chi calc
-Params.resp_corr=1; % correct TP spectra for freq response of thermistor
+Params.resp_corr=1;  % correct TP spectra for freq response of thermistor
+Params.gamma=0.2;    % mixing efficiency
 %~~
 
 % initialize a text file for summary of processing
@@ -235,7 +236,7 @@ for iSN=1:length(ChiInfo.SNs)
                         
                         % compute chi using iterative procedure
                         [chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,abs(avg.fspd(iwind)),avg.nu(iwind),...
-                            avg.tdif(iwind),avg.dTdz(iwind),'nsqr',avg.N2(iwind),'fmax',Params.fmax);
+                            avg.tdif(iwind),avg.dTdz(iwind),'nsqr',avg.N2(iwind),'fmax',Params.fmax,'gamma',Params.gamma);
                         %            'doplots',1 for plots
                         avg.chi1(iwind)=chi1(1);
                         avg.eps1(iwind)=epsil1(1);

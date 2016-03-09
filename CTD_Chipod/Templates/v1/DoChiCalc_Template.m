@@ -110,14 +110,15 @@ for iSN=1:length(ChiInfo.SNs)
                         whsens='T2';
                 end
                 
-                fprintf(fileID,['\n----\n' castdir 'cast, sensor ' whsens]);
+                fprintf(fileID,['\n----\n  sensor ' whsens]);
                 
                 %-- load data
                 clear fname castfile id1
                 castfile=Flist(icast).name;
                 id1=strfind(castfile,['_' whSN]);
                 cast_suffix=castfile(1:id1-1);
-                fname=fullfile(savedir_cal,[cast_suffix '_' whSN '_' castdir 'cast.mat']);
+%                fname=fullfile(savedir_cal,[cast_suffix '_' whSN '_' castdir 'cast.mat']);
+fname=fullfile(savedir_cal,castfile)
                 load(fname)
                 %---
                 
@@ -274,7 +275,7 @@ for iSN=1:length(ChiInfo.SNs)
                 
                 %chi_proc_path_avg=fullfile(chi_proc_path_specific,'avg');
                 chi_proc_path_avg=fullfile(chi_proc_path_specific,'avg',...
-                    ['zsm' num2str(Params.z_smooth) 'm_fmax' num2str(Params.fmax) 'Hz_respcorr' num2str(Params.resp_corr)]);     
+                    ['zsm' num2str(Params.z_smooth) 'm_fmax' num2str(Params.fmax) 'Hz_respcorr' num2str(Params.resp_corr) '_gamma' num2str(Params.gamma*100)]);     
                 ChkMkDir(chi_proc_path_avg)
                 processed_file=fullfile(chi_proc_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' whSN '_' whsens '.mat']);
                 save(processed_file,'avg','ctd')

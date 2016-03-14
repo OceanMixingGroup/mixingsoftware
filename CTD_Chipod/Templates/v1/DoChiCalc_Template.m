@@ -75,7 +75,7 @@ for iSN=1:length(ChiInfo.SNs)
     
     % get list of cast files we have
     clear Flist
-    Flist=dir(fullfile(savedir_cal,['*' whSN '.mat']));
+    Flist=dir(fullfile(savedir_cal,['*' whSN '*cast.mat']));
     disp(['There are ' num2str(length(Flist)) ' casts to process '])
     fprintf(fileID,['\n There are ' num2str(length(Flist)) ' casts to process \n\n ']);
     

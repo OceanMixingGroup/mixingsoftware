@@ -40,6 +40,9 @@ this_file_name='Process_CTD_hex_Template.m'
 % example: CTD file 'TS-cast002.hex', CastString='TS'
 CastString='TS'
 
+ctdParams.wthresh=0.4;
+ctdParams.dzbin=1;
+
 % *** Paths to raw and processed data (all assuming we are in /ctd_processing/ ***
 
 % Folder with raw CTD data (.hex and .XMLCON files)
@@ -177,9 +180,9 @@ for icast=1%:length(ctdlist)
         %%
         disp('removing loops:')
         % *** Might need to modify based on CTD setup
-        wthresh = 0.4   ;
-        datad6 = ctd_rmloops(datad5, wthresh, 1);
-        datau6 = ctd_rmloops(datau5, wthresh, 0);
+        
+        datad6 = ctd_rmloops(datad5, ctdParams.wthresh, 1);
+        datau6 = ctd_rmloops(datau5, ctdParams.wthresh, 0);
         
         %% despike
         
@@ -190,7 +193,7 @@ for icast=1%:length(ctdlist)
         
         if dobin
             disp('binning:')
-            dz = 1; % m
+            dz = ctdParams.dzbin; % m
             zmin = 0; % surface
             [zmax, imax] = max([max(datad7.depth) max(datau7.depth)]);
             zmax = ceil(zmax); % full depth
@@ -208,6 +211,9 @@ for icast=1%:length(ctdlist)
             
             datad_1m.confile=confile;
             datau_1m.confile=confile;
+            
+            datad_1m.ctdParams=ctdParams;
+            datau_1m.ctdParams=ctdParams;
             
             matname_bin=fullfile(CTD_out_dir_bin,[castStr '.mat'])
             disp(['saving: ' matname_bin])

@@ -123,8 +123,8 @@ for iSN=1:length(ChiInfo.SNs)
                 clear fname castfile id1
                 castfile=Flist(icast).name;
                 id1=strfind(castfile,['_' whSN]);
-                cast_suffix=castfile(1:id1-1);
-%                fname=fullfile(savedir_cal,[cast_suffix '_' whSN '_' castdir 'cast.mat']);
+                castStr=castfile(1:id1-1);
+                %                fname=fullfile(savedir_cal,[castStr '_' whSN '_' castdir 'cast.mat']);
                 fname=fullfile(savedir_cal,castfile)
                 load(fname)
                 %---
@@ -155,7 +155,7 @@ for iSN=1:length(ChiInfo.SNs)
                 plot(C.datenum,C.P)
                 xlabel(['Time on ' datestr(floor(nanmin(C.datenum)))])
                 ylabel('Pressure')
-                title([cast_suffix '_' C.castdir],'interpreter','none')
+                title([castStr '_' C.castdir],'interpreter','none')
                 axis ij
                 datetick('x')
                 grid on
@@ -201,8 +201,8 @@ for iSN=1:length(ChiInfo.SNs)
                 hi.Orientation='Horizontal';axis ij;
                 ylabel('P [db]')
                 xlabel('# good data windows')
-                title([whSN ' cast ' cast_suffix ' - ' C.castdir 'cast'],'interpreter','none')
-                print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' cast_suffix '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avgPhist']))
+                title([whSN ' cast ' castStr ' - ' C.castdir 'cast'],'interpreter','none')
+                print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avgPhist']))
                 whfig=whfig+1;
                 
                 % get N2, dTdz for each window
@@ -258,20 +258,20 @@ for iSN=1:length(ChiInfo.SNs)
                 %~ plot summary figure
                 ax=CTD_chipod_profile_summary(avg,C,TP);
                 axes(ax(1))
-                title(['cast ' cast_suffix],'interpreter','none')
+                title(['cast ' castStr],'interpreter','none')
                 axes(ax(2))
                 title([whSN],'interpreter','none')
                 axes(ax(3))
                 title(['Sensor ' whsens])
-                print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' cast_suffix '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avg_chi_KT_dTdz']))
+                print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avg_chi_KT_dTdz']))
                 whfig=whfig+1;
                 %~~~
                 
-                castname=cast_suffix;
+                castname=castStr;
                 
                 % add lat/lon to avg structure
                 avg.lat=nanmean(ctd.lat);
-                avg.lon=nanmean(ctd.lon);               
+                avg.lon=nanmean(ctd.lon);
                 avg.castname=castname;
                 avg.castdir=C.castdir;
                 avg.Info=C.Info;
@@ -282,9 +282,10 @@ for iSN=1:length(ChiInfo.SNs)
                 
                 %chi_proc_path_avg=fullfile(chi_proc_path_specific,'avg');
                 chi_proc_path_avg=fullfile(chi_proc_path_specific,'avg',...
-                    ['zsm' num2str(Params.z_smooth) 'm_fmax' num2str(Params.fmax) 'Hz_respcorr' num2str(Params.resp_corr) '_gamma' num2str(Params.gamma*100)]);     
+                    ['zsm' num2str(Params.z_smooth) 'm_fmax' num2str(Params.fmax) 'Hz_respcorr' num2str(Params.resp_corr) '_fc_' num2str(Params.fc) 'hz_gamma' num2str(Params.gamma*100)] )
+                
                 ChkMkDir(chi_proc_path_avg)
-                processed_file=fullfile(chi_proc_path_avg,['avg_' cast_suffix '_' avg.castdir 'cast_' whSN '_' whsens '.mat']);
+                processed_file=fullfile(chi_proc_path_avg,['avg_' castStr '_' avg.castdir 'cast_' whSN '_' whsens '.mat']);
                 save(processed_file,'avg','ctd')
                 %~~~
                 

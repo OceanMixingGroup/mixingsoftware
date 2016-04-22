@@ -54,8 +54,15 @@ Params.wthresh = 0.3;% w threshold for removing CTD pressure loops
 Params.TPthresh=1e-6 % minimum TP variance to do calculation
 Params.fmax=20;      % max freq to integrate TP spectrum to in chi calc
 Params.resp_corr=1;  % correct TP spectra for freq response of thermistor
+Params.fc=10;        % cutoff frequency for response correction
 Params.gamma=0.2;    % mixing efficiency
 %~~
+
+% use default fc=99 for no correction (to make file paths same)
+if Params.resp_corr==0
+    Params.fc=99;
+end
+
 
 % initialize a text file for summary of processing
 MakeResultsTextFile_ChiCalc
@@ -118,7 +125,7 @@ for iSN=1:length(ChiInfo.SNs)
                 id1=strfind(castfile,['_' whSN]);
                 cast_suffix=castfile(1:id1-1);
 %                fname=fullfile(savedir_cal,[cast_suffix '_' whSN '_' castdir 'cast.mat']);
-fname=fullfile(savedir_cal,castfile)
+                fname=fullfile(savedir_cal,castfile)
                 load(fname)
                 %---
                 
@@ -228,7 +235,7 @@ fname=fullfile(savedir_cal,castfile)
                             trans_fcn=0;
                             trans_fcn1=0;
                             thermistor_filter_order=2;
-                            thermistor_cutoff_frequency=32;
+                            thermistor_cutoff_frequency=Params.fc;
                             analog_filter_order=4;
                             analog_filter_freq=50;
                             tp_power=invert_filt(freq,invert_filt(freq,tp_power,thermistor_filter_order, ...

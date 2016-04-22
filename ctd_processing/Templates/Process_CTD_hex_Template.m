@@ -23,7 +23,7 @@
 % Modified from original script from Jen MacKinnon @ Scripps. Modified by A. Pickering
 %
 %---------------------
-% A. Pickering - April 21, 2015 - apickering@coas.oregonstate.edu
+% 04/21/15 - A. Pickering - apickering@coas.oregonstate.edu
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
@@ -63,7 +63,6 @@ CTD_out_dir_figs=fullfile(CTD_out_dir_root,'processed','figures')
 % ChkMkDir(CTD_out_dir_24hz)
 
 dobin=1;  % bin data
-doascii=0 % option to save data as text file for LADCP processing
 
 %~~~
 % Make list of all ctd files we have
@@ -197,23 +196,7 @@ for icast=1%:length(ctdlist)
         datad6.epsilon1=Epsout;
         datad6.Lot=Lot;
     end
-    %% 25cm binning
     
-    %     if dobin
-    %         disp('binning:')
-    %         dz = 0.25; % m
-    %         zmin = 0; % surface
-    %         [zmax, imax] = max([max(datad7.depth) max(datau7.depth)]);
-    %         zmax = ceil(zmax); % full depth
-    %         datad = ctd_bincast(datad7, zmin, dz, zmax);
-    %         datau = ctd_bincast(datau7, zmin, dz, zmax);
-    %         datad.datenum=datad.time/24/3600+datenum([1970 1 1 0 0 0]);
-    %         datau.datenum=datau.time/24/3600+datenum([1970 1 1 0 0 0]);
-    %
-    %         disp(['saving: ' matname])
-    %         save(matname, 'datad', 'datau')
-    %
-    %     end
     
     %% 1-m binning
     
@@ -229,24 +212,17 @@ for icast=1%:length(ctdlist)
         datau_1m.datenum=datau_1m.time/24/3600+datenum([1970 1 1 0 0 0]);
         
         
-        datad_1m.MakeInfo=['Made ' datestr(now) ' w/ ' this_file_name  ' in ' version]
-        datau_1m.MakeInfo=['Made ' datestr(now) ' w/ ' this_file_name  ' in ' version]
-        % datad.MakeInfo=['Made ' datestr(now) ' w/ ' this_file_name  ' in ' version]
-        % datau.MakeInfo=['Made ' datestr(now) ' w/ ' this_file_name  ' in ' version]
-        
+        datad_1m.MakeInfo=['Made ' datestr(now) ' w/ ' this_file_name  ' in Matlab ' version]
+        datau_1m.MakeInfo=['Made ' datestr(now) ' w/ ' this_file_name  ' in Matlab ' version]        
         
         datad_1m.source=ctdname;
         datau_1m.source=ctdname;
-        %        datad.source=ctdname;
-        %       datau.source=ctdname;
         
         datad_1m.confile=confile;
         datau_1m.confile=confile;
-        %      datad.confile=confile;
-        %     datau.confile=confile;
         
         disp(['saving: ' matname])
-        save(matname, 'datad_1m', 'datau_1m')%,'datad','datau')
+        save(matname, 'datad_1m', 'datau_1m')%
         
     end
     
@@ -254,29 +230,6 @@ for icast=1%:length(ctdlist)
     
     h=PlotBinnedCTDprofiles(datad_1m,datau_1m,ctdlist,icast)
     print('-dpng',fullfile(CTD_out_dir_figs,[ctdlist(icast).name(1:end-4) '_binned_Temp_Sal_vsP']))
-    
-    %% save as a text file for use by LADCP processing
-    
-    if doascii
-        % a little  too high resolution in time, stalls ladcp processing
-        % try to reduce a bit
-        data3b = swcalcs(data3, cfg); % calc S, theta, sigma, depth
-        
-        sec=data3b.time-min(data3b.time);
-        p=data3b.p;
-        t=data3b.t1;
-        s=data3b.s1;
-        lat=data3b.lat;
-        lon=data3b.lon;
-        
-        
-        dataout=[sec p t s lat lon];
-        ig=find(~isnan(mean(dataout,2))); dataout=dataout(ig,:);
-        %save([CTD_out_dir_bin outname(1:end-4) '.cnv'],'dataout','-ascii','-tabs')
-        save(fullfile(CTD_out_dir_bin,[outname(1:end-4) '.cnv']),'dataout','-ascii','-tabs')
-    end
-    %
-    
     
     
 end % cast #

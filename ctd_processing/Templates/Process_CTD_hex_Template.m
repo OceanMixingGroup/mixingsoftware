@@ -185,19 +185,6 @@ for icast=1%:length(ctdlist)
     datau7 = ctd_cleanup2(datau6);
     
     
-    %% compute epsilon now, as a test
-    doeps=0;
-    if doeps
-        sigma_t=0.0042; sigma_rho=0.0011;
-        
-        disp('Calculating epsilon:')
-        [Epsout,Lmin,Lot,runlmax,Lttot]=compute_overturns2(datad6.p,datad6.t1,datad6.s1,nanmean(datad6.lat),0,3,sigma_t,1);
-        %[epsilon]=ctd_overturns(datad6.p,datad6.t1,datad6.s1,33,5,5e-4);
-        datad6.epsilon1=Epsout;
-        datad6.Lot=Lot;
-    end
-    
-    
     %% 1-m binning
     
     if dobin

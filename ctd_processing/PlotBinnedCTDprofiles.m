@@ -1,4 +1,4 @@
-function h=PlotBinnedCTDprofiles(datad_1m,datau_1m,ctdlist,icast)
+function h=PlotBinnedCTDprofiles(datad_1m,datau_1m,castStr)
 %%
 h=figure;clf
 agutwocolumn(1)
@@ -15,7 +15,7 @@ axis ij
 grid on
 xlabel('Temp [^oC]')
 ylabel('Pressure [db]')
-set(gcf,'Name',ctdlist(icast).name)
+set(gcf,'Name',castStr)
 %title(ctdlist(icast).name,'interpreter','none')
 title('downcast','fontsize',16)
 %legend('t1 down','t2 down','t1 up','t2 up','location','Southeast')

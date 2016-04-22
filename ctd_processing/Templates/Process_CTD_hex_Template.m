@@ -143,8 +143,8 @@ for icast=1%:length(ctdlist)
     
     % output raw data
     disp(['saving: ' matname])
-    matname0 = fullfile(CTD_out_dir_24hz,[outname(1:end - 4) '_0.mat'])
-    save(matname0, 'data2')
+    matname24hz = fullfile(CTD_out_dir_24hz,[outname(1:end - 4) '_24hz.mat'])
+    save(matname24hz, 'data2')
     
     % specify the depth range over which t-c lag fitting is done. For deep
     % stations, use data below 500 meters, otherwise use the entire depth

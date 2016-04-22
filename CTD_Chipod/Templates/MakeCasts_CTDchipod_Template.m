@@ -3,10 +3,10 @@
 % MakeCasts_CTDchipod_Template.m
 %
 % This is the 1st part of the CTD-chipod processing. Here we find raw chipod
-% data for each cast, align the data and calibrate etc.. . A mat file is saved 
+% data for each cast, align the data and calibrate etc.. . A mat file is saved
 % for each upcast and downcast.
 %
-% Before running this you will need the Load_Chipod _paths... and 
+% Before running this you will need the Load_Chipod _paths... and
 % Chipod_Deploy_Info.... m-files.
 %
 % The next step in processing is DoChiCalc_Template.m
@@ -18,7 +18,7 @@
 %
 %
 % This script is part of CTD-chipod routines maintained in a github repo at
-% https://github.com/OceanMixingGroup/mixingsoftware/tree/master/CTD_Chipod 
+% https://github.com/OceanMixingGroup/mixingsoftware/tree/master/CTD_Chipod
 %
 %---------------------
 % 10/26/15 - A.Pickering - Initial coding
@@ -87,11 +87,10 @@ for icast=1:length(CTD_list)
     % Time range of CTD cast
     clear tlim tmp
     time_range=[min(CTD_24hz.datenum) max(CTD_24hz.datenum)];
-    d.time_range=datestr(time_range); 
-    
-    % regular file, just use cast # for name
-    id1=strfind(castname,ChiInfo.CastString);
-    cast_suffix=castname(id1+length(ChiInfo.CastString)+1 : id1+length(ChiInfo.CastString)+3)
+    d.time_range=datestr(time_range);
+        
+    % Name of CTD cast to use (assumes 24Hz CTD cast files end in '_0.mat'
+    castStr=castname(1:end-6)
     
     %-- Loop through each chipod SN --
     for iSN=1%:length(ChiInfo.SNs)
@@ -136,14 +135,14 @@ for icast=1:length(CTD_list)
             title([whSN ' - ' castname ' - Raw Data '],'interpreter','none')
             
             % save plot
-            print('-dpng',fullfile(chi_fig_path_specific,[whSN '_cast_' cast_suffix '_Fig1_RawChipodTS']))
+            print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig1_RawChipodTS']))
             
             chidat.time_range=time_range;
             chidat.castname=castname;
             
             savedir_cast=fullfile(chi_proc_path_specific,'cast')
             ChkMkDir(savedir_cast)
-            save(fullfile(savedir_cast,['cast_' cast_suffix '_' whSN '.mat']),'chidat')
+            save(fullfile(savedir_cast,[castStr '_' whSN '.mat']),'chidat')
             
             % carry over chipod info
             chidat.Info=this_chi_info;
@@ -154,21 +153,21 @@ for icast=1:length(CTD_list)
                 
                 % Align
                 [CTD_24hz chidat]=AlignChipodCTD(CTD_24hz,chidat,az_correction,1);
-                print('-dpng',fullfile(chi_fig_path_specific,[whSN '_cast_' cast_suffix '_Fig2_w_TimeOffset']))
+                print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig2_w_TimeOffset']))
                 
                 % zoom in and plot again
                 xlim([nanmin(chidat.datenum) nanmin(chidat.datenum)+400/86400])
-                print('-dpng',fullfile(chi_fig_path_specific,[whSN '_cast_' cast_suffix '_Fig3_w_TimeOffset_Zoom']))
+                print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig3_w_TimeOffset_Zoom']))
                 
                 % Calibrate T and dT/dt
                 [CTD_24hz chidat]=CalibrateChipodCTD(CTD_24hz,chidat,az_correction,1);
-                print('-dpng',fullfile(chi_fig_path_specific,[whSN '_cast_' cast_suffix '_Fig4_dTdtSpectraCheck']))
+                print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig4_dTdtSpectraCheck']))
                 
                 % save again, with time-offset and calibration added
                 savedir_cal=fullfile(chi_proc_path_specific,'cal')
                 ChkMkDir(savedir_cal)
                 % processed_file=fullfile(chi_proc_path_specific,['cast_' cast_suffix '_' whSN '.mat'])
-                save(fullfile(savedir_cal,['cast_' cast_suffix '_' whSN '.mat']),'chidat')
+                save(fullfile(savedir_cal,[castStr '_' whSN '.mat']),'chidat')
                 
                 % check if T1 calibration is ok
                 clear out2 err pvar
@@ -198,10 +197,10 @@ for icast=1:length(CTD_list)
                     
                     h=ChiPodTimeseriesPlot(CTD_24hz,chidat)
                     axes(h(1))
-                    title(['Cast ' cast_suffix ', ' whSN '  ' datestr(time_range(1),'dd-mmm-yyyy HH:MM') '-' datestr(time_range(2),15) ', ' CTD_list(a).name],'interpreter','none')
+                    title([castStr ', ' whSN '  ' datestr(time_range(1),'dd-mmm-yyyy HH:MM') '-' datestr(time_range(2),15) ', ' CTD_list(a).name],'interpreter','none')
                     axes(h(end))
                     xlabel(['Time on ' datestr(time_range(1),'dd-mmm-yyyy')])
-                    print('-dpng','-r300',fullfile(chi_fig_path_specific,[whSN '_cast_' cast_suffix '_Fig5_T_P_dTdz_fspd.png']));
+                    print('-dpng','-r300',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig5_T_P_dTdz_fspd.png']));
                 end
                 %~~~~
                 
@@ -252,15 +251,15 @@ for icast=1:length(CTD_list)
                     %~~~
                     % save these data here now
                     clear fname_dn fname_up
-                    fname_dn=fullfile(savedir_cal,['cast_' cast_suffix '_' whSN '_downcast.mat']);
+                    fname_dn=fullfile(savedir_cal,[castStr '_' whSN '_downcast.mat']);
                     clear C;C=chi_dn;
                     save(fname_dn,'C')
-
-                    fname_up=fullfile(savedir_cal,['cast_' cast_suffix '_' whSN '_upcast.mat']);
+                    
+                    fname_up=fullfile(savedir_cal,[castStr '_' whSN '_upcast.mat']);
                     clear C;C=chi_up;
                     save(fname_up,'C')
                     %~~~
-                    %                    
+                    %
                     
                 else
                     

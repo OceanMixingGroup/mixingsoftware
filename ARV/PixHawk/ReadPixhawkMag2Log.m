@@ -1,9 +1,9 @@
-function M=ReadPixhawkMagLog(thefile,Nskip)
+function M=ReadPixhawkMag2Log(thefile,Nskip)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% function M=ReadPixhawkMagLog(thefile)
+% function M=ReadPixhawkMag2Log(thefile)
 %
-% Read the Mag fields from a pixhawk IMU txt file into a Matlab structure.
+% Read the Mag2 fields from a pixhawk IMU txt file into a Matlab structure.
 %
 % INPUT
 % thefile : Name of IMU txt file to read
@@ -47,9 +47,9 @@ while keepgoing
     % if line isn't empty, read data from it
     if a~=-1
         
-        %~~~~ read 'Mag' line
+        %~~~~ read 'Mag2' line
         clear idMag
-        idMag=strfind(a,'MAG ');
+        idMag=strfind(a,'MAG2 ');
         
         % we have an ATT line
         if ~isempty(idMag)
@@ -93,7 +93,7 @@ M.offY=offY;
 M.source=thefile;
 M.Nskip=Nskip;
 M.time_to_read=toc(tstart);
-M.MakeInfo=['Made ' datestr(now) 'w/ ReadPixhawkMagLog.m']
+M.MakeInfo=['Made ' datestr(now) 'w/ ReadPixhawkMag2Log.m']
 
 
 %%

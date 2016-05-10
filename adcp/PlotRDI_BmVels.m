@@ -27,7 +27,7 @@ ylim(yl)
 datetick('x')
 colorbar
 ylabel('range [m]')
-title(['ROSS ' name '  Beam velocities'])
+title([ adcp.name '  Beam velocities'])
 SubplotLetterMW('Bm1');
 
 axes(ax(2))

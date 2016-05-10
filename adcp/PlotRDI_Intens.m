@@ -25,7 +25,7 @@ ylim(yl)
 datetick('x')
 colorbar
 ylabel('range [m]')
-title(['ROSS ' name '  Beam Intensities'])
+title([adcp.name '  Beam Intensities'])
 
 axes(ax(2))
 ezpc(adcp.mtime,cfg.ranges,squeeze(adcp.intens(:,2,:)));

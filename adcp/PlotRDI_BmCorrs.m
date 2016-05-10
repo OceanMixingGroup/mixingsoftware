@@ -27,7 +27,7 @@ ylim(yl)
 datetick('x')
 colorbar
 ylabel('range [m]')
-title(['ROSS ' name '  Beam correlations'])
+title([adcp.name '  Beam correlations'])
 
 axes(ax(2))
 ezpc(adcp.mtime,cfg.ranges,squeeze(adcp.corr(:,2,:)));

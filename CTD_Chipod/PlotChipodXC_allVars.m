@@ -18,7 +18,7 @@ wysiwyg
 ax = MySubplot(0.1, 0.05, 0.02, 0.06, 0.1, 0.02, 1,5);
 
 axes(ax(1))
-ezpc(XC.([whSN '_' castdir]).lat,XC.([whSN '_' castdir]).P,log10(XC.([whSN '_' castdir]).N2) )
+ezpc(XC.([whSN '_' castdir]).lat,XC.([whSN '_' castdir]).P,log10(XC.([whSN '_' castdir]).N2) );
 hold on
 cb=colorbar;
 cb.Label.String='log_{10}N^2 [s^{-2}]';
@@ -28,12 +28,12 @@ plot(XC.([whSN '_' castdir]).lat,0,'kp')
 %    xlim(xl)
 %    ylim(yl)
 xtloff
-title([XC.Name  ' \chi -pod ' whSN ' ' castdir 'casts'])
-SubplotLetterMW('N^2')
+title([XC.Name  ' \chi -pod ' whSN ' ' castdir 'casts'],'interpreter','none')
+SubplotLetterMW('N^2');
 
 %
 axes(ax(2))
-ezpc(XC.([whSN '_' castdir]).lat,XC.([whSN '_' castdir]).P,log10(XC.([whSN '_' castdir]).dTdz))
+ezpc(XC.([whSN '_' castdir]).lat,XC.([whSN '_' castdir]).P,log10(XC.([whSN '_' castdir]).dTdz));
 hold on
 %    xlim(xl)
 %    ylim(yl)
@@ -45,7 +45,7 @@ cb.Label.FontSize=14;
 
 %
 axes(ax(3))
-ezpc(XC.([whSN '_' castdir]).lat,XC.([whSN '_' castdir]).P,log10(XC.([whSN '_' castdir]).chi))
+ezpc(XC.([whSN '_' castdir]).lat,XC.([whSN '_' castdir]).P,log10(XC.([whSN '_' castdir]).chi));
 hold on
 caxis([-11 -7])
 %    xlim(xl)
@@ -59,7 +59,7 @@ cb.Label.FontSize=14;
 
 %
 axes(ax(4))
-ezpc(XC.([whSN '_' castdir]).lat,XC.([whSN '_' castdir]).P,log10(XC.([whSN '_' castdir]).eps))
+ezpc(XC.([whSN '_' castdir]).lat,XC.([whSN '_' castdir]).P,log10(XC.([whSN '_' castdir]).eps));
 hold on
 cb=colorbar;
 cb.Label.String='log_{10}\epsilon [Wkg^{-1}]';
@@ -72,7 +72,7 @@ SubplotLetterMW('eps');
 
 %
 axes(ax(5))
-ezpc(XC.([whSN '_' castdir]).lat,XC.([whSN '_' castdir]).P,log10(XC.([whSN '_' castdir]).KT))
+ezpc(XC.([whSN '_' castdir]).lat,XC.([whSN '_' castdir]).P,log10(XC.([whSN '_' castdir]).KT));
 cb=colorbar;
 cb.Label.String='log_{10}K_T';
 cb.Label.FontSize=14;

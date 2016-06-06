@@ -92,72 +92,72 @@ for a=1:nfiles
     file_time=fname(time_inds);
     
     try
-    
-    %    if datenum(file_time,'yymmddhh')>(time_range(1)-t_extra/24) & datenum(file_time,'yymmddhh')<(time_range(2)+t_extra/24)
-    if datenum(file_time,'yymmddhh')>(time_range(1)-t_extra/24) && datenum(file_time,'yymmddhh')<(time_range(2))% AP start time of file has to be before end of time_range...
         
-        % we've got the right file, so let's load it.
-        fname=fullfile(the_path,the_files(a).name);
-        
-        % save the filename
-        fnamelist{fcount}=the_files(a).name;
-        fcount=fcount+1;
-        
-        try
-            if isbig
-                [data head]=raw_load_chipod(fname);
-                chidat.datenum=data.datenum;
-                len=length(data.datenum);
-                if mod(len,2)
-                    len=len-1; % for some reason datenum is odd!
-                end
-                chidat.T1=makelen(data.T1(1:(len/2)),len);
-                chidat.T1P=data.T1P;
-                chidat.T2=makelen(data.T2(1:(len/2)),len);
-                chidat.T2P=data.T2P;
-                chidat.AX=makelen(data.AX(1:(len/2)),len);
-                chidat.AY=makelen(data.AY(1:(len/2)),len);
-                chidat.AZ=makelen(data.AZ(1:(len/2)),len);
-            else
-                % its a minichipod
-                
-                try
-                    [out,counter]=load_mini_chipod(fname);
-                catch
-                    try
-                        [out,counter]=load_mini_chipod(fname,8400);
-                    catch
+        %    if datenum(file_time,'yymmddhh')>(time_range(1)-t_extra/24) & datenum(file_time,'yymmddhh')<(time_range(2)+t_extra/24)
+        if datenum(file_time,'yymmddhh')>(time_range(1)-t_extra/24) && datenum(file_time,'yymmddhh')<(time_range(2))% AP start time of file has to be before end of time_range...
+            
+            % we've got the right file, so let's load it.
+            fname=fullfile(the_path,the_files(a).name);
+            
+            % save the filename
+            fnamelist{fcount}=the_files(a).name;
+            fcount=fcount+1;
+            
+            try
+                if isbig
+                    [data head]=raw_load_chipod(fname);
+                    chidat.datenum=data.datenum;
+                    len=length(data.datenum);
+                    if mod(len,2)
+                        len=len-1; % for some reason datenum is odd!
                     end
+                    chidat.T1=makelen(data.T1(1:(len/2)),len);
+                    chidat.T1P=data.T1P;
+                    chidat.T2=makelen(data.T2(1:(len/2)),len);
+                    chidat.T2P=data.T2P;
+                    chidat.AX=makelen(data.AX(1:(len/2)),len);
+                    chidat.AY=makelen(data.AY(1:(len/2)),len);
+                    chidat.AZ=makelen(data.AZ(1:(len/2)),len);
+                else
+                    % its a minichipod
+                    
+                    try
+                        [out,counter]=load_mini_chipod(fname);
+                    catch
+                        try
+                            [out,counter]=load_mini_chipod(fname,8400);
+                        catch
+                        end
+                    end
+                    chidat.datenum=counter;
+                    chidat.T1=out(:,2);
+                    chidat.T1P=out(:,1);
+                    
+                    %~~ Sometimes AX/AZ are wired differently; AZ should always
+                    %be larger than AX because it contains g
+                    % ** Not actually true, AZ<AX if mounted upside down? Need
+                    % to look in detail at data to determine correct order
+                    clear A1 A2
+                    A1=3*out(:,3);
+                    A2=3*out(:,4);
+                    if nanmean(A1)>nanmean(A2)
+                        chidat.AX=A2;
+                        chidat.AZ=A1;
+                    elseif nanmean(A1)<nanmean(A2)
+                        chidat.AX=A1;
+                        chidat.AZ=A2;
+                    end
+                    %~~
+                    
                 end
-                chidat.datenum=counter;
-                chidat.T1=out(:,2);
-                chidat.T1P=out(:,1);
-                
-                %~~ Sometimes AX/AZ are wired differently; AZ should always
-                %be larger than AX because it contains g
-                % ** Not actually true, AZ<AX if mounted upside down? Need
-                % to look in detail at data to determine correct order
-                clear A1 A2
-                A1=3*out(:,3);
-                A2=3*out(:,4);
-                if nanmean(A1)>nanmean(A2)
-                    chidat.AX=A2;
-                    chidat.AZ=A1;
-                elseif nanmean(A1)<nanmean(A2)
-                    chidat.AX=A1;
-                    chidat.AZ=A2;
-                end
-                %~~
-                
+                big=mergefields_jn(big,chidat,1,1);
+            catch
             end
-            big=mergefields_jn(big,chidat,1,1);
-        catch
+            
+        else
+            %     disp('didnt find any files in time range');
         end
         
-    else
- %     disp('didnt find any files in time range');
-    end
-    
     end % try
     
     
@@ -180,6 +180,8 @@ big.MakeInfo=['Made ' datestr(now) ' w/ ' mfilename ' in ' version];
 big.chi_files=fnamelist;
 
 if plotit==1
+    
+    yltp=[2.02 2.06];
     
     if ~isnan(big.datenum)
         
@@ -204,6 +206,7 @@ if plotit==1
             axes(ax(2))
             plot(big.datenum,big.T1P);
             axis tight
+            ylim(yltp)
             ylabel('T1P [V]')
             xlim(time_range)
             grid on
@@ -212,6 +215,7 @@ if plotit==1
             axes(ax(3))
             plot(big.datenum,big.T2P);
             axis tight
+            ylim(yltp)
             ylabel('T2P [V]')
             xlim(time_range)
             grid on
@@ -247,6 +251,7 @@ if plotit==1
             axes(ax(2))
             plot(big.datenum,big.T1P);
             axis tight
+            ylim(yltp)
             ylabel('T1P [V]')
             xlim(time_range)
             grid on

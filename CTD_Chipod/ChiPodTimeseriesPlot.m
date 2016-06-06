@@ -67,6 +67,12 @@ if chidat.Info.isbig
 else
     legend('CTD','chi','location','best');
 end
+
+% Fix axis lims if data is off scale
+y1=nanmax([-3 nanmin(CTD_24hz.t1)]);
+y2=nanmin([40 nanmax(CTD_24hz.t1)]);
+ylim([y1 y2])    
+
 ylabel('T [\circ C]')
 xlim(xls)
 datetick('x')
@@ -78,7 +84,7 @@ axes(ax(5))
 plot(chidat.datenum,chidat.cal.T1P)
 ylabel('dT/dt [K/s]')
 xlim(xls)
-ylim(1*[-1 1])
+ylim(0.3*[-1 1])
 datetick('x')
 grid on
 gridxy;
@@ -90,7 +96,7 @@ if chidat.Info.isbig
     plot(chidat.datenum,chidat.cal.T2P)
     ylabel('dT/dt [K/s]')
     xlim(xls)
-    ylim(1*[-1 1])
+    ylim(0.3*[-1 1])
     datetick('x')
     grid on
     gridxy;

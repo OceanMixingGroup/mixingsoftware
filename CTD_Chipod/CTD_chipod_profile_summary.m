@@ -36,7 +36,7 @@ plot(TP,chi_todo_now.P),axis ij
 grid on
 xlabel('dT/dt')
 axis tight
-xlim(1.5*[-1 1])
+xlim(0.75*[-1 1])
 ytloff
 ylim([0 nanmax(avg.P)])
 gridxy

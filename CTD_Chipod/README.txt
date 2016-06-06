@@ -1,10 +1,10 @@
 
-CTD_chipod
-
+# CTD_chipod
+  
 
 This folder is part of the OSU Ocean Mixing Group ‘mixing software’ github repository. It was added by A. Pickering in March 2015.
 
-This folder contains Matlab codes to process data from chi pods deployed on CTD rosettes.
+## This folder contains Matlab codes to process data from chi pods deployed on CTD rosettes.
 
 The starting point for these codes were codes written by Jonathan Nash, June Marion, and others at OSU. These codes call many pre-existing chi pod functions (see the ‘chipod’ folder in the repository), also written by others at OSU. 
 

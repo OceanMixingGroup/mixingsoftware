@@ -89,11 +89,11 @@ for icast=1:length(CTD_list)
     time_range=[min(CTD_24hz.datenum) max(CTD_24hz.datenum)];
     d.time_range=datestr(time_range);
         
-    % Name of CTD cast to use (assumes 24Hz CTD cast files end in '_0.mat'
-    castStr=castname(1:end-6)
+    % Name of CTD cast to use (assumes 24Hz CTD cast files end in '_24hz.mat'
+    castStr=castname(1:end-9)
     
     %-- Loop through each chipod SN --
-    for iSN=1%:length(ChiInfo.SNs)
+    for iSN=1:length(ChiInfo.SNs)
         
         close all
         clear whSN this_chi_info chi_path az_correction suffix isbig cal is_downcast
@@ -206,11 +206,9 @@ for icast=1:length(CTD_list)
                 
                 clear datad_1m datau_1m chi_inds p_max ind_max ctd
                 
-                id3=strfind(castname,'.mat')
-                binned_name=castname(1:id3-3)
                 
-                if exist(fullfile(CTD_out_dir_bin,[ binned_name '.mat']),'file')
-                    load(fullfile(CTD_out_dir_bin,[ binned_name '.mat']));
+                if exist(fullfile(CTD_out_dir_bin,[ castStr '.mat']),'file')
+                    load(fullfile(CTD_out_dir_bin,[ castStr '.mat']));
                     % find max p from chi (which is really just P from CTD)
                     [p_max,ind_max]=max(chidat.cal.P);
                     

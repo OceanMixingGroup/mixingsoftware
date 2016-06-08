@@ -22,32 +22,37 @@
 %
 %---------------------
 % 10/26/15 - A.Pickering - Initial coding
+% 06/08/16 - AP - Updating... 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
 clear ; close all ; clc
 
+
+%~~~~~~~~~~~~~~~~~~~~~~~~
+
 % ***
 this_script_name='ProcessCTDchipod_Template.m'
 
-% start a timer
-tstart=tic;
-
 % *** path for 'mixingsoftware' ***
 mixpath='/Users/Andy/Cruises_Research/mixingsoftware/';
-
-% add paths we need
-addpath(fullfile(mixpath,'CTD_Chipod'));
-addpath(fullfile(mixpath,'CTD_Chipod','Templates'));
-addpath(fullfile(mixpath,'general')); % makelen.m in /general is needed
-addpath(fullfile(mixpath,'marlcham')); % for integrate.m
-addpath(fullfile(mixpath,'adcp')); % need for mergefields_jn.m in load_chipod_data
 
 % *** Load paths for CTD and chipod data
 Load_chipod_paths_TestData
 
 % *** Load chipod deployment info
 Chipod_Deploy_Info_template
+
+%~~~~~~~~~~~~~~~~~~~~~~~~
+
+% Start a timer
+tstart=tic;
+
+% Add paths we will need
+addpath(fullfile(mixpath,'CTD_Chipod'));
+addpath(fullfile(mixpath,'general'))   ;% makelen.m in /general is needed
+addpath(fullfile(mixpath,'marlcham'))  ;% for integrate.m
+addpath(fullfile(mixpath,'adcp'))      ;% need for mergefields_jn.m in load_chipod_data
 
 % Make a list of all ctd files we have
 CTD_list=dir(fullfile(CTD_out_dir_24hz,['*' ChiInfo.CastString '*.mat*']));
@@ -58,6 +63,7 @@ MakeResultsTextFile
 
 % Loop through each ctd file
 hb=waitbar(0,'Looping through ctd files');
+
 for icast=1:length(CTD_list)
     
     close all

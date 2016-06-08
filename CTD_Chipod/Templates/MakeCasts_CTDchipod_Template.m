@@ -16,7 +16,6 @@
 %
 % Output files are saved under /chi_proc_path/
 %
-%
 % This script is part of CTD-chipod routines maintained in a github repo at
 % https://github.com/OceanMixingGroup/mixingsoftware/tree/master/CTD_Chipod
 %
@@ -26,16 +25,16 @@
 % - AlignChipodCTD.m
 % - CalibrateChipodCTD.m
 % - ChiPodTimeseriesPlot.m
-% - 
 %
 %---------------------
 % 10/26/15 - A.Pickering - Initial coding
-% 06/08/16 - AP - Updating... 
+% 06/08/16 - AP - Updating...
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
 clear ; close all ; clc
 
+% Should only need to edit info below
 %~~~~~~~~~~~~~~~~~~~~~~~~
 
 % ***
@@ -67,6 +66,24 @@ disp(['There are ' num2str(length(CTD_list)) ' CTD casts to process in ' CTD_out
 
 % Make a text file to print a summary of results to
 MakeResultsTextFile
+
+% Make a structure to save processing summary info
+Xproc=struct;
+Xproc.SNs=ChiInfo.SNs;
+Xproc.icast=nan*ones(1,length(CTD_list));
+Xproc.Name=cell(1,length(CTD_list));
+Xproc.duration=nan*ones(1,length(CTD_list));
+Xproc.MaxP=nan*ones(1,length(CTD_list));
+Xproc.Prange=nan*ones(1,length(CTD_list));
+empt_struct.drange=nan*ones(length(CTD_list),2);
+empt_struct.toffset=nan*ones(1,length(CTD_list));
+empt_struct.IsChiData=nan*ones(1,length(CTD_list));
+empt_struct.T1cal=nan*ones(1,length(CTD_list));
+empt_struct.T2cal=nan*ones(1,length(CTD_list));
+
+for iSN=1:length(ChiInfo.SNs)
+    Xproc.(ChiInfo.SNs{iSN})=empt_struct ;
+end
 
 % Loop through each ctd file
 hb=waitbar(0,'Looping through ctd files');
@@ -101,9 +118,16 @@ for icast=1:length(CTD_list)
     clear tlim tmp
     time_range=[min(CTD_24hz.datenum) max(CTD_24hz.datenum)];
     d.time_range=datestr(time_range);
-        
+    
     % Name of CTD cast to use (assumes 24Hz CTD cast files end in '_24hz.mat'
     castStr=castname(1:end-9)
+    
+    Xproc.icast(icast)=icast;
+    Xproc.Name(icast)={castStr};
+    Xproc.MaxP(icast)=nanmax(CTD_24hz.p);
+    Xproc.duration(icast)=nanmax(CTD_24hz.datenum)-nanmin(CTD_24hz.datenum);
+    Xproc.Prange(icast)=range(CTD_24hz.p);
+    Xproc.(whSN).drange(icast,:)=time_range;
     
     %-- Loop through each chipod SN --
     for iSN=1:length(ChiInfo.SNs)
@@ -127,7 +151,7 @@ for icast=1:length(CTD_list)
         fprintf(fileID,[ ' \n ---------\n' ]);
         %##
         
-        %~~ specific paths for this chipod
+        % Get specific paths for this chipod
         
         chi_proc_path_specific=fullfile(chi_proc_path,[whSN]);
         ChkMkDir(chi_proc_path_specific)
@@ -135,8 +159,13 @@ for icast=1:length(CTD_list)
         chi_fig_path_specific=fullfile(chi_proc_path_specific,'figures')
         ChkMkDir(chi_fig_path_specific)
         
-        % filename for processed chipod data (will check if already exists)
+        % Filename for processed chipod data (will check if already exists)
         processed_file=fullfile(chi_proc_path_specific,['cast_' cast_suffix '_' whSN '.mat'])
+        
+        % Plot the raw CTD data
+        ax=PlotRawCTDTbeam(CTD_24hz)
+        print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig0_RawCTD']))
+        
         
         %~~ Load chipod data
         if  1 %~exist(processed_file,'file')
@@ -144,13 +173,13 @@ for icast=1:length(CTD_list)
             % else
             disp('loading chipod data')
             
-            % find and load chipod data for this time range
+            % Find and load chipod data for this time range
             chidat=load_chipod_data(chi_path,time_range,suffix,isbig,1);
             ab=get(gcf,'Children');
             axes(ab(end));
             title([whSN ' - ' castname ' - Raw Data '],'interpreter','none')
             
-            % save plot
+            % Save plot
             print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig1_RawChipodTS']))
             
             chidat.time_range=time_range;
@@ -160,18 +189,21 @@ for icast=1:length(CTD_list)
             ChkMkDir(savedir_cast)
             save(fullfile(savedir_cast,[castStr '_' whSN '.mat']),'chidat')
             
-            % carry over chipod info
+            % Carry over chipod info
             chidat.Info=this_chi_info;
             chidat.cal=this_chi_info.cal;
             az_correction=this_chi_info.az_correction;
             
+            % If we have enough good chipod data, continue
             if length(chidat.datenum)>1000
                 
-                % Align
+                Xproc.(whSN).IsChiData(icast)=1;
+                
+                % Align w/ CTD timeseries
                 [CTD_24hz chidat]=AlignChipodCTD(CTD_24hz,chidat,az_correction,1);
                 print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig2_w_TimeOffset']))
                 
-                % zoom in and plot again
+                % Zoom in and plot again to check alignment
                 xlim([nanmin(chidat.datenum) nanmin(chidat.datenum)+400/86400])
                 print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig3_w_TimeOffset_Zoom']))
                 
@@ -179,13 +211,13 @@ for icast=1:length(CTD_list)
                 [CTD_24hz chidat]=CalibrateChipodCTD(CTD_24hz,chidat,az_correction,1);
                 print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig4_dTdtSpectraCheck']))
                 
-                % save again, with time-offset and calibration added
+                % Save again, with time-offset and calibration added
                 savedir_cal=fullfile(chi_proc_path_specific,'cal')
                 ChkMkDir(savedir_cal)
                 % processed_file=fullfile(chi_proc_path_specific,['cast_' cast_suffix '_' whSN '.mat'])
                 save(fullfile(savedir_cal,[castStr '_' whSN '.mat']),'chidat')
                 
-                % check if T1 calibration is ok
+                % Check if T1 calibration is ok
                 clear out2 err pvar
                 out2=interp1(chidat.datenum,chidat.cal.T1,CTD_24hz.datenum);
                 err=out2-CTD_24hz.t1;
@@ -197,6 +229,7 @@ for icast=1:length(CTD_list)
                     %##
                 end
                 
+                % Check if T2 calibration is ok
                 if this_chi_info.isbig==1
                     % check if T2 calibration is ok
                     clear out2 err pvar
@@ -208,8 +241,17 @@ for icast=1:length(CTD_list)
                         %##
                         fprintf(fileID,' *T2 calibration not good* ');
                         %##
+                    else
+                        cal_good_T2=1;
                     end
-                end
+                    Xproc.(whSN).T2cal(icast)=cal_good_T2;
+                else
+                    cal_good_T2=nan;
+                end % isbig
+                
+                Xproc.(whSN).T1cal(icast)=cal_good_T1;
+                Xproc.(whSN).toffset(icast)=chidat.time_offset_correction_used*86400; % in sec
+                
                 
                 %~~~~
                 do_timeseries_plot=1;
@@ -226,72 +268,77 @@ for icast=1:length(CTD_list)
                 
                 clear datad_1m datau_1m chi_inds p_max ind_max ctd
                 
-                
-                if exist(fullfile(CTD_out_dir_bin,[ castStr '.mat']),'file')
-                    load(fullfile(CTD_out_dir_bin,[ castStr '.mat']));
-                    % find max p from chi (which is really just P from CTD)
-                    [p_max,ind_max]=max(chidat.cal.P);
+                if cal_good_T1==1 || cal_good_T2==1
                     
-                    %~ break up chi into down and up casts
+                    if exist(fullfile(CTD_out_dir_bin,[ castStr '.mat']),'file')
+                        load(fullfile(CTD_out_dir_bin,[ castStr '.mat']));
+                        % find max p from chi (which is really just P from CTD)
+                        [p_max,ind_max]=max(chidat.cal.P);
+                        
+                        %~ break up chi into down and up casts
+                        
+                        % upcast
+                        chi_up=struct();
+                        chi_up.datenum=chidat.cal.datenum(ind_max:length(chidat.cal.P));
+                        chi_up.P=chidat.cal.P(ind_max:length(chidat.cal.P));
+                        chi_up.T1P=chidat.cal.T1P(ind_max:length(chidat.cal.P));
+                        chi_up.fspd=chidat.cal.fspd(ind_max:length(chidat.cal.P));
+                        chi_up.castdir='up';
+                        chi_up.Info=this_chi_info;
+                        if this_chi_info.isbig
+                            % 2nd sensor on 'big' chipods
+                            chi_up.T2P=chidat.cal.T2P(ind_max:length(chidat.cal.P));
+                        end
+                        chi_up.ctd.bin=datau_1m;
+                        chi_up.ctd.raw=CTD_24hz;
+                        
+                        % downcast
+                        chi_dn=struct();
+                        chi_dn.datenum=chidat.cal.datenum(1:ind_max);
+                        chi_dn.P=chidat.cal.P(1:ind_max);
+                        chi_dn.T1P=chidat.cal.T1P(1:ind_max);
+                        chi_dn.fspd=chidat.cal.fspd(1:ind_max);
+                        chi_dn.castdir='down';
+                        chi_dn.Info=this_chi_info;
+                        if this_chi_info.isbig
+                            % 2nd sensor on 'big' chipods
+                            chi_dn.T2P=chidat.cal.T2P(1:ind_max);
+                        end
+                        chi_dn.ctd.bin=datad_1m;
+                        chi_dn.ctd.raw=CTD_24hz;
+                        %~
+                        
+                        %~~~
+                        % save these data here now
+                        clear fname_dn fname_up
+                        fname_dn=fullfile(savedir_cal,[castStr '_' whSN '_downcast.mat']);
+                        clear C;C=chi_dn;
+                        save(fname_dn,'C')
+                        
+                        fname_up=fullfile(savedir_cal,[castStr '_' whSN '_upcast.mat']);
+                        clear C;C=chi_up;
+                        save(fname_up,'C')
+                        %~~~
+                        %
+                        
+                        
+                    else
+                        %##
+                        fprintf(fileID,' No binned CTD data for this cast ');
+                        %##
+                        disp('No binned CTD data for this cast')
+                        
+                        %
+                    end % if we have binned ctd data
                     
-                    % upcast
-                    chi_up=struct();
-                    chi_up.datenum=chidat.cal.datenum(ind_max:length(chidat.cal.P));
-                    chi_up.P=chidat.cal.P(ind_max:length(chidat.cal.P));
-                    chi_up.T1P=chidat.cal.T1P(ind_max:length(chidat.cal.P));
-                    chi_up.fspd=chidat.cal.fspd(ind_max:length(chidat.cal.P));
-                    chi_up.castdir='up';
-                    chi_up.Info=this_chi_info;
-                    if this_chi_info.isbig
-                        % 2nd sensor on 'big' chipods
-                        chi_up.T2P=chidat.cal.T2P(ind_max:length(chidat.cal.P));
-                    end
-                    chi_up.ctd.bin=datau_1m;
-                    chi_up.ctd.raw=CTD_24hz;
-                    
-                    % downcast
-                    chi_dn=struct();
-                    chi_dn.datenum=chidat.cal.datenum(1:ind_max);
-                    chi_dn.P=chidat.cal.P(1:ind_max);
-                    chi_dn.T1P=chidat.cal.T1P(1:ind_max);
-                    chi_dn.fspd=chidat.cal.fspd(1:ind_max);
-                    chi_dn.castdir='down';
-                    chi_dn.Info=this_chi_info;
-                    if this_chi_info.isbig
-                        % 2nd sensor on 'big' chipods
-                        chi_dn.T2P=chidat.cal.T2P(1:ind_max);
-                    end
-                    chi_dn.ctd.bin=datad_1m;
-                    chi_dn.ctd.raw=CTD_24hz;
-                    %~
-                    
-                    
-                    %~~~
-                    % save these data here now
-                    clear fname_dn fname_up
-                    fname_dn=fullfile(savedir_cal,[castStr '_' whSN '_downcast.mat']);
-                    clear C;C=chi_dn;
-                    save(fname_dn,'C')
-                    
-                    fname_up=fullfile(savedir_cal,[castStr '_' whSN '_upcast.mat']);
-                    clear C;C=chi_up;
-                    save(fname_up,'C')
-                    %~~~
-                    %
-                    
-                else
-                    %##
-                    fprintf(fileID,' No binned CTD data for this cast ');
-                    %##
-                    disp('No binned CTD data for this cast')
-                    
-                end % if we have binned ctd data
+                end % T cal is good
                 
             else
                 disp('no good chi data for this profile');
                 %##
                 fprintf(fileID,' No chi file found ');
                 %##
+                Xproc.(whSN).IsChiData(icast)=0;
             end % if we have good chipod data for this profile
             
         else
@@ -303,7 +350,13 @@ for icast=1:length(CTD_list)
         
     end % each chipod on rosette (up_down_big)
     
-end % each CTD file
+    % save processing info (save after each cast in case it crashes)
+    Xproc.MakeInfo=['Made ' datestr(now) ' w/ ' this_script_name]
+    Xproc.last_iSN=iSN;
+    Xproc.last_icast=icast;
+    save('Xproc.mat','Xproc')
+    
+end % icast (each CTD file)
 
 delete(hb)
 

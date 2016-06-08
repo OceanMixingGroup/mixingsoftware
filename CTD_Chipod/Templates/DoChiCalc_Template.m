@@ -31,6 +31,7 @@
 % 01/03/16 - AP - Modify for files saved as separate upcasts/downcasts
 % 02/07/16 - AP - Add fmax to specified params
 % 02/16/16 - AP - Add option for freq response correction
+% 06/08/16 - AP - Clean up and organize
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 

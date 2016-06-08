@@ -20,6 +20,14 @@
 % This script is part of CTD-chipod routines maintained in a github repo at
 % https://github.com/OceanMixingGroup/mixingsoftware/tree/master/CTD_Chipod
 %
+% Dependencies:
+% - MakeResultsTextFile.m
+% - load_chipod_data.m
+% - AlignChipodCTD.m
+% - CalibrateChipodCTD.m
+% - ChiPodTimeseriesPlot.m
+% - 
+%
 %---------------------
 % 10/26/15 - A.Pickering - Initial coding
 % 06/08/16 - AP - Updating... 
@@ -27,7 +35,6 @@
 %%
 
 clear ; close all ; clc
-
 
 %~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -58,7 +65,7 @@ addpath(fullfile(mixpath,'adcp'))      ;% need for mergefields_jn.m in load_chip
 CTD_list=dir(fullfile(CTD_out_dir_24hz,['*' ChiInfo.CastString '*.mat*']));
 disp(['There are ' num2str(length(CTD_list)) ' CTD casts to process in ' CTD_out_dir_24hz])
 
-% make a text file to print a summary of results to
+% Make a text file to print a summary of results to
 MakeResultsTextFile
 
 % Loop through each ctd file
@@ -69,7 +76,7 @@ for icast=1:length(CTD_list)
     close all
     clear castname tlim time_range cast_suffix_tmp cast_suffix CTD_24hz
     
-    % update waitbar
+    % Update waitbar
     waitbar(icast/length(CTD_list),hb)
     
     % CTD castname we are working with
@@ -107,15 +114,18 @@ for icast=1:length(CTD_list)
         whSN=ChiInfo.SNs{iSN};
         this_chi_info=ChiInfo.(whSN);
         
-        % full path to raw data for this chipod
+        % Full path to raw data for this chipod
         chi_path=fullfile(chi_data_path,this_chi_info.loggerSN);
         suffix=this_chi_info.suffix;
+        
         isbig=this_chi_info.isbig;
         cal=this_chi_info.cal;
         
+        %##
         fprintf(fileID,[ ' \n\n ---------' ]);
         fprintf(fileID,[ ' \n ' whSN ]);
         fprintf(fileID,[ ' \n ---------\n' ]);
+        %##
         
         %~~ specific paths for this chipod
         
@@ -182,7 +192,9 @@ for icast=1:length(CTD_list)
                 pvar=100* (1-(nanvar(err)/nanvar(CTD_24hz.t1)) );
                 if pvar<50
                     disp('Warning T calibration not good')
+                    %##
                     fprintf(fileID,' *T1 calibration not good* ');
+                    %##
                 end
                 
                 if this_chi_info.isbig==1
@@ -193,7 +205,9 @@ for icast=1:length(CTD_list)
                     pvar=100* (1-(nanvar(err)/nanvar(CTD_24hz.t1)) );
                     if pvar<50
                         disp('Warning T2 calibration not good')
+                        %##
                         fprintf(fileID,' *T2 calibration not good* ');
+                        %##
                     end
                 end
                 
@@ -266,20 +280,25 @@ for icast=1:length(CTD_list)
                     %
                     
                 else
-                    
+                    %##
                     fprintf(fileID,' No binned CTD data for this cast ');
+                    %##
                     disp('No binned CTD data for this cast')
                     
                 end % if we have binned ctd data
                 
             else
                 disp('no good chi data for this profile');
+                %##
                 fprintf(fileID,' No chi file found ');
+                %##
             end % if we have good chipod data for this profile
             
         else
             disp('this file already processed')
+            %##
             fprintf(fileID,' file already exists, skipping ');
+            %##
         end % already processed
         
     end % each chipod on rosette (up_down_big)

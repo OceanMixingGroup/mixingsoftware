@@ -20,11 +20,11 @@
 % https://github.com/OceanMixingGroup/mixingsoftware/tree/master/CTD_Chipod
 %
 % Dependencies:
-% Compute_N2_dTdz_forChi.m
-% ctd_rmdepthloops.m
-% MakeCtdChiWindows.m
-% fast_psd.m
-% get_chipod_chi.m
+% - Compute_N2_dTdz_forChi.m
+% - ctd_rmdepthloops.m
+% - MakeCtdChiWindows.m
+% - fast_psd.m
+% - get_chipod_chi.m
 %
 %----------------
 % 10/26/15 - AP - Initial coding
@@ -36,6 +36,7 @@
 
 clear ; close all
 
+%~~~~~~~~~~~~~~~~~~~~~
 % ***
 this_script_name='DoChiCalc_Template.m'
 
@@ -52,41 +53,45 @@ Params.nfft=128;     % nfft to use in computing wavenumber spectra
 Params.extra_z=2;    % number of extra meters to get rid of due to CTD pressure loops.
 Params.wthresh = 0.3;% w threshold for removing CTD pressure loops
 Params.TPthresh=1e-6 % minimum TP variance to do calculation
-Params.fmax=20;      % max freq to integrate TP spectrum to in chi calc
-Params.resp_corr=1;  % correct TP spectra for freq response of thermistor
-Params.fc=10;        % cutoff frequency for response correction
+Params.fmax=7;      % max freq to integrate TP spectrum to in chi calc
+Params.resp_corr=0;  % correct TP spectra for freq response of thermistor
+Params.fc=99;        % cutoff frequency for response correction
 Params.gamma=0.2;    % mixing efficiency
 %~~
+%~~~~~~~~~~~~~~~~~~~~~
 
 % use default fc=99 for no correction (to make file paths same)
 if Params.resp_corr==0
     Params.fc=99;
 end
 
-
-% initialize a text file for summary of processing
+% Initialize a text file for summary of processing
 MakeResultsTextFile_ChiCalc
 
-% choose which sensor to work on
+% Choose which sensor to work on
 for iSN=1:length(ChiInfo.SNs)
     
     clear whSN
     whSN=ChiInfo.SNs{iSN}
     
-    % specific paths for this sensor
+    % Specific paths for this sensor
     clear chi_proc_path_specific chi_fig_path savedir_cal
     chi_proc_path_specific=fullfile(chi_proc_path,[whSN]);
     chi_fig_path_specific=fullfile(chi_proc_path_specific,'figures')
     savedir_cal=fullfile(chi_proc_path_specific,'cal')
+    %##
     fprintf(fileID,['\n processed path: \n ' chi_proc_path  ]);
+    %##
     
-    % get list of cast files we have
+    % Get list of cast files we have
     clear Flist
     Flist=dir(fullfile(savedir_cal,['*' whSN '*cast.mat']));
     disp(['There are ' num2str(length(Flist)) ' casts to process '])
+    %##
     fprintf(fileID,['\n There are ' num2str(length(Flist)) ' casts to process \n\n ']);
+    %##
     
-    % for each cast, do chi calculations
+    % For each cast, do chi calculations
     for icast=1:length(Flist)
         
         fprintf(fileID,['\n-------\n working on ' Flist(icast).name ' (icast=' num2str(icast) ')\n-------']);
@@ -117,14 +122,16 @@ for iSN=1:length(ChiInfo.SNs)
                         whsens='T2';
                 end
                 
+                %##
                 fprintf(fileID,['\n----\n  sensor ' whsens]);
+                %##
                 
                 %-- load data
                 clear fname castfile id1
                 castfile=Flist(icast).name;
                 id1=strfind(castfile,['_' whSN]);
                 castStr=castfile(1:id1-1);
-                %                fname=fullfile(savedir_cal,[castStr '_' whSN '_' castdir 'cast.mat']);
+                %fname=fullfile(savedir_cal,[castStr '_' whSN '_' castdir 'cast.mat']);
                 fname=fullfile(savedir_cal,castfile)
                 load(fname)
                 %---
@@ -148,7 +155,9 @@ for iSN=1:length(ChiInfo.SNs)
                 clear ib_loop Nloop
                 ib_loop=find(C.is_good_data==0);
                 Nloop=length(ib_loop);
+                %##
                 fprintf(fileID,['\n  ' num2str(round(Nloop/length(C.datenum)*100)) ' percent of points removed for depth loops ']);
+                %##
                 disp(['\n  ' num2str(round(Nloop/length(C.datenum)*100)) ' percent of points removed for depth loops ']);
                 
                 figure(55);clf
@@ -161,19 +170,16 @@ for iSN=1:length(ChiInfo.SNs)
                 grid on
                 %
                 
-                %------
-                %~~~ ~ New
-                
-                % find segments of good data (where no glitches AND
+                % Find segments of good data (where no glitches AND
                 % no depth loops)
                 clear idg b Nsegs
                 TP(ib_loop)=nan;
                 
-                %-- get windows for chi calculation
+                % Get windows for chi calculation
                 clear todo_inds Nwindows
                 [todo_inds,Nwindows]=MakeCtdChiWindows(TP,Params.nfft);
                 
-                %~ make 'avg' structure for the processed data
+                % Make 'avg' structure for the processed data
                 clear avg
                 avg=struct();
                 avg.Params=Params;
@@ -185,7 +191,7 @@ for iSN=1:length(ChiInfo.SNs)
                 
                 avg.samplerate=1./nanmedian(diff(C.datenum))/24/3600;
                 
-                % get average time, pressure, and fallspeed in each window
+                % Get average time, pressure, and fallspeed in each window
                 for iwind=1:Nwindows
                     clear inds
                     inds=todo_inds(iwind,1) : todo_inds(iwind,2);
@@ -194,7 +200,7 @@ for iSN=1:length(ChiInfo.SNs)
                     avg.fspd(iwind)=nanmean(C.fspd(inds));
                 end
                 
-                %~~ plot histogram of avg.P to see how many good windows we have in
+                %~~ Plot histogram of avg.P to see how many good windows we have in
                 % each 10m bin
                 figure
                 hi=histogram(avg.P,0:10:nanmax(avg.P));
@@ -205,32 +211,32 @@ for iSN=1:length(ChiInfo.SNs)
                 print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avgPhist']))
                 whfig=whfig+1;
                 
-                % get N2, dTdz for each window
+                % Get N2, dTdz for each window
                 good_inds=find(~isnan(ctd.p));
-                % interpolate ctd data to same pressures as chipod
+                % Interpolate ctd data to same pressures as chipod
                 avg.N2=interp1(ctd.p(good_inds),ctd.N2(good_inds),avg.P);
                 avg.dTdz=interp1(ctd.p(good_inds),ctd.dTdz(good_inds),avg.P);
                 avg.T=interp1(ctd.p(good_inds),ctd.t1(good_inds),avg.P);
                 avg.S=interp1(ctd.p(good_inds),ctd.s1(good_inds),avg.P);
                 
-                % note sw_visc not included in newer versions of sw?
+                % Note sw_visc not included in newer versions of sw?
                 avg.nu=sw_visc_ctdchi(avg.S,avg.T,avg.P);
                 avg.tdif=sw_tdif_ctdchi(avg.S,avg.T,avg.P);
                 
-                % loop through each window and do the chi
+                % Loop through each window and do the chi
                 % computation
                 for iwind=1:Nwindows
                     clear inds
                     inds=todo_inds(iwind,1) : todo_inds(iwind,2);
                     
-                    % integrate dT/dt spectrum
+                    % Integrate dT/dt spectrum
                     clear tp_power freq
                     [tp_power,freq]=fast_psd(TP(inds),Params.nfft,avg.samplerate);
                     avg.TP1var(iwind)=sum(tp_power)*nanmean(diff(freq));
                     
                     if avg.TP1var(iwind)>Params.TPthresh
                         
-                        % apply filter correction for sensor response?
+                        % Apply filter correction for sensor response
                         if Params.resp_corr==1
                             trans_fcn=0;
                             trans_fcn1=0;
@@ -242,7 +248,7 @@ for iSN=1:length(ChiInfo.SNs)
                                 thermistor_cutoff_frequency),analog_filter_order,analog_filter_freq);
                         end
                         
-                        % compute chi using iterative procedure
+                        % Compute chi using iterative procedure
                         [chi1,epsil1,k,spec,kk,speck,stats]=get_chipod_chi(freq,tp_power,abs(avg.fspd(iwind)),avg.nu(iwind),...
                             avg.tdif(iwind),avg.dTdz(iwind),'nsqr',avg.N2(iwind),'fmax',Params.fmax,'gamma',Params.gamma);
                         %            'doplots',1 for plots
@@ -255,7 +261,7 @@ for iSN=1:length(ChiInfo.SNs)
                 end % windows
                 
                 
-                %~ plot summary figure
+                % Plot summary figure
                 ax=CTD_chipod_profile_summary(avg,C,TP);
                 axes(ax(1))
                 title(['cast ' castStr],'interpreter','none')
@@ -269,7 +275,7 @@ for iSN=1:length(ChiInfo.SNs)
                 
                 castname=castStr;
                 
-                % add lat/lon to avg structure
+                % Add lat/lon to avg structure
                 avg.lat=nanmean(ctd.lat);
                 avg.lon=nanmean(ctd.lon);
                 avg.castname=castname;
@@ -280,7 +286,6 @@ for iSN=1:length(ChiInfo.SNs)
                 ctd.castname=castname;
                 ctd.MakeInfo=['Made ' datestr(now) ' w/ ' this_script_name ];
                 
-                %chi_proc_path_avg=fullfile(chi_proc_path_specific,'avg');
                 chi_proc_path_avg=fullfile(chi_proc_path_specific,'avg',...
                     ['zsm' num2str(Params.z_smooth) 'm_fmax' num2str(Params.fmax) 'Hz_respcorr' num2str(Params.resp_corr) '_fc_' num2str(Params.fc) 'hz_gamma' num2str(Params.gamma*100)] )
                 
@@ -291,17 +296,22 @@ for iSN=1:length(ChiInfo.SNs)
                 
                 ngc=find(~isnan(avg.chi1));
                 if numel(ngc)>1
+                    %##
                     fprintf(fileID,['\n Chi computed for ' C.castdir 'cast, sensor ' whsens]);
                     fprintf(fileID,['\n ' processed_file '\n']);
+                    %##
                 end
                 
             end % up/down, T1/T2
             
         catch
             disp(['Error on ' Flist(icast).name])
-        end
+            %##
+            fprintf(fileID,['Error on ' Flist(icast).name]);
+            %##
+        end % Try
         
-    end % cast #
+    end % icast
     
 end % iSN (different chipods)
 %%

@@ -269,8 +269,7 @@ for icast=1:length(CTD_list)
                     
                     %~~~~
                     do_timeseries_plot=1;
-                    if do_timeseries_plot
-                        
+                    if do_timeseries_plot                        
                         h=ChiPodTimeseriesPlot(CTD_24hz,chidat);
                         axes(h(1))
                         title([castStr ', ' whSN '  ' datestr(time_range(1),'dd-mmm-yyyy HH:MM') '-' datestr(time_range(2),15) ', ' CTD_list(icast).name],'interpreter','none')

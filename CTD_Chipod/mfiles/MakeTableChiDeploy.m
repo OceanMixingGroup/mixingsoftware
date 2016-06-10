@@ -8,6 +8,12 @@ function MakeTableChiDeploy(ChiInfo)
 %
 % Uses data from the 'Chipod_Deploy_Info_XXXX.m' file
 %
+% INPUT
+% - ChiInfo (from Chipod_Deploy_Info_xxxx.m)
+%
+% OUTPUT
+% - Latex table that can be copied and pasted into notes tex file
+%
 %-------------
 % 06/10/16 - A.Pickering - apickering@coas.oregonstate.edu
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~

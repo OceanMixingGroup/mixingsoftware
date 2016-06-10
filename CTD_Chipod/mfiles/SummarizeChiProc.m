@@ -5,7 +5,14 @@ function SummarizeChiProc(ChiInfo,BaseDir)
 %
 % Load Xproc.mat from MakeCasts and summarize CTD and chippod data.
 %
-% check that CTD cast is >x mins, and Prange>xm, otherwise might be bad
+% INPUT
+% - ChiInfo (from Chipod_Deploy_Info_xxxx.m)
+% - BaseDir (from Load_chipod_paths_xxxx.m)
+% 
+% OUTPUT
+% - Plot of which casts there is chipod data for
+% - Plot of time offsets for each chipod
+% - Latex table of some processing summaries that can be copied and pasted
 %
 %---------------
 % 06/10/16 - AP

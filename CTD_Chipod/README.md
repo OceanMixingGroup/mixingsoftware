@@ -8,10 +8,10 @@ The starting point for these codes were codes written by Jonathan Nash, June Mar
 
 ### Organization
 
-- mixingsoftware/chipod contains base chi-pod functions (including the actual chipod calculations).
-- mixingsoftware/CTD_chipod/mfiles contains Matlab functions called during the processing of CTD-chipod data. Many of these call the base /chipod functions after prepping the data.
-- mixingsoftware/CTD_chipod/templates contains template scripts that can be modified to process a specific cruise.
-- The chi pod processing requires CTD data as well, the processing of the CTD data will be done using the ‘ctd_processing’ folder. This will ensure a standard, reproducible format of CTD data, so that the chi pod processing software can be applied to any cruise. 
+- **mixingsoftware/chipod** contains base chi-pod functions (including the actual chipod calculations).
+- **mixingsoftware/CTD_chipod/mfiles** contains Matlab functions called during the processing of CTD-chipod data. Many of these call the base /chipod functions after prepping the data.
+- **mixingsoftware/CTD_chipod/templates** contains template scripts that can be modified to process a specific cruise.
+- The chi pod processing requires CTD data as well, the processing of the CTD data will be done using the **mixingsoftware/ctd_processing** folder. This will ensure a standard, reproducible format of CTD data, so that the chi pod processing software can be applied to any cruise. 
 
 
 *Note* CTD-chipod processing and analysis is a work in progress. Any results should be considered with caution. If you have any questions about the processing, or plan to make any major changes to the codes, please contact Andy Pickering. (apickering@coas.oregonstate.edu)

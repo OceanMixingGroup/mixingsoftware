@@ -40,7 +40,7 @@ clear ; close all ; clc
 % ***
 this_script_name='ProcessCTDchipod_Template.m'
 
-% *** path for 'mixingsoftware' ***
+% *** Local path for /mixingsoftware repo ***
 mixpath='/Users/Andy/Cruises_Research/mixingsoftware/';
 
 % *** Load paths for CTD and chipod data
@@ -49,7 +49,8 @@ Load_chipod_paths_TestData
 % *** Load chipod deployment info
 Chipod_Deploy_Info_template
 
-bad_file_list_I08
+% optional list of bad chi files to ignore
+%bad_file_list_
 
 %~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -61,6 +62,7 @@ addpath(fullfile(mixpath,'CTD_Chipod'));
 addpath(fullfile(mixpath,'general'))   ;% makelen.m in /general is needed
 addpath(fullfile(mixpath,'marlcham'))  ;% for integrate.m
 addpath(fullfile(mixpath,'adcp'))      ;% need for mergefields_jn.m in load_chipod_data
+addpath(fullfile(mixpath,'mfiles'))
 
 % Make a list of all ctd files we have
 CTD_list=dir(fullfile(CTD_out_dir_24hz,['*' ChiInfo.CastString '*.mat*']));
@@ -133,7 +135,7 @@ for icast=1:length(CTD_list)
     Xproc.duration(icast)=nanmax(CTD_24hz.datenum)-nanmin(CTD_24hz.datenum);
     Xproc.Prange(icast)=range(CTD_24hz.p);
     %    Xproc.(whSN).drange(icast,:)=time_range;
-    Xproc.drange(icast)=time_range;
+    Xproc.drange(icast,:)=time_range;
     
     %-- Loop through each chipod SN --
     for iSN=1:length(ChiInfo.SNs)
@@ -164,12 +166,9 @@ for icast=1:length(CTD_list)
         
         chi_fig_path_specific=fullfile(chi_proc_path_specific,'figures')
         ChkMkDir(chi_fig_path_specific)
-        
-        % Filename for processed chipod data (will check if already exists)
-        % processed_file=fullfile(chi_proc_path_specific,['cast_' cast_suffix '_' whSN '.mat'])
-        
+                
         % Plot the raw CTD data
-        ax=PlotRawCTDTbeam(CTD_24hz)
+        ax=PlotRawCTD(CTD_24hz)
         print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig0_RawCTD']))
         
         try
@@ -204,8 +203,7 @@ for icast=1:length(CTD_list)
                     chidat.Info=this_chi_info;
                     chidat.cal=this_chi_info.cal;
                     az_correction=this_chi_info.az_correction;
-                    
-                    
+                                        
                     
                     Xproc.(whSN).IsChiData(icast)=1;
                     
@@ -225,7 +223,7 @@ for icast=1:length(CTD_list)
                     savedir_cal=fullfile(chi_proc_path_specific,'cal')
                     ChkMkDir(savedir_cal)
                     % processed_file=fullfile(chi_proc_path_specific,['cast_' cast_suffix '_' whSN '.mat'])
-                    save(fullfile(savedir_cal,[castStr '_' whSN '.mat']),'chidat')
+                    %save(fullfile(savedir_cal,[castStr '_' whSN '.mat']),'chidat')
                     
                     % Check if T1 calibration is ok
                     clear out2 err pvar cal_good_T1 cal_good_T2
@@ -269,7 +267,7 @@ for icast=1:length(CTD_list)
                     
                     %~~~~
                     do_timeseries_plot=1;
-                    if do_timeseries_plot                        
+                    if do_timeseries_plot
                         h=ChiPodTimeseriesPlot(CTD_24hz,chidat);
                         axes(h(1))
                         title([castStr ', ' whSN '  ' datestr(time_range(1),'dd-mmm-yyyy HH:MM') '-' datestr(time_range(2),15) ', ' CTD_list(icast).name],'interpreter','none')
@@ -304,6 +302,7 @@ for icast=1:length(CTD_list)
                             end
                             chi_up.ctd.bin=datau_1m;
                             chi_up.ctd.raw=CTD_24hz;
+                            chi_uo.time_offset_correction_used=chidat.time_offset_correction_used;
                             
                             % downcast
                             chi_dn=struct();
@@ -319,6 +318,7 @@ for icast=1:length(CTD_list)
                             end
                             chi_dn.ctd.bin=datad_1m;
                             chi_dn.ctd.raw=CTD_24hz;
+                            chi_dn.time_offset_correction_used=chidat.time_offset_correction_used;
                             %~
                             
                             %~~~
@@ -332,9 +332,9 @@ for icast=1:length(CTD_list)
                             clear C;C=chi_up;
                             save(fname_up,'C')
                             %~~~
-                            %
+                            
                             %##
-                            fprintf(fileID,' *T1 calibration not good* ');
+                            fprintf(fileID,'\n success ');
                             %##
                             
                         else

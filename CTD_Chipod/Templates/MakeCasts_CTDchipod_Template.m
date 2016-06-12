@@ -142,7 +142,6 @@ for icast=1:length(CTD_list)
     Xproc.MaxP(icast)=nanmax(CTD_24hz.p);
     Xproc.duration(icast)=nanmax(CTD_24hz.datenum)-nanmin(CTD_24hz.datenum);
     Xproc.Prange(icast)=range(CTD_24hz.p);
-    %    Xproc.(whSN).drange(icast,:)=time_range;
     Xproc.drange(icast,:)=time_range;
     
     %-- Loop through each chipod SN --
@@ -211,7 +210,15 @@ for icast=1:length(CTD_list)
                     chidat.Info=this_chi_info;
                     chidat.cal=this_chi_info.cal;
                     az_correction=this_chi_info.az_correction;
-                                        
+
+                    % *** Might need something like this here
+%                     if strcmp(whSN,'SN2020')
+%                         A1=chidat.AX;
+%                         A2=chidat.AZ;
+%                         rmfield(chidat,{'AX','AZ'})
+%                         chidat.AX=A2;
+%                         chidat.AZ=A1;
+%                     end
                     
                     Xproc.(whSN).IsChiData(icast)=1;
                     

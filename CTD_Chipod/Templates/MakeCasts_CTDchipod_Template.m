@@ -72,6 +72,9 @@ disp(['There are ' num2str(length(CTD_list)) ' CTD casts to process in ' CTD_out
 MakeResultsTextFile
 
 % Make a structure to save processing summary info
+
+if ~exist('Xproc.mat','file')
+
 Xproc=struct;
 Xproc.SNs=ChiInfo.SNs;
 Xproc.icast=nan*ones(1,length(CTD_list));
@@ -80,7 +83,7 @@ Xproc.duration=nan*ones(1,length(CTD_list));
 Xproc.MaxP=nan*ones(1,length(CTD_list));
 Xproc.Prange=nan*ones(1,length(CTD_list));
 Xproc.drange=nan*ones(length(CTD_list),2);
-%empt_struct.drange=nan*ones(length(CTD_list),2);
+
 empt_struct.toffset=nan*ones(1,length(CTD_list));
 empt_struct.IsChiData=nan*ones(1,length(CTD_list));
 empt_struct.T1cal=nan*ones(1,length(CTD_list));
@@ -88,6 +91,11 @@ empt_struct.T2cal=nan*ones(1,length(CTD_list));
 
 for iSN=1:length(ChiInfo.SNs)
     Xproc.(ChiInfo.SNs{iSN})=empt_struct ;
+end
+
+else
+    disp('Xproc already exists, will load and add to it')
+    load('Xproc.mat')
 end
 
 % Loop through each ctd file
@@ -262,8 +270,7 @@ for icast=1:length(CTD_list)
                     end % isbig
                     
                     Xproc.(whSN).T1cal(icast)=cal_good_T1;
-                    Xproc.(whSN).toffset(icast)=chidat.time_offset_correction_used*86400; % in sec
-                    
+                    Xproc.(whSN).toffset(icast)=chidat.time_offset_correction_used*86400; % in sec                    
                     
                     %~~~~
                     do_timeseries_plot=1;

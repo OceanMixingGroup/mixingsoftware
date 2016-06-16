@@ -148,16 +148,25 @@ Calibrated data for each cast. Up and down casts are saved in separate files.
 \begin{itemize}
 \item adsf
 \end{itemize}
-Ex. filename : \verb++
+Ex. filename : \verb+rh10011_SN2013_downcast.mat+
 
 \subsection{avg}
 Result of $\chi$pod calculations. Contains data points for each 1 sec window.
 \begin{itemize}
 \item adsf
 \end{itemize}
-Ex. filename : \verb++
+Ex. filename : \verb+avg_08402_downcast_SN1013_T1.mat+
 
 
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\section{Notes}
+
+There is a template for standard latex notes that can be modified for each cruise/deployment: \verb++.
+
+The following scripts/functions make some standard tables and plots for the notes.
+\verb+SummarizeProc_Template.m+
+\verb+PlotXCsummaries_Template.m+
+\verb+MakeTableChiDeploy.m+
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -168,6 +177,8 @@ Ex. filename : \verb++
 \item Compare different sensors and cast directions: The quality of data obtained depends heavily on the setup of the CTD and the $\chi$pod mounting. Typically the upward looking sensors on the upcasts are the cleanest data. 
 \item Sensitivity to parameters: see details below.
 \end{itemize}
+
+
 
 
 
@@ -185,7 +196,7 @@ Ex. filename : \verb++
 
 \begin{itemize}
 \item \verb+cast_001_RawChipodTS+ (Figure \ref{tsraw}).
-\item \verb+cast_001_w_dTdtSpectraCheck+ (Figure \ref{speccheck}).
+\item \verb+cast_001_w_dTdtSpectraCheck+ (Figure \ref{speccheck}). 
 \item \verb+cast_001_w_TimeOffset+ (Figure \ref{align})
 \item \verb+cast_001_w_TimeOffset_Zoom+ (Figure \ref{alignzoom})
 \item \verb+cast_001_T_P_dTdz_fspd+ (Figure \ref{tscal})
@@ -231,6 +242,7 @@ Ex. filename : \verb++
 \caption{Results of chipod calculation for one cast. Red lines in lower panel are 100m? binned averages.}
 \label{avgsum}
 \end{figure}
+
 
 
 

@@ -30,7 +30,7 @@ end
 
 % Find profile inds for CTD data (ctd profile 'starts' at 10m )
 %ginds=get_profile_inds(CTD_24hz.p,10);
-min_p=10;
+min_p=20;
 inds=find(CTD_24hz.p>min_p);
 ginds=inds(1):inds(end);
 

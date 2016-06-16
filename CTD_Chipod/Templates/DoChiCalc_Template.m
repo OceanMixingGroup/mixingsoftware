@@ -47,6 +47,12 @@ Load_chipod_paths_TestData
 % *** load deployment info
 Chipod_Deploy_Info_template
 
+% *** Local path for /mixingsoftware repo ***
+mixpath='/Users/Andy/Cruises_Research/mixingsoftware/';
+
+% Add path to /CTD_chipod/mfiles
+addpath(fullfile(mixpath,'CTD_Chipod','mfiles'));
+
 %~~ set some params for following calcs
 do_T2_big=1;         % do calc for T2 if big chipod
 Params.z_smooth=20;  % distance (m) over which to smooth N^2 and dT/dz
@@ -97,16 +103,16 @@ for iSN=1:length(ChiInfo.SNs)
     %##
     
     if length(Flist)>1
-        
+
         % For each cast, do chi calculations
         for icast=1:length(Flist)
-            
+
             try
                 
                 %##
                 fprintf(fileID,['\n\n--------------------------\n working on ' Flist(icast).name ' (iSN=' num2str(iSN) ', icast=' num2str(icast) ')\n--------------------------']);
                 %##
-                                
+                
                 close all
                 
                 if ChiInfo.(whSN).isbig==1 && do_T2_big==1
@@ -322,7 +328,7 @@ for iSN=1:length(ChiInfo.SNs)
             end % Try
             
         end % icast
-        
+
     end % if we have casts to process
     
 end % iSN (different chipods)

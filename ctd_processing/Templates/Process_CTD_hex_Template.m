@@ -24,46 +24,30 @@
 %
 %---------------------
 % 04/21/15 - A. Pickering - apickering@coas.oregonstate.edu
+% 06/15/16 - AP - updating template
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
 clear ; close all
 
-BaseDir='/Users/Andy/Cruises_Research/mixingsoftware/ctd_processing'
-
-addpath /Users/Andy/Cruises_Research/mixingsoftware/ctd_processing/
+mixpath='/Users/Andy/Cruises_Research/mixingsoftware/'
+addpath(fullfile(mixpath,'ctd_processing'))
 
 % *** For recording filename used to process data
 this_file_name='Process_CTD_hex_Template.m'
 
-% ~ *** identifying string in filename of CTD files ***
-% example: CTD file 'TS-cast002.hex', CastString='TS'
-CastString='TS'
+%***
+%Paths to raw and processed data ***
+Load_chipod_paths_Template
+Chipod_Deploy_Info_Template
 
+% Identifying string in filename of CTD files
+% example: CTD file 'TS-cast002.hex', CastString='TS'
+CastString=ChiInfo.CastString
+
+% CTD processing params
 ctdParams.wthresh=0.4;
 ctdParams.dzbin=1;
-
-% *** Paths to raw and processed data (all assuming we are in /ctd_processing/ ***
-
-% Folder with raw CTD data (.hex and .XMLCON files)
-CTD_data_dir=fullfile(BaseDir,'TestData','raw')
-
-% Base directory for all output
-CTD_out_dir_root=fullfile(BaseDir,'TestData')
-
-% Folder to save processed 24Hz CTD mat files to
-CTD_out_dir_24hz=fullfile(CTD_out_dir_root,'processed','24hz')
-
-% Folder to save processed and binned CTD mat files to
-CTD_out_dir_bin=fullfile(CTD_out_dir_root,'processed','binned')
-
-% Folder to save figures to
-CTD_out_dir_figs=fullfile(CTD_out_dir_root,'processed','figures')
-
-% % Check if folders exist, and make new if not
-% ChkMkDir(CTD_out_dir_figs)
-% ChkMkDir(CTD_out_dir_bin)
-% ChkMkDir(CTD_out_dir_24hz)
 
 dobin=1;  % bin data
 
@@ -79,9 +63,9 @@ for icast=1%:length(ctdlist)
         close all
         
         clear data1 data2 data3 data4 data5 data6 data7
-        clear ctdname outname matname confile cfg d        
+        clear ctdname outname matname confile cfg d
         
-        disp('=============================================================')        
+        disp('=============================================================')
         
         % name of file we are working on now
         castnameshort=ctdlist(icast).name

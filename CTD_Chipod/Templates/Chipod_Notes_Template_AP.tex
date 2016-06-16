@@ -1,8 +1,22 @@
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%
+% This is a template for standard notes for a CTD-chipod cruise/deployment. 
+%
+% - Use command-F to find 'XXXX' and replace with the cruise name.
+% - Edit graphics paths. Add folder for each chipod deployed.
+% - Make table w/  MakeTableChiDeploy.m and paste in appropriate spot.
+% -  Make table w/  SummarizeProc_XXXX.m  and paste in appropriate spot.
+%
+% 06/16/16 - A.Pickering - apickering@coas.oregonstate.edu
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+%~~~~~~~~ Set up document (these are all just defaults I think)
 \documentclass[11pt]{article}
 \usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
-\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\geometry{letterpaper}                  % ... or a4paper or a5paper or ... 
 %\geometry{landscape}                % Activate for for rotated page geometry
-%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+%\usepackage[parfill]{parskip}      % Activate to begin paragraphs with an empty line rather than an indent
 \usepackage{graphicx}
 \usepackage{amssymb}
 \usepackage{amsmath}
@@ -10,11 +24,10 @@
 \usepackage{hyperref}
 \usepackage{natbib}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+%~~~~~~~~
 
 
-%*** Replace XXXX w/ cruise name everywhere
-
-%***
+%*** Set graphics path for figures
 \graphicspath{
 {/Users/Andy/Cruises_Research/Chipod/XXXX/}
 {/Users/Andy/Cruises_Research/Chipod/XXXX/Figures/}
@@ -69,7 +82,7 @@ Raw (hex) CTD data are processed with:
 %~~~~~~~~
 \subsection{Chipod}
 
-% Made w/ MakeTableChiDeploy
+% **** Made w/ MakeTableChiDeploy
 \begin{table}[htdp]
 \caption{Summary of Chipod deployment .}
 \begin{center}
@@ -119,7 +132,7 @@ Processing scripts are:
 \item Table \ref{procsum} gives a summary of the processing from MakeCasts.
 \end{itemize}
 
-% table made in SummarizeProc_XXXX.m, copy latex here
+% **** table made in SummarizeProc_XXXX.m, copy latex here
 \begin{table}[htdp]
 \caption{Some $\chi$pod processing summary info for XXXX. }
 \begin{center}
@@ -248,7 +261,7 @@ SN & $\chi$ data & T1cal Good & toffset $<$ 1min \\
 
 \clearpage
 \newpage
-%~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Scatter Plots}
 
 \begin{figure}[htbp]
@@ -266,18 +279,12 @@ SN & $\chi$ data & T1cal Good & toffset $<$ 1min \\
 \section{To-Do}
 
 \begin{itemize}
-\item Compare up vs down for each chipod sensor?
-\item Compare different chipods vs. each other for each cast. How do we choose the final value? Average them? Take smallest value?
-\item Add LADCP horizontal velocity to processing (so far just dp/dt from CTD)?
+\item 
 \end{itemize}
 
 
-%~~~~~~~~~~~~~~~~~~~~~~~~~
- \bibliographystyle{ametsoc2014}
-\bibliography{/Users/Andy/Cruises_Research/wavechasers_bib/main}
-
-
-
-
-
 \end{document}  
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+

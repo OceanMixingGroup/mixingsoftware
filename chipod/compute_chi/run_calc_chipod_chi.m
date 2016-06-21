@@ -82,6 +82,11 @@ function run_calc_chipod_chi(dpath,outpath,dpl,unit,ts,tf,dt,depth,...
 % end
 
 
+% determine the beginning of the calculations
+START = now;
+tst= ts;
+tfi = tf;
+
 
 %% basics
 
@@ -131,7 +136,7 @@ for itime=1:niter
     
     % load in the data from individual raw data files (calibrated and
     % converted from voltages to the real units in cal
-    [cal,data,head]=get_chipod_cals(dpath,dpl,unit,ts,tf,depth,...
+    [cal,~,head]=get_chipod_cals(dpath,dpl,unit,ts,tf,depth,...
         hpf_cutoff,use_n2,time_offset);
     
     % load in other raw files if needed to get files in the correct time
@@ -139,10 +144,10 @@ for itime=1:niter
     while isempty(cal) && itime<=niter
         ts=ts+dt;tf=ts+dt;
         itime=itime+1;
-        [cal,data,head]=get_chipod_cals(dpath,dpl,unit,ts,tf,depth,...
+        [cal,~,head]=get_chipod_cals(dpath,dpl,unit,ts,tf,depth,...
             hpf_cutoff,use_n2,time_offset);
     end
-    clear data avg
+    clear avg
     
     % create time vector (even 1s spacing between ts and tf)
     avg.time=ts+1/86400:1/86400:tf;
@@ -520,7 +525,10 @@ for itime=1:niter
             
             % print time step, dT/dz, chi1 and chi2 to screen every minute
             if round((ik-1)/60)==(ik-1)/60
-                disp([datestr(avg.time(ik)),...
+                disp(['['... 
+                     num2str((avg.time(ik)-tst)/(tfi-tst)*100, '%3.1f') '% '...
+                     num2str((tfi - avg.time(ik))/(avg.time(ik)-tst)*(now-START)*24, '%3.2f') ' hours]'... 
+                     datestr(avg.time(ik)),...
                     ', dT/dz=' num2str(dTdz)...
                     ', chi1=' num2str(avg.chi1(ik))...
                     ', chi2=' num2str(avg.chi2(ik))])

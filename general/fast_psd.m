@@ -38,6 +38,6 @@ end
     fre=linspace(fs/nfft,fs/2,nfft/2)';
       if size(x,1)==1
         fre=fre';
-    end
+      end
 
 

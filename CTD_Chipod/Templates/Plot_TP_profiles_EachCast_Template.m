@@ -26,27 +26,46 @@ Load_chipod_paths_Template
 % *** load deployment info
 Chipod_Deploy_Info_Template
 
-% directory for processed data
-datdir=chi_proc_path
 
 % Make list of which CTD casts we have processed
 CTDlist=dir([CTD_out_dir_bin '/*.mat'])
 Ncasts=length(CTDlist)
-%%
+
+% Check if we have any 'big' chipods
+bc=[];
+for iSN=1:length(ChiInfo.SNs);
+    bc=[bc ChiInfo.(ChiInfo.SNs{iSN}).isbig];
+end
+
+%
 hb=waitbar(0)
 for icast=1:Ncasts
     waitbar(icast/Ncasts,hb)
     castname=CTDlist(icast).name(1:end-4)
+    
+    xl=0.5*[-1 1];
     
     % Set up figure
     figure(1);clf
     agutwocolumn(1)
     wysiwyg
     set(gcf,'Name',[castname]);
-    rr=2;cc=length(ChiInfo.SNs);
+    rr=2;%cc=length(ChiInfo.SNs);
+    if any(bc)==1
+        cc=length(ChiInfo.SNs)+1;
+    else
+        cc=length(ChiInfo.SNs);
+    end
+    
     ax=nan*ones(1,2*cc);
-    whax=1;
-    for iSN=1:cc
+    
+    ymax=[];
+    
+    iSNoffset=0
+    
+    for iSN=1:length(ChiInfo.SNs)
+        
+        whax=1;
         
         try
             
@@ -55,8 +74,9 @@ for icast=1:Ncasts
             castdir='down';
             whsens='T1';
             dir2=fullfile(whSN,'cal');
-            load(fullfile(datdir,dir2,[castname '_' whSN '_' castdir 'cast.mat']))
-            yl=[0 nanmax(C.P)];
+            load(fullfile(chi_proc_path,dir2,[castname '_' whSN '_' castdir 'cast.mat']))
+            ymax=[ymax nanmax(C.P)];
+            %yl=[0 nanmax(C.P)];
             
             ax(whax)=subplot(rr,cc,iSN);
             plot(C.([whsens 'P']),C.P)
@@ -65,21 +85,38 @@ for icast=1:Ncasts
             axis ij
             grid on
             xlabel([whsens ' ' castdir])
-            title(whSN)
+            if strcmp(castdir,ChiInfo.(whSN).InstDir.T1)
+                title(whSN,'color','g','fontweight','bold')
+            else
+                title(whSN)
+            end
+            
             gridxy
             
             if iSN~=1
                 ytloff
             end
             
-            
-            % Plot upcasts
-            whax=whax+1;
+        catch
+            ax(whax)=subplot(rr,cc,iSN);
+            if strcmp(castdir,ChiInfo.(whSN).InstDir.T1)
+                title(whSN,'color','g','fontweight','bold')
+            else
+                title(whSN)
+            end
+        end % try
+        
+        
+        % Plot upcasts
+        whax=whax+1;
+        
+        try
             
             clear C
             castdir='up';
-            load(fullfile(datdir,dir2,[castname '_' whSN '_' castdir 'cast.mat']))
-            yl=[0 nanmax(C.P)];
+            load(fullfile(chi_proc_path,dir2,[castname '_' whSN '_' castdir 'cast.mat']))
+            ymax=[ymax nanmax(C.P)];
+            % yl=[0 nanmax(C.P)];
             
             ax(whax)=subplot(rr,cc,iSN+cc);
             plot(C.([whsens 'P']),C.P)
@@ -88,17 +125,106 @@ for icast=1:Ncasts
             axis ij
             grid on
             xlabel([whsens ' ' castdir])
-            title(whSN)
+            if strcmp(castdir,ChiInfo.(whSN).InstDir.T1)
+                title(whSN,'color','g','fontweight','bold')
+            else
+                title(whSN)
+            end
+            
             gridxy
             
             if iSN~=1
                 ytloff
             end
             
-            whax=whax+1;
-            
+        catch
+            ax(whax)=subplot(rr,cc,iSN+cc);
+            if strcmp(castdir,ChiInfo.(whSN).InstDir.T1)
+                title(whSN,'color','g','fontweight','bold')
+            else
+                title(whSN)
+            end
         end % try
         
+        whax=whax+1;
+        
+        if ChiInfo.(whSN).isbig==1
+            iSNoffset=iSNoffset+1
+            ax(whax)=subplot(rr,cc,iSN+iSNoffset);
+            try
+                
+                castdir='down';
+                whsens='T2';
+                dir2=fullfile(whSN,'cal');
+                load(fullfile(chi_proc_path,dir2,[castname '_' whSN '_' castdir 'cast.mat']))
+                ymax=[ymax nanmax(C.P)];
+                
+                plot(C.([whsens 'P']),C.P)
+                xlim(xl)
+                ylim(yl)
+                axis ij
+                grid on
+                xlabel([whsens ' ' castdir])
+                
+                if strcmp(castdir,ChiInfo.(whSN).InstDir.(whsens))
+                    title(whSN,'color','g','fontweight','bold')
+                else
+                    title(whSN)
+                end
+                
+                
+                if iSN~=1
+                    ytloff
+                end
+                
+            catch
+                
+                ax(whax)=subplot(rr,cc,iSN+iSNoffset);
+                
+                if strcmp(castdir,ChiInfo.(whSN).InstDir.(whsens))
+                    title(whSN,'color','g','fontweight','bold')
+                else
+                    title(whSN)
+                end
+                
+            end % try
+            
+            whax=whax+1;
+            
+            ax(whax)=subplot(rr,cc,iSN+iSNoffset+cc);
+            try
+                
+                clear C
+                castdir='up';
+                
+                load(fullfile(chi_proc_path,dir2,[castname '_' whSN '_' castdir 'cast.mat']))
+                ymax=[ymax nanmax(C.P)];
+                
+                plot(C.([whsens 'P']),C.P)
+                xlim(xl)
+                ylim(yl)
+                axis ij
+                grid on
+                xlabel([whsens ' ' castdir])
+                title(whSN)
+                
+                if iSN~=1
+                    ytloff
+                end
+                
+            catch
+                ax(whax)=subplot(rr,cc,iSN+iSNoffset+cc);
+                if strcmp(castdir,ChiInfo.(whSN).InstDir.T1)
+                    title(whSN,'color','g','fontweight','bold')
+                else
+                    title(whSN)
+                end
+            end % try
+            
+            whax=whax+1;
+            
+            
+        end % isbig
         
     end % iSN
     
@@ -108,7 +234,17 @@ for icast=1:Ncasts
         
         axes(ax(2))
         ylabel('Upcasts','fontsize',16)
-                
+        
+        if length(ymax>1)
+            yl=[0 nanmax(ymax)];
+            for iax=1:length(ax)
+                axes(ax(iax))
+                ylim(yl)
+                axis ij
+            end
+        end
+        
+        
         linkaxes(ax)
     end
     

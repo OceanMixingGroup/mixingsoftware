@@ -1,5 +1,5 @@
-function run_calc_chipod_chi(dpath,outpath,dpl,unit,ts,tf,dt,depth,...
-    hpf_cutoff,do_noise,salinity,use_n2,time_offset,min_dTdz)
+% function run_calc_chipod_chi(dpath,outpath,dpl,unit,ts,tf,dt,depth,...
+%     hpf_cutoff,do_noise,salinity,use_n2,time_offset,min_dTdz)
 % 
 % function run_calc_chipod_chi(dpath,outpath,dpl,unit,ts,tf,dt,depth,...
 %    hpf_cutoff,do_noise,salinity,use_n2,time_offset,min_dTdz)
@@ -44,22 +44,22 @@ function run_calc_chipod_chi(dpath,outpath,dpl,unit,ts,tf,dt,depth,...
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%% to switch this to a stand-alone .m file (for debugging) %%%%%
-% clear all
-% dpath='~/ganges/data/chipod/TAO11_140/';
-% outpath='~/ganges/data/chipod/TAO11_140/Processed/chi_analysis_dTdz_N2_fromTAO/';
-% dpl='tao11_140';
-% unit = 312;
-% ts = datenum(2011,10,17,0,0,0);
-% tf = datenum(2012,4,11,2,0,1);
-% % tf = datenum(2011,10,18,2,0,0);
-% dt=2/24;
-% depth = 29;
-% hpf_cutoff=0.04;
-% do_noise=0;
-% salinity=35;
-% use_n2=1;
-% time_offset = 0;
-% min_dTdz = 1e-3;
+clear all
+dpath='~/ganges/data/chipod/RAMA13/';
+outpath='~/ganges/data/chipod/RAMA13/processed/chi_analysis/';
+dpl='rama13';
+unit = 526;
+ts = datenum(2014,10,1,0,0,0);
+tf = datenum(2012,11,1,0,0,0);
+% tf = datenum(2011,10,18,2,0,0);
+dt=1/24;
+depth = 15;
+hpf_cutoff=0.04;
+do_noise=0;
+salinity=35;
+use_n2=0;
+time_offset = 0;
+min_dTdz = 1e-4;
 
 % %%%%%%%%%%%%%%%%%% end input
 % % when switching back to a function remember to:
@@ -176,21 +176,25 @@ for itime=1:niter
     % predefine variables which may or may not be included in this
     % deployment
     for jj=1:length(calfields)
-        switch calfields(jj,1:4)
-            case 'RX  '
+        switch calfields(jj,1:5)
+            case 'RX   '
                 avg.velu=NaN*ones(1,len_series);
                 avg.veln=NaN*ones(1,len_series);
                 avg.vele=NaN*ones(1,len_series);
                 avg.dispu=NaN*ones(1,len_series);
                 avg.dispn=NaN*ones(1,len_series);
                 avg.dispe=NaN*ones(1,len_series);
-            case 'W1  '
+            case 'W1   '
                 avg.r1omega_3P=NaN*ones(1,len_series);
                 avg.fspd_3P=NaN*ones(1,len_series);
-            case 'dTdz'
+            case 'dTdz '
                 avg.dTdz=NaN*ones(1,len_series);
-            case 'N2  '
+            case 'N2   '
                 avg.N2=NaN*ones(1,len_series);
+            case 'dTdzb'
+                avg.dTdzb=NaN*ones(1,len_series);
+            case 'N2b  '
+                avg.N2b=NaN*ones(1,len_series);
         end
     end   
     if head.version==80
@@ -236,6 +240,7 @@ for itime=1:niter
                 % find dTdz from the chipod temperatures
                 avg.dT1dz(ik)=get_dTdz_byslope(cal.DEPTH,cal.T1,cal.time,tstart,tend);
                 avg.dT2dz(ik)=get_dTdz_byslope(cal.DEPTH,cal.T2,cal.time,tstart,tend);
+               
                 
                 % find the means of all fields as defined by index id or idslow
                 avg.T1(ik)=nanmean(cal.T1(id));
@@ -259,8 +264,8 @@ for itime=1:niter
                 avg.pitch(ik)=nanmean(cal.pitch(idfast));
                 avg.roll(ik)=nanmean(cal.roll(idfast));
                 for jj=1:length(calfields)
-                    switch calfields(jj,1:4)
-                        case 'RX  '
+                    switch calfields(jj,1:5)
+                        case 'RX   '
                             avg.r1omega(ik)=nanmean(cal.r1omega(idfast));
                             avg.velu(ik)=nanmean(cal.velu(idfast));
                             avg.veln(ik)=nanmean(cal.veln(idfast));
@@ -268,13 +273,17 @@ for itime=1:niter
                             avg.dispu(ik)=nanmean(cal.dispu(idfast));
                             avg.dispn(ik)=nanmean(cal.dispn(idfast));
                             avg.dispe(ik)=nanmean(cal.dispe(idfast));
-                        case 'W1  '
+                        case 'W1   '
                             avg.fspd_3P(ik)=nanmean(cal.fspd_3P(idfast));
                             avg.r1omega_3P(ik)=nanmean(cal.r1omega_3P(idfast));
-                        case 'dTdz'
+                        case 'dTdz '
                             avg.dTdz(ik)=nanmean(cal.dTdz(idfast));
-                        case 'N2  '
+                        case 'N2   '
                             avg.N2(ik)=nanmean(cal.N2(idfast));
+                        case 'dTdzb'
+                            avg.dTdzb(ik)=nanmean(cal.dTdzb(idfast));
+                        case 'N2b  '
+                            avg.N2b(ik)=nanmean(cal.N2b(idfast));
                     end
                 end
                 
@@ -294,6 +303,9 @@ for itime=1:niter
                 avg.dT1dz(ik)=get_dTdz_byslope(cal.DEPTH,cal.T1,cal.time_acc,tstart,tend);
                 avg.dT2dz(ik)=get_dTdz_byslope(cal.DEPTH,cal.T2,cal.time_acc,tstart,tend);
                 
+% % %                 avg.dS1dz(ik)=get_dTdz_byslope(cal.DEPTH,(moor.Sal/moor.T)*cal.T1,cal.time,tstart,tend);
+% % %                 avg.dS2dz(ik)=get_dTdz_byslope(cal.DEPTH,(moor.Sal/moor.T)*cal.T2,cal.time,tstart,tend);
+                 
                 % find means within timesteps defined by id and idslow
                 avg.T1(ik)=nanmean(cal.T1(id));
                 avg.T2(ik)=nanmean(cal.T2(id));
@@ -324,8 +336,8 @@ for itime=1:niter
                 avg.pitch(ik)=nanmean(cal.pitch(id));
                 avg.roll(ik)=nanmean(cal.roll(id));
                 for jj=1:length(calfields)
-                    switch calfields(jj,1:4)
-                        case 'RX  '
+                    switch calfields(jj,1:5)
+                        case 'RX   '
                             avg.r1omega(ik)=nanmean(cal.r1omega(id));
                             avg.velu(ik)=nanmean(cal.velu(id));
                             avg.veln(ik)=nanmean(cal.veln(id));
@@ -333,10 +345,14 @@ for itime=1:niter
                             avg.dispu(ik)=nanmean(cal.dispu(id));
                             avg.dispn(ik)=nanmean(cal.dispn(id));
                             avg.dispe(ik)=nanmean(cal.dispe(id));
-                        case 'dTdz'
+                        case 'dTdz '
                             avg.dTdz(ik)=nanmean(cal.dTdz(id));
-                        case 'N2  '
+                        case 'N2   '
                             avg.N2(ik)=nanmean(cal.N2(id));
+                        case 'dTdzb'
+                            avg.dTdzb(ik)=nanmean(cal.dTdzb(id));
+                        case 'N2b  '
+                            avg.N2b(ik)=nanmean(cal.N2b(id));
                     end
                 end
             end
@@ -411,8 +427,7 @@ for itime=1:niter
             % determine that dTdz is larger than the minium acceptible value, 
             % and that alpha and fspd are within acceptible ranges. If they
             % are not, chi1 is left as NaN.
-%             if avg.fspd(ik) >= 0.04 && alpha1>0 && abs(dTdz)>min_dTdz 
-            if avg.fspd(ik) >= 0.04 && alpha1>0 && dTdz>min_dTdz 
+             if avg.fspd(ik) >= 0.04 && alpha1>0 && abs(dTdz)>min_dTdz 
                 % (sjw 2016/01/13) removed the abs statement, otherwise imaginary values of chi are calcuated
 
                 % calculate psd of dT/dt (apply a correction if coef is ~=0)
@@ -445,9 +460,34 @@ for itime=1:niter
                 
                 % calculate chi!!!
                 if ~exist('Nsqr','var')
+                   if avg.dTdzb(ik)/dTdz < 0.1
+                      chi        = nan;
+                      epsil      = nan;
+                      k          = nan;
+                      spec       = nan;
+                      k_kraich   = nan;
+                      spec_kraich= nan;
+                      stats      = nan;
+                   else
+%                     [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
+%                         get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
+%                         'alpha',alpha1,'fmax',fmax,'gamma',gamma,'doplots',0);
+
+                    % create a local Nsq that corrects for the lack of sallinity
+                    Nsqrl = avg.N2b(ik)*dTdz/avg.dTdzb(ik);
+                    
                     [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
                         get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
-                        'alpha',alpha1,'fmax',fmax,'gamma',gamma,'doplots',0);
+                        'nsqr',Nsqrl,'fmax',fmax,'gamma',gamma,'doplots',0); 
+                   end
+                elseif Nsqr < 0
+                   chi        = nan;
+                   epsil      = nan;
+                   k          = nan;
+                   spec       = nan;
+                   k_kraich   = nan;
+                   spec_kraich= nan;
+                   stats      = nan;
                 else
                     [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
                         get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
@@ -488,8 +528,8 @@ for itime=1:niter
                 thermistor_filter_order=2;
                 thermistor_cutoff_frequency=32;
             end
-%             if avg.fspd(ik) >= 0.04 && alpha2>0 && abs(dTdz)>min_dTdz
-            if avg.fspd(ik) >= 0.04 && alpha2>0 && dTdz>min_dTdz
+
+             if avg.fspd(ik) >= 0.04 && alpha2>0 && abs(dTdz)>min_dTdz
                  % (sjw 2016/01/13) removed the abs statement, otherwise imaginary values of chi are calcuated
                 if head.coef.T2P(3)~=0
                     [tp_power,freq]=fast_psd(cal.T2Pt(idfast),nfft,samplerate);%psd of dT/dt
@@ -509,9 +549,34 @@ for itime=1:niter
                 end
                 % compute chi
                 if ~exist('Nsqr','var')
+                   if avg.dTdzb(ik)/dTdz < 0.1
+                      chi        = nan;
+                      epsil      = nan;
+                      k          = nan;
+                      spec       = nan;
+                      k_kraich   = nan;
+                      spec_kraich= nan;
+                      stats      = nan;
+                   else
+%                     [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
+%                         get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
+%                         'alpha',alpha1,'fmax',fmax,'gamma',gamma,'doplots',0);
+
+                    % create a local Nsq that corrects for the lack of sallinity
+                    Nsqrl = avg.N2b(ik)*dTdz/avg.dTdzb(ik);
+                    
                     [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
-                        get_chipod_chi(freq,tp_power,avg.fspd(ik),nu2,tdif2,dTdz,...
-                        'alpha',alpha2,'fmax',fmax,'gamma',gamma,'doplots',0);
+                        get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
+                        'nsqr',Nsqrl,'fmax',fmax,'gamma',gamma,'doplots',0); 
+                   end
+                elseif Nsqr < 0
+                   chi        = nan;
+                   epsil      = nan;
+                   k          = nan;
+                   spec       = nan;
+                   k_kraich   = nan;
+                   spec_kraich= nan;
+                   stats      = nan;
                 else
                     [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
                         get_chipod_chi(freq,tp_power,avg.fspd(ik),nu2,tdif2,dTdz,...

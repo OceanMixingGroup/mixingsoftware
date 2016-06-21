@@ -65,19 +65,26 @@ load(fullfile(BaseDir,'data',[ChiInfo.Project '_XC']),'XC')
 addpath /Users/Andy/Cruises_Research/ChiPod/mfiles/
 %***
 
-whvar='chi'
-%whvar='KT'
-
-ax=PlotChipodXC_OneVarAllSN(XC,ChiInfo,whvar)
-ylim([0 5000])
-
-axes(ax(1))
-title([ChiInfo.Project '  -  ' whvar])
-
-linkaxes(ax)
-
-if saveplot==1
-    print(fullfile(BaseDir,'Figures',[ChiInfo.Project '_' whvar '_AllSNs_Vslat']),'-dpng')
-end
-
+for ivar=1:2
+    
+    switch ivar
+        case 1
+            whvar='chi'
+        case 2
+            whvar='KT'
+    end
+    
+    ax=PlotChipodXC_OneVarAllSN(XC,ChiInfo,whvar)
+    ylim([0 5000])
+    
+    axes(ax(1))
+    title([ChiInfo.Project '  -  ' whvar])
+    
+    linkaxes(ax)
+    
+    if saveplot==1
+        print(fullfile(BaseDir,'Figures',[ChiInfo.Project '_' whvar '_AllSNs_Vslat']),'-dpng')
+    end
+    
+end % ivar
 %%

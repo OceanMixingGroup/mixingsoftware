@@ -24,6 +24,10 @@ function ax=PlotChipodXC_allVars(XC,whSN,castdir,whsens,xvar)
 
 %yl=[0 5500];
 
+if isstruct(castdir)
+    castdir=castdir.(whsens);
+end
+
 % Save some typing later on...
 X=XC.([whSN '_' castdir '_' whsens]);
 
@@ -37,7 +41,7 @@ wysiwyg
 ax = MySubplot(0.1, 0.05, 0.02, 0.06, 0.1, 0.02, 1,5);
 
 axes(ax(1))
-ezpc(X.(xvar),X.P,log10(X.N2) );
+ezpc(X.(xvar),X.P,real(log10(X.N2) ));
 hold on
 cb=colorbar;
 cb.Label.String='log_{10}N^2 [s^{-2}]';
@@ -50,7 +54,7 @@ SubplotLetterMW('N^2');
 
 %
 axes(ax(2))
-ezpc(X.(xvar),X.P,log10(X.dTdz));
+ezpc(X.(xvar),X.P,real(log10(X.dTdz)));
 hold on
 xtloff
 SubplotLetterMW('dT/dz');

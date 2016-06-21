@@ -42,17 +42,14 @@
 % path_raw = '~/ganges/data/Yq14/Chameleon/raw/';
 % path_raw = '~/GDrive/data/yq14/data/chameleon/raw/';
 % path_raw = '~/GDrive/data/eq14/chameleon/raw/';
-% path_raw = 'W:\YQ15\Chameleon\raw\';
-path_raw = '~/chameleon/chamsave/raw/';
+path_raw = 'W:\YQ15\Chameleon\raw\';
 
 % path_cham='~/data/yq14/processed/chameleon/';
 % path_cham = '~/ganges/data/Yq14/Chameleon/processed/';
 % path_cham = '~/data/yq14/processed/chameleon/';
 % path_cham = '~/GDrive/data/eq14/chameleon/processed/';
 % path_cham = '~/wdmycloud/mixing/data/EQ14/Chameleon/processed/';
-% path_cham = 'W:\YQ15\Chameleon\processed\';
-path_cham = '/Volumes/chamsave/processed/';
-path_cham = '~/Dropbox/data/Concorde/chameleon/processed/';
+path_cham = 'W:\YQ15\Chameleon\processed\';
 
 % path_writeraw is where the chameleon writes all of the data. Data must be
 % copied FROM here to path_raw before it can be processed!
@@ -66,8 +63,8 @@ path_cham = '~/Dropbox/data/Concorde/chameleon/processed/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % set the cruise ID and year
-cruise_id='concorde16';
-year=2016;
+cruise_id='YQ15';
+year=2015;
 
 % set number of depth bins. This should be greater than the deepest depth
 % of the casts (m)
@@ -77,7 +74,7 @@ n_dep=max_depth_bins;
 
 % startnumber: what is the first cast that you would like to include in the
 % summary file?
-firstfile = 650;
+firstfile = 3103;
 % firstfile = 3193;
 
 

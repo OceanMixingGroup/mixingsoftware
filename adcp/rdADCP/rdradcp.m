@@ -259,7 +259,7 @@ for k=1:n,
   % Gives display so you know something is going on...
     
   if rem(k,50)==0,  fprintf('\n%d',k*num_av);end;
-%   fprintf('.');
+  fprintf('.');
 
   % Read an ensemble
   

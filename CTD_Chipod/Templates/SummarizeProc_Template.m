@@ -118,18 +118,25 @@ for iSN=1:length(Xproc.SNs)
     whSN=Xproc.SNs{iSN}
     idg=find(Xproc.(whSN).IsChiData==1);
     
-    ax1=subplot(ceil(length(Xproc.SNs)/2),2,iSN);
-    plot(Xproc.icast(idg),Xproc.(whSN).toffset(idg),'o')
-    hold on
-    idb=find(abs(Xproc.(whSN).toffset(idg))>yl(2));
-    plot(Xproc.icast(idb),yl(2)*ones(size(idb)),'rx')
-    grid on
-    title(whSN)
-    xlim([1 length(Xproc.icast)])
-    ylim(yl)
-    gridxy
-    xlabel('castID')
-    ylabel('sec')
+    if length(Xproc.SNs)>1
+        
+        ax1=subplot(ceil(length(Xproc.SNs)/2),2,iSN);
+        
+    else
+        
+        plot(Xproc.icast(idg),Xproc.(whSN).toffset(idg),'o')
+        hold on
+        idb=find(abs(Xproc.(whSN).toffset(idg))>yl(2));
+        plot(Xproc.icast(idb),yl(2)*ones(size(idb)),'rx')
+        grid on
+        title(whSN)
+        xlim([1 length(Xproc.icast)])
+        ylim(yl)
+        gridxy
+        xlabel('castID')
+        ylabel('sec')
+        
+    end % if more than 1 SN
     
 end % iSN
 %

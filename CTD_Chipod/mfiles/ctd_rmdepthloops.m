@@ -62,7 +62,6 @@ data.sigma2(iloop) = NaN;
 data.oxygen(iloop) = NaN;
 data.trans(iloop) = NaN;
 data.fl(iloop) = NaN;
-
 return
 
 %%

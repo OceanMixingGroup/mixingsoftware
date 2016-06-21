@@ -52,10 +52,10 @@ ctdParams.dzbin=1;
 dobin=1;  % bin data
 
 % Make list of all ctd files we have
-ctdlist = dirs(fullfile(CTD_data_dir, [cruise '*.hex']))
+ctdlist = dirs(fullfile(CTD_data_dir, [CastString '*.hex']))
 %
 % Loop through each cast
-for icast=1%:length(ctdlist)
+for icast=1:length(ctdlist)
     
     
     try

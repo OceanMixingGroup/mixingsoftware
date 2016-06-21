@@ -53,10 +53,7 @@ if isempty(q);
   q.script.prefix='fake';
 elseif isstr(q)
   raw_name=q;
-  warning('off')
-  clear q
   q.script.prefix='fake';
-  warning('on')
 else
   if ~ismember(q.script.pathname(end),['/','\']);
     q.script.pathname = [q.script.pathname '/'];

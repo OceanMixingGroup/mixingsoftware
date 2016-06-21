@@ -251,7 +251,7 @@ else % new filename standard
             pings.depth=png.depth;
         end
         pings.sample=[pings.sample png.sample];
-%         pings.systime=[pings.systime png.systime];
+        pings.systime=[pings.systime png.systime];
         pings.datenum=[pings.datenum png.datenum];
         pings.lat=[pings.lat png.lat];
         pings.lon=[pings.lon png.lon];
@@ -262,7 +262,7 @@ else % new filename standard
     % retain only data from time interval
     idx=find(pings.datenum > ts & pings.datenum < tf);
     pings.sample=pings.sample(:,idx);
-%     pings.systime=pings.systime(idx);
+    pings.systime=pings.systime(idx);
     pings.datenum=pings.datenum(idx);
     pings.lat=pings.lat(idx);
     pings.lon=pings.lon(idx);

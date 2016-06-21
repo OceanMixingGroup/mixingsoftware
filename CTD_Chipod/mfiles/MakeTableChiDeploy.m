@@ -19,15 +19,10 @@ function MakeTableChiDeploy(ChiInfo)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
-%clear ; close all
 
-%~~~
-%Chipod_Deploy_Info_I08
-%~~~
-
-Nsn=length(ChiInfo.SNs)
-and=' & '
-lend=' \\ '
+Nsn=length(ChiInfo.SNs);
+and=' & ';
+lend=' \\ ';
 clc
 disp('\begin{table}[htdp]')
 disp(['\caption{$\chi$pod Deployment Info for ' ChiInfo.Project '}'])
@@ -40,8 +35,17 @@ disp('\hline')
 disp('\hline')
 
 for iSN=1:Nsn
+    clear whSN InstDir sensorSN
     whSN=ChiInfo.SNs{iSN};
-    disp([whSN and ChiInfo.(whSN).InstType and ChiInfo.(whSN).InstDir and ChiInfo.(whSN).sensorSN lend])    
+    InstDir=ChiInfo.(whSN).InstDir;
+    sensorSN= ChiInfo.(whSN).sensorSN;
+    if isstruct(sensorSN)
+        sensorSN=sensorSN.T1;
+    end
+    if isstruct(InstDir)
+        InstDir=InstDir.T1;
+    end
+    disp([whSN and ChiInfo.(whSN).InstType and InstDir and sensorSN lend])    
 end
 
 disp('\hline')

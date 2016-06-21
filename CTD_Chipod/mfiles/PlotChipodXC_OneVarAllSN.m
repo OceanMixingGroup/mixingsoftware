@@ -48,6 +48,9 @@ for iSN=1:Nsns
         
         whSN=SNlist{iSN};
         castdir=ChiInfo.(whSN).InstDir;
+        if isstruct(castdir)
+            castdir=ChiInfo.(whSN).InstDir.(whsens);
+        end
         
         axes(ax(iSN))
         ezpc(XC.([whSN '_' castdir '_' whsens]).lat,XC.([whSN '_' castdir '_' whsens]).P,log10(XC.([whSN '_' castdir '_' whsens]).(whvar)) );

@@ -31,6 +31,8 @@ function [data,head]=get_chipod_raw(dpath,dpl,unit,ts,tf,time_offset)
 %%%%%%% 3. uncomment/comment input stuff
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+disp('get_chipod_raw')
+
 %% make sure input is correct
 
 if nargin<6

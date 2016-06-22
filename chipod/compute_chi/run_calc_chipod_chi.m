@@ -1,5 +1,5 @@
-% function run_calc_chipod_chi(dpath,outpath,dpl,unit,ts,tf,dt,depth,...
-%     hpf_cutoff,do_noise,salinity,use_n2,time_offset,min_dTdz)
+function run_calc_chipod_chi(dpath,outpath,dpl,unit,ts,tf,dt,depth,...
+    hpf_cutoff,do_noise,salinity,use_n2,time_offset,min_dTdz)
 % 
 % function run_calc_chipod_chi(dpath,outpath,dpl,unit,ts,tf,dt,depth,...
 %    hpf_cutoff,do_noise,salinity,use_n2,time_offset,min_dTdz)
@@ -40,26 +40,26 @@
 %
 %   $Revision: 1.23 $  $Date: 2013/11/07 23:34:18 $
 
-
+disp('run_calc_chipod_chi')
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%% to switch this to a stand-alone .m file (for debugging) %%%%%
-clear all
-dpath='~/ganges/data/chipod/RAMA13/';
-outpath='~/ganges/data/chipod/RAMA13/processed/chi_analysis/';
-dpl='rama13';
-unit = 526;
-ts = datenum(2014,10,1,0,0,0);
-tf = datenum(2012,11,1,0,0,0);
-% tf = datenum(2011,10,18,2,0,0);
-dt=1/24;
-depth = 15;
-hpf_cutoff=0.04;
-do_noise=0;
-salinity=35;
-use_n2=0;
-time_offset = 0;
-min_dTdz = 1e-4;
+% clear all
+% dpath='~/ganges/data/chipod/RAMA13/';
+% outpath='~/ganges/data/chipod/RAMA13/processed/chi_analysis/';
+% dpl='rama13';
+% unit = 526;
+% ts = datenum(2014,10,1,0,0,0);
+% tf = datenum(2012,11,1,0,0,0);
+% % tf = datenum(2011,10,18,2,0,0);
+% dt=1/24;
+% depth = 15;
+% hpf_cutoff=0.04;
+% do_noise=0;
+% salinity=35;
+% use_n2=0;
+% time_offset = 0;
+% min_dTdz = 1e-4;
 
 % %%%%%%%%%%%%%%%%%% end input
 % % when switching back to a function remember to:

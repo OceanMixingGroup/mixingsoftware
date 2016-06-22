@@ -11,6 +11,8 @@ function [data head]=raw_load_chipod(filnam)
 % global data head
 %   $Revision: 1.12 $  $Date: 2011/02/17 22:46:47 $
 
+disp(['raw_load_chipod  filnam=' filnam])
+
 if nargout<2
   % if no output arguments, assume that we want the globalized
   % version.  

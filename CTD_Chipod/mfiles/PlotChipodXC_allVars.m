@@ -48,6 +48,7 @@ cb.Label.String='log_{10}N^2 [s^{-2}]';
 cb.Label.FontSize=14;
 hold on
 plot(X.(xvar),0,'kp')
+ylim([0 nanmax(X.P)])
 xtloff
 title([XC.Name  ' \chi -pod ' whSN ' ' castdir 'casts'])%,'interpreter','none')
 SubplotLetterMW('N^2');
@@ -57,6 +58,7 @@ axes(ax(2))
 ezpc(X.(xvar),X.P,real(log10(X.dTdz)));
 hold on
 xtloff
+ylim([0 nanmax(X.P)])
 SubplotLetterMW('dT/dz');
 cb=colorbar;
 cb.Label.String='log_{10}dT/dz [Cm^{-1}]';
@@ -65,8 +67,8 @@ cb.Label.FontSize=14;
 %
 axes(ax(3))
 ezpc(X.(xvar),X.P,log10(X.chi));
-hold on
-caxis([-11 -7])
+ylim([0 nanmax(X.P)])
+caxis([-11 -6])
 xtloff
 ylabel('Pressure [db]')
 SubplotLetterMW('chi');
@@ -77,7 +79,7 @@ cb.Label.FontSize=14;
 %
 axes(ax(4))
 ezpc(X.(xvar),X.P,log10(X.eps));
-hold on
+ylim([0 nanmax(X.P)])
 cb=colorbar;
 cb.Label.String='log_{10}\epsilon [Wkg^{-1}]';
 cb.Label.FontSize=14;
@@ -88,10 +90,11 @@ SubplotLetterMW('eps');
 %
 axes(ax(5))
 ezpc(X.(xvar),X.P,log10(X.KT));
+ylim([0 nanmax(X.P)])
 cb=colorbar;
 cb.Label.String='log_{10}K_T';
 cb.Label.FontSize=14;
-caxis([-8 -1])
+caxis([-8 0])
 hold on
 xlabel(xvar,'fontsize',16)
 SubplotLetterMW('K_T');

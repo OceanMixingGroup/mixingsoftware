@@ -11,8 +11,6 @@ function [data head]=raw_load_chipod(filnam)
 % global data head
 %   $Revision: 1.12 $  $Date: 2011/02/17 22:46:47 $
 
-disp(['raw_load_chipod  filnam=' filnam])
-
 if nargout<2
   % if no output arguments, assume that we want the globalized
   % version.  
@@ -28,6 +26,9 @@ if nargin<1
         return
     end
 end
+
+disp(['raw_load_chipod  filnam=' filnam])
+
 epoch=datenum(1970,1,1);%reference time - times written in days since epoch
 
 data_temp.cmp = [];

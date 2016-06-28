@@ -1,4 +1,4 @@
-function earth=bm2earth(beam, head, HeadingOffset, pitch, roll, ssnd, ECssnd, beams_up, xfreq, convex, sensor_config, BeamAngle);
+function earth=beam2earth(beam, head, HeadingOffset, pitch, roll, ssnd, ECssnd, beams_up, xfreq, convex, sensor_config, BeamAngle);
 % bm2earth.m converts RDI data recorded in BEAM to earth coordinates
 %
 % function earth=bm2earth(beam, head, HeadingOffset, roll, ssnd, ECssnd, beams_up, xfreq, convex, sensor_config, BeamAngle);

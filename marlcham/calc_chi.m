@@ -87,6 +87,9 @@ if isnan(chi)
     return
 end
 
+% AP 6/28/16 - This next while loop finds the value of chi for which the
+% observed and theoretical spectra match between f_start and f_stop (I
+% think)
 chi_test=chi_part*2;
 b_freq=(10.^(-2:.1:3.5))';
 while abs(chi_part/chi_test-1)>.01
@@ -96,6 +99,8 @@ while abs(chi_part/chi_test-1)>.01
     chi=chi*chi_part/chi_test;
 end
 
+% AP 6/28/16 - Chi is then computed by integrating the theoretical spectra
+% (for value of chi found above) out to kb. (I think)
 chi=6*thermal_diff*integrate(f_startb,kb*fspd,b_freq,b_spec);
 k_batch=b_freq/fspd;
 spec_batch=b_spec*fspd;% to convert from K/[m^2*Hz] to K/[m^2*cpm]

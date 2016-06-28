@@ -1,4 +1,4 @@
-function nadcp=bm2earth(adcp);
+function nadcp=beam2earth_workhorse(adcp);
 % bm2earth.m converts RDI data recorded in BEAM to earth coordinates
 %
 % function earth=bm2earth(beam, head, HeadingOffset, roll, ssnd, ECssnd, ...

@@ -43,12 +43,20 @@ end
 
 pname=[dpath,filesep,'data',filesep,num2str(unit),filesep];
 dd=dir(pname);
-ip=strfind(dd(3).name,'.');ip=ip(end);
-preffix=dd(3).name(1:ip-9);
-kk=0;
 
+for ii = 1:length(dd)
+    if ~strcmp(dd(ii).name(1),'.')
+        % find the previx from the first good file
+        ip=strfind(dd(ii).name,'.');
+        ip=ip(end);
+        preffix = dd(ii).name(1:ip-9);
+        break
+    end
+end
+
+kk=0;
 for ii=1:length(dd)
-    if ~dd(ii).isdir
+    if ~dd(ii).isdir & ~strcmp(dd(ii).name(1),'.')
         kk=kk+1;
         tmp=dd(ii).name;
         dfs(kk,:)= tmp(ip-8:ip-1);

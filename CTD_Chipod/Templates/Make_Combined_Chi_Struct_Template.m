@@ -165,7 +165,8 @@ end % wh SN
 
 
 if savedata==1
-    save(fullfile(BaseDir,'data',[ChiInfo.Project '_XC']),'XC')
+    pathstr=MakePathStr(Params)
+    save(fullfile(BaseDir,'data',[ChiInfo.Project '_XC_' pathstr]),'XC')
 end
 
 %%

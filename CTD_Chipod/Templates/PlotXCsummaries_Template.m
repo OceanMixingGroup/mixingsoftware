@@ -17,7 +17,7 @@
 % - PlotChipodXC_OneVarAllSN
 %
 %------------
-% 06/14/16 - A.Pickering
+% 06/14/16 - A.Pickering - apickering@coas.oregonstate.edu
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
@@ -31,7 +31,12 @@ Chipod_Deploy_Info_Template
 addpath /Users/Andy/Cruises_Research/mixingsoftware/CTD_Chipod/mfiles/
 %***
 
-load(fullfile(BaseDir,'data',[ChiInfo.Project '_XC']),'XC')
+%*** change this if not using default processing Params
+Params=SetDefaultChiParams
+
+pathstr=MakePathStr(Params)
+
+load(fullfile(BaseDir,'data',[ChiInfo.Project '_XC_' pathstr]),'XC')
 
 xvar='lat'
 %xvar='dnum'
@@ -54,16 +59,7 @@ end % iSN
 
 %%
 
-clear ; close all
-
-saveplot=1
-
-%***
-Load_chipod_paths_Template
-Chipod_Deploy_Info_Template
-load(fullfile(BaseDir,'data',[ChiInfo.Project '_XC']),'XC')
-addpath /Users/Andy/Cruises_Research/ChiPod/mfiles/
-%***
+close all
 
 for ivar=1:2
     

@@ -124,19 +124,21 @@ for iSN=1:length(Xproc.SNs)
         
     else
         
-        plot(Xproc.icast(idg),Xproc.(whSN).toffset(idg),'o')
-        hold on
-        idb=find(abs(Xproc.(whSN).toffset(idg))>yl(2));
-        plot(Xproc.icast(idb),yl(2)*ones(size(idb)),'rx')
-        grid on
-        title(whSN)
-        xlim([1 length(Xproc.icast)])
-        ylim(yl)
-        gridxy
-        xlabel('castID')
-        ylabel('sec')
-        
     end % if more than 1 SN
+    
+    plot(Xproc.icast(idg),Xproc.(whSN).toffset(idg),'o')
+    hold on
+    idb=find(abs(Xproc.(whSN).toffset(idg))>yl(2));
+    plot(Xproc.icast(idb),yl(2)*ones(size(idb)),'rx')
+    grid on
+    title(whSN)
+    xlim([1 length(Xproc.icast)])
+    ylim(yl)
+    gridxy
+    xlabel('castID')
+    ylabel('sec')
+    
+    
     
 end % iSN
 %

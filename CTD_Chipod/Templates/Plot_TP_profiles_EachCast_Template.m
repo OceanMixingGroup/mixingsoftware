@@ -26,6 +26,7 @@ Load_chipod_paths_Template
 % *** load deployment info
 Chipod_Deploy_Info_Template
 
+xl=0.5*[-1 1];
 
 % Make list of which CTD casts we have processed
 CTDlist=dir([CTD_out_dir_bin '/*.mat'])
@@ -43,14 +44,12 @@ for icast=1:Ncasts
     waitbar(icast/Ncasts,hb)
     castname=CTDlist(icast).name(1:end-4)
     
-    xl=0.5*[-1 1];
-    
     % Set up figure
     figure(1);clf
     agutwocolumn(1)
     wysiwyg
     set(gcf,'Name',[castname]);
-    rr=2;%cc=length(ChiInfo.SNs);
+    rr=2;
     if any(bc)==1
         cc=length(ChiInfo.SNs)+1;
     else
@@ -63,9 +62,8 @@ for icast=1:Ncasts
     
     iSNoffset=0
     
+    whax=1;
     for iSN=1:length(ChiInfo.SNs)
-        
-        whax=1;
         
         try
             
@@ -76,12 +74,10 @@ for icast=1:Ncasts
             dir2=fullfile(whSN,'cal');
             load(fullfile(chi_proc_path,dir2,[castname '_' whSN '_' castdir 'cast.mat']))
             ymax=[ymax nanmax(C.P)];
-            %yl=[0 nanmax(C.P)];
             
-            ax(whax)=subplot(rr,cc,iSN);
+            ax(whax)=subplot(rr,cc,iSN+iSNoffset);
             plot(C.([whsens 'P']),C.P)
-            xlim(0.3*[-1 1])
-            ylim(yl)
+            xlim(xl)
             axis ij
             grid on
             xlabel([whsens ' ' castdir])
@@ -98,14 +94,13 @@ for icast=1:Ncasts
             end
             
         catch
-            ax(whax)=subplot(rr,cc,iSN);
+            ax(whax)=subplot(rr,cc,iSN+iSNoffset);
             if strcmp(castdir,ChiInfo.(whSN).InstDir.T1)
                 title(whSN,'color','g','fontweight','bold')
             else
                 title(whSN)
             end
         end % try
-        
         
         % Plot upcasts
         whax=whax+1;
@@ -116,12 +111,10 @@ for icast=1:Ncasts
             castdir='up';
             load(fullfile(chi_proc_path,dir2,[castname '_' whSN '_' castdir 'cast.mat']))
             ymax=[ymax nanmax(C.P)];
-            % yl=[0 nanmax(C.P)];
             
-            ax(whax)=subplot(rr,cc,iSN+cc);
+            ax(whax)=subplot(rr,cc,iSN+iSNoffset+cc);
             plot(C.([whsens 'P']),C.P)
-            xlim(0.3*[-1 1])
-            ylim(yl)
+            xlim(xl)
             axis ij
             grid on
             xlabel([whsens ' ' castdir])
@@ -138,7 +131,7 @@ for icast=1:Ncasts
             end
             
         catch
-            ax(whax)=subplot(rr,cc,iSN+cc);
+            ax(whax)=subplot(rr,cc,iSN+iSNoffset+cc);
             if strcmp(castdir,ChiInfo.(whSN).InstDir.T1)
                 title(whSN,'color','g','fontweight','bold')
             else
@@ -161,7 +154,7 @@ for icast=1:Ncasts
                 
                 plot(C.([whsens 'P']),C.P)
                 xlim(xl)
-                ylim(yl)
+                %ylim(yl)
                 axis ij
                 grid on
                 xlabel([whsens ' ' castdir])
@@ -202,7 +195,6 @@ for icast=1:Ncasts
                 
                 plot(C.([whsens 'P']),C.P)
                 xlim(xl)
-                ylim(yl)
                 axis ij
                 grid on
                 xlabel([whsens ' ' castdir])
@@ -222,7 +214,6 @@ for icast=1:Ncasts
             end % try
             
             whax=whax+1;
-            
             
         end % isbig
         

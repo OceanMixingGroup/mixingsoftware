@@ -428,7 +428,6 @@ for itime=1:niter
             % and that alpha and fspd are within acceptible ranges. If they
             % are not, chi1 is left as NaN.
              if avg.fspd(ik) >= 0.04 && alpha1>0 && abs(dTdz)>min_dTdz 
-                % (sjw 2016/01/13) removed the abs statement, otherwise imaginary values of chi are calcuated
 
                 % calculate psd of dT/dt (apply a correction if coef is ~=0)
                 if head.coef.T1P(3)~=0
@@ -459,8 +458,8 @@ for itime=1:niter
 %                 end
                 
                 % calculate chi!!!
-                if ~exist('Nsqr','var')
-                   if avg.dTdzb(ik)/dTdz < 0.1
+                if ~exist('Nsqr','var') % CASE: use_n2==0 (local) and Nsqr is negative
+                   if avg.dTdzb(ik)/dTdz < 0.1 % background and local stratification must be within one order of madnitude
                       chi        = nan;
                       epsil      = nan;
                       k          = nan;
@@ -473,14 +472,22 @@ for itime=1:niter
 %                         get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
 %                         'alpha',alpha1,'fmax',fmax,'gamma',gamma,'doplots',0);
 
-                    % create a local Nsq that corrects for the lack of sallinity
+                    % create a local Nsq that corrects for the lack of salinity
+                    % (sjw july 2016) prior to RAMA, all chipods had been
+                    % deployed in the equatorial pacific where dTdz
+                    % dominates Nsq. But in places where salinity is
+                    % important (Bay of Bengal, Gulf of Mexico), it is
+                    % important to allow for cases when dT/dz is negative
+                    % but Nsq is positive. Therefore, we create a "fake"
+                    % Nsq that incorporates data from the mooring but is
+                    % proportional to the local dTdz.
                     Nsqrl = avg.N2b(ik)*dTdz/avg.dTdzb(ik);
                     
                     [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
                         get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
                         'nsqr',Nsqrl,'fmax',fmax,'gamma',gamma,'doplots',0); 
                    end
-                elseif Nsqr < 0
+                elseif Nsqr < 0  % CASE: use_n2==1 (bkgrnd) and Nsqr is negative
                    chi        = nan;
                    epsil      = nan;
                    k          = nan;
@@ -488,7 +495,8 @@ for itime=1:niter
                    k_kraich   = nan;
                    spec_kraich= nan;
                    stats      = nan;
-                else
+                   
+                else % CASE: use_n2==1 (bkgrnd) and Nsqr is positive
                     [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
                         get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
                         'nsqr',Nsqr,'fmax',fmax,'gamma',gamma,'doplots',0); 
@@ -530,7 +538,6 @@ for itime=1:niter
             end
 
              if avg.fspd(ik) >= 0.04 && alpha2>0 && abs(dTdz)>min_dTdz
-                 % (sjw 2016/01/13) removed the abs statement, otherwise imaginary values of chi are calcuated
                 if head.coef.T2P(3)~=0
                     [tp_power,freq]=fast_psd(cal.T2Pt(idfast),nfft,samplerate);%psd of dT/dt
                     tp_power=tp_power./(10.^(head.coef.T2P(3).*log10(freq)+head.coef.T2P(4)));

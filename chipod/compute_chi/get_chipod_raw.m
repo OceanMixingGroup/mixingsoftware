@@ -44,26 +44,54 @@ end
 pname=[dpath,filesep,'data',filesep,num2str(unit),filesep];
 dd=dir(pname);
 
-for ii = 1:length(dd)
-    if ~strcmp(dd(ii).name(1),'.')
-        % find the previx from the first good file
-        ip=strfind(dd(ii).name,'.');
-        ip=ip(end);
-        preffix = dd(ii).name(1:ip-9);
-        break
+% (sjw july 2016) In deployments since TAO11_14, the raw data has been
+% saved in the format 'raw_yymmddHHMM.unt' instead of the old format of
+% 'yymmddhh.unt'. Need the made this code handle BOTH formats.
+% there are often bad files or folders at the top and bottomw 
+% of the list in dd.name. Use the middle file to figure out the format.
+
+% first look for files with the prefix 'raw_' which are typically the
+% newer chipod format for the raw data. Allow for both 10 digit dates and 8
+% digit dates
+midN = ceil(length(dd)/2);
+if strcmp(dd(midN).name(1:4),'raw_')
+    preffix = 'raw_';
+    ip=strfind(dd(midN).name,'.');
+    ip=ip(end);
+    if ip == 15
+        fmt = 'yymmddHHMM';
+        len = 10;
+    elseif ip == 13
+        fmt = 'yymmddHH';
+        len = 8;
+    end
+else
+    % (sjw july 2016) old method with new variables fmt and len
+    for ii = 1:length(dd)
+        if ~strcmp(dd(ii).name(1),'.')
+            % find the previx from the first good file
+            ip=strfind(dd(ii).name,'.');
+            ip=ip(end);
+            preffix = dd(ii).name(1:ip-9);
+            fmt = 'yymmddHH';
+            len = 8;
+            break
+        end
     end
 end
+    
+
 
 kk=0;
 for ii=1:length(dd)
     if ~dd(ii).isdir & ~strcmp(dd(ii).name(1),'.')
         kk=kk+1;
         tmp=dd(ii).name;
-        dfs(kk,:)= tmp(ip-8:ip-1);
+        dfs(kk,:)= tmp(ip-len:ip-1);
     end
 end
 
-dfsnum=datenum(dfs,'yymmddHH');
+dfsnum=datenum(dfs,fmt);
 ts1=ts-datenum(0,0,0,0,0,time_offset);
 tf1=tf-datenum(0,0,0,0,0,time_offset);
 

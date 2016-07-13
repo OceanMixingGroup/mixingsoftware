@@ -458,20 +458,16 @@ for itime=1:niter
 %                 end
                 
                 % calculate chi!!!
-                if ~exist('Nsqr','var') % CASE: use_n2==0 (local) and Nsqr is negative
-                   if avg.dTdzb(ik)/dTdz < 0.1 % background and local stratification must be within one order of madnitude
-                      chi        = nan;
-                      epsil      = nan;
-                      k          = nan;
-                      spec       = nan;
-                      k_kraich   = nan;
-                      spec_kraich= nan;
-                      stats      = nan;
-                   else
-%                     [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
-%                         get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
-%                         'alpha',alpha1,'fmax',fmax,'gamma',gamma,'doplots',0);
-
+                if ~exist('Nsqr','var') % CASE: use_n2==0 (local)
+                    if avg.dTdzb(ik)/dTdz < 0.1 % background and local stratification must be within one order of madnitude
+                        chi        = nan;
+                        epsil      = nan;
+                        k          = nan;
+                        spec       = nan;
+                        k_kraich   = nan;
+                        spec_kraich= nan;
+                        stats      = nan;
+                    else
                     % create a local Nsq that corrects for the lack of salinity
                     % (sjw july 2016) prior to RAMA, all chipods had been
                     % deployed in the equatorial pacific where dTdz
@@ -481,20 +477,29 @@ for itime=1:niter
                     % but Nsq is positive. Therefore, we create a "fake"
                     % Nsq that incorporates data from the mooring but is
                     % proportional to the local dTdz.
-                    Nsqrl = avg.N2b(ik)*dTdz/avg.dTdzb(ik);
-                    
-                    [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
-                        get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
-                        'nsqr',Nsqrl,'fmax',fmax,'gamma',gamma,'doplots',0); 
-                   end
+                    Nsqrl = avg.N2b(ik)*dTdz/avg.dTdzb(ik);                    
+                        if Nsqrl > 0
+                            [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
+                                get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
+                                'nsqr',Nsqrl,'fmax',fmax,'gamma',gamma,'doplots',0); 
+                        else
+                            chi        = nan;
+                            epsil      = nan;
+                            k          = nan;
+                            spec       = nan;
+                            k_kraich   = nan;
+                            spec_kraich= nan;
+                            stats      = nan;
+                        end
+                    end
                 elseif Nsqr < 0  % CASE: use_n2==1 (bkgrnd) and Nsqr is negative
-                   chi        = nan;
-                   epsil      = nan;
-                   k          = nan;
-                   spec       = nan;
-                   k_kraich   = nan;
-                   spec_kraich= nan;
-                   stats      = nan;
+                    chi        = nan;
+                    epsil      = nan;
+                    k          = nan;
+                    spec       = nan;
+                    k_kraich   = nan;
+                    spec_kraich= nan;
+                    stats      = nan;
                    
                 else % CASE: use_n2==1 (bkgrnd) and Nsqr is positive
                     [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
@@ -556,34 +561,40 @@ for itime=1:niter
                 end
                 % compute chi
                 if ~exist('Nsqr','var')
-                   if avg.dTdzb(ik)/dTdz < 0.1
-                      chi        = nan;
-                      epsil      = nan;
-                      k          = nan;
-                      spec       = nan;
-                      k_kraich   = nan;
-                      spec_kraich= nan;
-                      stats      = nan;
-                   else
-%                     [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
-%                         get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
-%                         'alpha',alpha1,'fmax',fmax,'gamma',gamma,'doplots',0);
+                    if avg.dTdzb(ik)/dTdz < 0.1
+                        chi        = nan;
+                        epsil      = nan;
+                        k          = nan;
+                        spec       = nan;
+                        k_kraich   = nan;
+                        spec_kraich= nan;
+                        stats      = nan;
+                    else
 
                     % create a local Nsq that corrects for the lack of sallinity
-                    Nsqrl = avg.N2b(ik)*dTdz/avg.dTdzb(ik);
-                    
-                    [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
-                        get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
-                        'nsqr',Nsqrl,'fmax',fmax,'gamma',gamma,'doplots',0); 
-                   end
+                        Nsqrl = avg.N2b(ik)*dTdz/avg.dTdzb(ik);                    
+                        if Nsqrl > 0
+                            [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
+                                get_chipod_chi(freq,tp_power,avg.fspd(ik),nu1,tdif1,dTdz,...
+                                'nsqr',Nsqrl,'fmax',fmax,'gamma',gamma,'doplots',0); 
+                        else
+                            chi        = nan;
+                            epsil      = nan;
+                            k          = nan;
+                            spec       = nan;
+                            k_kraich   = nan;
+                            spec_kraich= nan;
+                            stats      = nan;
+                        end 
+                    end
                 elseif Nsqr < 0
-                   chi        = nan;
-                   epsil      = nan;
-                   k          = nan;
-                   spec       = nan;
-                   k_kraich   = nan;
-                   spec_kraich= nan;
-                   stats      = nan;
+                    chi        = nan;
+                    epsil      = nan;
+                    k          = nan;
+                    spec       = nan;
+                    k_kraich   = nan;
+                    spec_kraich= nan;
+                    stats      = nan;
                 else
                     [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
                         get_chipod_chi(freq,tp_power,avg.fspd(ik),nu2,tdif2,dTdz,...

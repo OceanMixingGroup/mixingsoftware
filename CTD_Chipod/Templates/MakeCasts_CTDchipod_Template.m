@@ -60,6 +60,7 @@ tstart=tic;
 % Add paths we will need
 addpath(fullfile(mixpath,'CTD_Chipod'));
 addpath(fullfile(mixpath,'CTD_Chipod','mfiles'));
+addpath(fullfile(mixpath,'chipod'))    ;% raw_load_chipod.m
 addpath(fullfile(mixpath,'general'))   ;% makelen.m in /general is needed
 addpath(fullfile(mixpath,'marlcham'))  ;% for integrate.m
 addpath(fullfile(mixpath,'adcp'))      ;% need for mergefields_jn.m in load_chipod_data

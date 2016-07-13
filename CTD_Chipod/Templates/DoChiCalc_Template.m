@@ -50,9 +50,6 @@ Chipod_Deploy_Info_template
 % *** Local path for /mixingsoftware repo ***
 mixpath='/Users/Andy/Cruises_Research/mixingsoftware/';
 
-% Add path to /CTD_chipod/mfiles
-addpath(fullfile(mixpath,'CTD_Chipod','mfiles'));
-
 %~~ set some params for following calcs
 do_T2_big=1;         % do calc for T2 if big chipod
 Params.z_smooth=20;  % distance (m) over which to smooth N^2 and dT/dz
@@ -66,6 +63,10 @@ Params.fc=99;        % cutoff frequency for response correction
 Params.gamma=0.2;    % mixing efficiency
 %~~
 %~~~~~~~~~~~~~~~~~~~~~
+
+% Add paths we need from mixing software
+addpath(fullfile(mixpath,'CTD_Chipod','mfiles')) ;
+addpath(fullfile(mixpath,'chipod','compute_chi')); % get_chipod_chi.md
 
 tstart=tic;
 

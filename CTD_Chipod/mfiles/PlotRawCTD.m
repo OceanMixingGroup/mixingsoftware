@@ -1,4 +1,14 @@
 function ax=PlotRawCTD(CTD_24hz)
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%
+% function ax=PlotRawCTD(CTD_24hz)
+%
+% Simple function to plot raw CTD profiles of t,s during CTD-chipod
+% processing
+%
+%--------------
+% A.Pickering - apickering@coas.oregonstate.edu
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
 figure(1);clf
@@ -15,16 +25,12 @@ ylabel('Pressure','fontsize',16)
 
 ax2=subplot(312);
 plot(CTD_24hz.datenum,CTD_24hz.t1)
-%axis ij
 datetick('x')
 ylabel('temp','fontsize',16)
 grid on
-%axis ij
-%xlabel(['Time on ' datestr(floor(nanmin(CTD_24hz.datenum)))],'fontsize',16)
 
 ax3=subplot(313);
 plot(CTD_24hz.datenum,CTD_24hz.c1)
-%axis ij
 datetick('x')
 ylabel('Cond.','fontsize',16)
 grid on
@@ -32,11 +38,5 @@ xlabel(['Time on ' datestr(floor(nanmin(CTD_24hz.datenum)))],'fontsize',16)
 
 ax=[ax1 ax2 ax3];
 linkaxes(ax,'x')
-
-
-% ax3=subplot(313);
-% plot(CTD_24hz.datenum,CTD_24hz.c1)
-% axis ij
-% datetick('x')
 
 %%

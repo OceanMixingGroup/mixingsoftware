@@ -1,9 +1,12 @@
 function tcond=sw_tcond_chipod(s,t,p)
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % function tcond=sw_tcond(s,t,p) gives the  thermal conductivity
 %
 % Slightly modified version of sw_tcond to work with CTD_Chipod software.
 % Just added .* and ./ notation to work with vectors of t,s,p.
 % A. Pickering - Mar 25 2015.
+%
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 %  based on caldwell dsr 21:131-137 (1974)  eqn. 6,7,8
 %
@@ -20,8 +23,9 @@ function tcond=sw_tcond_chipod(s,t,p)
 %       ak0=0.565403020+t*(1.6999346e-3-t*5.910632e-6);
 %       f=0.0690-8e-5*t-2.0e-7*p-1.0e-4*s;
 %       tcond=ak0*(1+f);
-      
-       ak0=0.565403020+t.*(1.6999346e-3-t.*5.910632e-6);
-      f=0.0690-8e-5.*t-2.0e-7.*p-1.0e-4.*s;
-      tcond=ak0.*(1+f);
- 
+
+ak0=0.565403020+t.*(1.6999346e-3-t.*5.910632e-6);
+f=0.0690-8e-5.*t-2.0e-7.*p-1.0e-4.*s;
+tcond=ak0.*(1+f);
+
+%%

@@ -152,6 +152,7 @@ for a=1:nfiles
                 end
                 big=mergefields_jn(big,chidat,1,1);
             catch
+                disp('Error in load_chipod_data while loading raw chipod data')
             end
             
         else

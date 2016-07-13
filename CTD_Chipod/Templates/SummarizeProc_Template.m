@@ -4,6 +4,12 @@
 %
 % Load Xproc.mat from MakeCasts and summarize CTD and chippod data.
 %
+% Outputs go into standard latex notes template
+%
+% Produces:
+% (1) Figure showing which casts have chi-pod data
+% (2) Figure showing time-offsets for each chipod
+% (3) Summary latex table to be copied into notes
 %
 %---------------
 % 06/14/16 - A.Pickering - apickering@coas.oregonstate.edu

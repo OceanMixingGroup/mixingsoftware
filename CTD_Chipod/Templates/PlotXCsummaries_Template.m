@@ -43,9 +43,12 @@ xvar='lat'
 
 for iSN=1:length(ChiInfo.SNs)
     clear X
+    whsens='T1'
     whSN=ChiInfo.SNs{iSN}
     castdir=ChiInfo.(whSN).InstDir
-    whsens='T1'
+    if isstruct(castdir)
+        castdir=castdir.(whsens)
+    end
     
     close all
     ax=PlotChipodXC_allVars(XC,whSN,castdir,whsens,xvar);

@@ -2,14 +2,17 @@
 %
 % Plot_TP_profiles_EachCast_Template.m
 %
-% Template for script to plot TP profiles from all
-% chipods for one cast, to be used during chi-pod cruise.
-%
-% MakeCasts... needs to be run first
+% Template for script to plot TP profiles from all chipods for one
+% cast. Allows comparison of TP from different sensors.
 %
 % %*** Indicates where changes needed for specific cruises
 %
 % Saves figures to /BaseDir/Figures/TPprofiles
+%
+% Dependencies:
+% Load_chipod_paths_Template.m
+% Chipod_Deploy_Info_Template.m
+% MakeCasts... needs to be run first
 %
 %-----------------
 % 06/15/16 - A.Pickering - apickering@coas.oregonstate.edu
@@ -37,7 +40,8 @@ bc=[];
 for iSN=1:length(ChiInfo.SNs);
     bc=[bc ChiInfo.(ChiInfo.SNs{iSN}).isbig];
 end
-
+idg=find(bc==1);
+Nbig=length(idg);
 %
 hb=waitbar(0)
 for icast=1:Ncasts
@@ -51,7 +55,7 @@ for icast=1:Ncasts
     set(gcf,'Name',[castname]);
     rr=2;
     if any(bc)==1
-        cc=length(ChiInfo.SNs)+1;
+        cc=length(ChiInfo.SNs)+Nbig;
     else
         cc=length(ChiInfo.SNs);
     end
@@ -173,7 +177,7 @@ for icast=1:Ncasts
             catch
                 
                 ax(whax)=subplot(rr,cc,iSN+iSNoffset);
-                
+                            xlabel([whsens ' ' castdir])
                 if strcmp(castdir,ChiInfo.(whSN).InstDir.(whsens))
                     title(whSN,'color','g','fontweight','bold')
                 else
@@ -206,6 +210,7 @@ for icast=1:Ncasts
                 
             catch
                 ax(whax)=subplot(rr,cc,iSN+iSNoffset+cc);
+                            xlabel([whsens ' ' castdir])
                 if strcmp(castdir,ChiInfo.(whSN).InstDir.T1)
                     title(whSN,'color','g','fontweight','bold')
                 else

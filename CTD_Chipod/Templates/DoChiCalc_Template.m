@@ -50,6 +50,8 @@ Chipod_Deploy_Info_template
 % *** Local path for /mixingsoftware repo ***
 mixpath='/Users/Andy/Cruises_Research/mixingsoftware/';
 
+savespec=1 % Option to save spectra
+
 %~~ set some params for following calcs
 do_T2_big=1;         % do calc for T2 if big chipod
 Params.z_smooth=20;  % distance (m) over which to smooth N^2 and dT/dz
@@ -104,10 +106,10 @@ for iSN=1:length(ChiInfo.SNs)
     %##
     
     if length(Flist)>1
-
+        
         % For each cast, do chi calculations
         for icast=1:length(Flist)
-
+            
             try
                 
                 %##
@@ -217,6 +219,21 @@ for iSN=1:length(ChiInfo.SNs)
                         avg.fspd(iwind)=nanmean(C.fspd(inds));
                     end
                     
+                    % make empty arrays for spectra
+                    if savespec==1
+                        % observed wavenumber
+                        ks=nan*ones(Nwindows,Params.nfft /2);
+                        % observed wave# spectra
+                        kspec=nan*ones(Nwindows,Params.nfft /2);
+                        % fit wavenumber
+                        kks=nan*ones(Nwindows,56);
+                        % fit wave# spectra
+                        kkspec=nan*ones(Nwindows,56);
+                        % observed frequency spectra
+                        tpspec=nan*ones(Nwindows,Params.nfft /2);
+                        %~
+                    end
+                    
                     %~~ Plot histogram of avg.P to see how many good windows we have in
                     % each 10m bin
                     figure
@@ -273,6 +290,26 @@ for iSN=1:length(ChiInfo.SNs)
                             avg.eps1(iwind)=epsil1(1);
                             avg.KT1(iwind)=0.5*chi1(1)/avg.dTdz(iwind)^2;
                             
+                            if savespec==1
+                                % 02/17/16 - AP - save spectra
+                                
+                                fspec=freq;
+                                tpspec(iwind,:)=tp_power;
+                                
+                                % observed wavenumber
+                                ks(iwind,:)=k;
+                                
+                                % observed spectra
+                                kspec(iwind,:)=spec;
+                                % best-fit theoreticl spectra
+                                kkspec(iwind,:)=speck;
+                                
+                                if ~isnan(kk)
+                                    % theoretical fit wavenumber
+                                    kks(iwind,:)=kk;
+                                end
+                            end
+                            
                         end % if T1Pvar>threshold
                         
                     end % windows
@@ -289,6 +326,16 @@ for iSN=1:length(ChiInfo.SNs)
                     print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avg_chi_KT_dTdz']))
                     whfig=whfig+1;
                     %~~~
+                    
+                    if savespec==1
+                        %~
+                        avg.tpspec=tpspec;
+                        avg.kspec=kspec;
+                        avg.kkspec=kkspec;
+                        avg.ks=ks;
+                        avg.kks=kks;
+                        avg.fspec=fspec;
+                    end
                     
                     castname=castStr;
                     
@@ -329,7 +376,7 @@ for iSN=1:length(ChiInfo.SNs)
             end % Try
             
         end % icast
-
+        
     end % if we have casts to process
     
 end % iSN (different chipods)

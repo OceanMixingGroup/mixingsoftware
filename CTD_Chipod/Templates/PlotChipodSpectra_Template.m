@@ -19,106 +19,106 @@
 clear ; close all
 
 % ***
-Load_chipod_paths_I09
-Chipod_Deploy_Info_I09
+cruise='Template'
+mixpath='/Users/Andy/Cruises_Research/mixingsoftware/';
+addpath(fullfile(mixpath,'CTD_Chipod','mfiles')
+Load_chipod_paths_Template
+Chipod_Deploy_Info_Template
 %***
-cruise='IO9'
-cd(['/Users/Andy/Cruises_Research/ChiPod/' cruise '/mfiles'])
-figdir=['/Users/Andy/Cruises_Research/ChiPod/' cruise '/Figures/']
+
+figdir=fullfile(BaseDir,'Figures');
 %~~~
 
 load('Xproc.mat')
 
 %%
 
-
-for iSN=2%:length(ChiInfo.SNs)
+for iSN=1%:length(ChiInfo.SNs)
     
     whSN=ChiInfo.SNs{iSN}
     
     % Find a good cast (T1cal good, t-offset good)
     
     idg=find( Xproc.(whSN).IsChiData==1 & Xproc.(whSN).T1cal==1)
-    ig=idg(20)
+    ig=idg(1)
     castname=Xproc.Name{ig}
     
     % Load cast data and
     
     castdir=ChiInfo.(whSN).InstDir
+        
+    whsens='T1';
+    Params=SetDefaultChiParams
+    pathstr=MakePathStr(Params)
+    load(fullfile(chi_proc_path,whSN,'avg',pathstr,['avg_' castname '_' castdir 'cast_' whSN '_' whsens '.mat']))
+
+    %% Plot single spectra
     
-    load(fullfile(chi_proc_path,whSN,'cal',[castname '_' whSN '_' castdir 'cast.mat']))
-    
-    %% Compute spectra
-    
-    Params.nfft=128;
-    TP=C.T1P;
-    
-    % Get windows for chi calculation
-    clear todo_inds Nwindows
-    [todo_inds,Nwindows]=MakeCtdChiWindows(TP,Params.nfft);
-    
-    % Make 'avg' structure for the processed data
-    clear avg
-    avg=struct();
-    avg.Params=Params;
-    tfields={'datenum','P','N2','dTdz','fspd','T','S','P','theta','sigma',...
-        'chi1','eps1','KT1','TP1var'};
-    for n=1:length(tfields)
-        avg.(tfields{n})=NaN*ones(Nwindows,1);
+    for iz=100%:length(avg.P)
+        figure(1);clf
+        ax=PlotSavedChiSpectra(avg,iz)
+        pause(0.2)
     end
-    
-    avg.samplerate=1./nanmedian(diff(C.datenum))/24/3600;
-    
-    % Get average time, pressure, and fallspeed in each window
-    for iwind=1:Nwindows
-        clear inds
-        inds=todo_inds(iwind,1) : todo_inds(iwind,2);
-        avg.datenum(iwind)=nanmean(C.datenum(inds));
-        avg.P(iwind)=nanmean(C.P(inds));
-        avg.fspd(iwind)=nanmean(C.fspd(inds));
-    end
-    
-    % Loop through each window and do the chi computation
-    
-    % make empty array for spectra
-    fspec=nan*ones(Nwindows,Params.nfft/2);
-    
-    for iwind=1:Nwindows
-        clear inds
-        inds=todo_inds(iwind,1) : todo_inds(iwind,2);
-        
-        clear tp_power freq
-        [fspec(iwind,:),freq]=fast_psd(TP(inds),Params.nfft,avg.samplerate);
-        
-        %         figure(1);clf
-        %         loglog(freq,tp_power)
-        %         grid on
-        
-    end % iwind
-    
-    % Plot (all spectra w/ mean?)
-    
-    figure(1);clf
-    loglog(freq,fspec(1:round(Nwindows/10):Nwindows,:))
-    grid on
-    xlim([0,60])
-    
     %%
-    
-    figure(2);clf
-    ezpc(freq,avg.P,log10(fspec))
-    colorbar
-    %       caxis([-8 -1])
-    
-    % estimate roll-off freq?
-    
-    
-    % save plot in standard format for notes ?
-    
+       
+      
     
 end % iSN
 
 
 
-
+%%
+% %% Compute spectra
+%
+%     Params.nfft=128;
+%     TP=C.T1P;
+%
+%     % Get windows for chi calculation
+%     clear todo_inds Nwindows
+%     [todo_inds,Nwindows]=MakeCtdChiWindows(TP,Params.nfft);
+%
+%     % Make 'avg' structure for the processed data
+%     clear avg
+%     avg=struct();
+%     avg.Params=Params;
+%     tfields={'datenum','P','N2','dTdz','fspd','T','S','P','theta','sigma',...
+%         'chi1','eps1','KT1','TP1var'};
+%     for n=1:length(tfields)
+%         avg.(tfields{n})=NaN*ones(Nwindows,1);
+%     end
+%
+%     avg.samplerate=1./nanmedian(diff(C.datenum))/24/3600;
+%
+%     % Get average time, pressure, and fallspeed in each window
+%     for iwind=1:Nwindows
+%         clear inds
+%         inds=todo_inds(iwind,1) : todo_inds(iwind,2);
+%         avg.datenum(iwind)=nanmean(C.datenum(inds));
+%         avg.P(iwind)=nanmean(C.P(inds));
+%         avg.fspd(iwind)=nanmean(C.fspd(inds));
+%     end
+%
+%     % Loop through each window and do the chi computation
+%
+%     % make empty array for spectra
+%     fspec=nan*ones(Nwindows,Params.nfft/2);
+%
+%     for iwind=1:Nwindows
+%         clear inds
+%         inds=todo_inds(iwind,1) : todo_inds(iwind,2);
+%
+%         clear tp_power freq
+%         [fspec(iwind,:),freq]=fast_psd(TP(inds),Params.nfft,avg.samplerate);
+%
+%         %         figure(1);clf
+%         %         loglog(freq,tp_power)
+%         %         grid on
+%
+%     end % iwind
+%
+% 
+%     figure(2);clf
+%     ezpc(freq,avg.P,log10(fspec))
+%     colorbar
+%     %       caxis([-8 -1])
 %%

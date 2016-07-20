@@ -55,12 +55,26 @@ The processing is done with Matlab codes, which are maintained in a github repos
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-\section{Preferred Data Organziation}
+\section{Data Organziation}
 
+Raw data should be organized into folders as:
+\subsection{Raw Data}
 \begin{itemize}
 \item \verb+/Data/raw/Chipod/SNxxxx+ : Raw $\chi$pod data.
 \item \verb+/Data/raw/CTD/+ : Raw CTD data (.hex,.XMLCON,.hdr).
-\item \verb+/Data/proc/Chipod+ Processed $\chi$pod data
+\end{itemize}
+
+Processed data is organized as follows:
+\subsection{Processed Data}
+\begin{itemize}
+
+\item \verb+/Data/proc/Chipod/+ Main folder for processed $\chi$pod data
+
+\item Data for each $\chi$pod is stored in \verb+/[whSN]/[pathstr]+ where \verb+pathstr+ constructed based on Params, for example:
+\newline  \verb+zsm20m_fmax7Hz_respcorr0_fc_99hz_gamma20+
+\newline
+This allows us to run the processing for different Params and easily compare the results.
+
 \item \verb+/Data/proc/CTD+ Processed CTD data. (/24Hz,/binned).
 \end{itemize}
 
@@ -112,22 +126,21 @@ All templates are located in \verb+/mixingsoftware/CTD_Chipod/Templates/+
 
 \item Plot the raw chi-pod data (\verb+Plot_Raw_Data_template+?). This will let you see quickly if any sensors or files are obviously bad. If there are bad files you can specify these in a \verb+Bad_File…+  list so they will not be loaded during processing (this is not necessary, but will reduce time loading bad files, and may prevent bad data from accidentally being used).  Figure \ref{x} shows an example of a normal-looking file. Figure \ref{xx} shows an example of file that looks bad.
 
-\item  Modify \verb+MakeCasts_CTDchipod_Template.m+ for specific cruise. This script finds $\chi$pod data for each cast, aligns the data, calibrates the data, and saves a file with data for each cast.
+\item  Modify \verb+MakeCasts_CTDchipod_Template.m+ for specific cruise. This script finds $\chi$pod data for each cast, aligns the data, calibrates the data, and saves a file with data for each cast. 
 
 \item  Run \verb+MakeCasts_CTDchipod+ for one good cast for each SN. Check time-offset / alignment; if not right, probably need to modify \verb+az_correction+ or switch AX and AZ. Figure \ref{x} shows an example of where AX and AZ are flipped.  * figures showing example of flipped ax etc*
 
-\item  Once that is figured out, run \verb+MakeCasts_CTDchipod+ for all casts.
+\item  Once that is figured out, run \verb+MakeCasts_CTDchipod+ for all casts. Data are saved to \verb+/Data/proc/Chipod/cast+ and \verb+/Data/proc/Chipod/cal+.
 
 \item Run \verb+SummarizeProc_Template+. This makes some summary tables and figures from the `Xproc.mat' data saved during  \verb+MakeCasts_CTDchipod+.
 
-\item \verb+Plot_TP_profiles_EachCast_Template.m+ For each cast, this plots the temperature derivative from all chi pod sensors on the same scale so you can compare them and check for bad profiles.
+\item \verb+Plot_TP_profiles_EachCast_Template.m+ For each cast, this plots the temperature derivative from all chi pod sensors on the same scale so you can compare them and check for bad profiles. Figures are save to \verb+/Figures/TPprofiles/+
 
-\item  Modify \verb+DoChiCalc_Template.m+ and run for all casts. This does the chi calculation for all the cast files made in \verb+MakeCasts_CTDchipod+.
+\item  Modify \verb+DoChiCalc_Template.m+ and run for all casts. This does the chi calculation for all the cast files made in \verb+MakeCasts_CTDchipod+. Data are saved to  \verb+/Data/proc/Chipod/avg/+
 
 \item \verb+Make_Combined_Chi_Struct_Template+
 
 \item \verb+PlotXCsummaries_Template+. Make summary plots
-
 
 \end{enumerate}
 
@@ -139,7 +152,7 @@ All templates are located in \verb+/mixingsoftware/CTD_Chipod/Templates/+
 Variable parameters for the processing are specified in a `Params' structure.
 
 \begin{itemize}
-\item fmax : Maximum frequency to integrate temperature gradient spectrum to (default XX ? Hz).
+\item fmax : Maximum frequency to integrate temperature gradient spectrum to (default 7 Hz).
 \item gamma : Assumed mixing efficiency (default 0.2).
 \item \verb+resp_corr+ : Option to apply frequency response correction (default 0).
 \item fc : Cutoff frequency for response correction (if applied) (default 99 for naming purposes).
@@ -152,7 +165,7 @@ Variable parameters for the processing are specified in a `Params' structure.
 \section{Output File Formats}
 
 %~~~~~~~~
-\subsection{cast}
+\subsection{/cast}
 `Raw' (ie uncalibrated) $\chi$pod data for each cast. Structure `cast' with fields:
 \begin{itemize}
 \item datenum
@@ -167,38 +180,38 @@ Variable parameters for the processing are specified in a `Params' structure.
 Ex. filename : \verb++
 
 %~~~~~~~~
-\subsection{cal}
+\subsection{/cal}
 Calibrated data for each cast. Up and down casts are saved in separate files. Structure `C' with fields:
 \begin{itemize}
 \item datenum
-\item P
-\item T1P
-\item fspd
-\item castidr
+\item P [db]
+\item T1P - dT/dt [Ks^{-1}]
+\item fspd - [ms^{-1}]
+\item castidr - up/down
 \item info
 \item ctd
 \end{itemize}
 Ex. filename : \verb+rh10011_SN2013_downcast.mat+
 
 %~~~~~~~~
-\subsection{avg}
+\subsection{/avg}
 Result of $\chi$pod calculations. Contains data points for each 1 sec window.
 \begin{itemize}
 \item Params
 \item datenum
-\item  P
-\item N2
+\item  P - [db]
+\item N2 - 
 \item dTdz
-\item fspd
-\item T
-\item S
+\item fspd - [ms^{-1}]
+\item T [^oC]
+\item S [psu]
 \item theta
 \item sigma
-\item chi1
-\item eps1
-\item KT1
+\item chi1- $\chi$ []
+\item eps1 $\epsilon$ []
+\item KT1 $K_T$ []
 \item TP1var
-\item samplerate
+\item samplerate - [hz]
 \item nu
 \item tdif
 \item lat
@@ -232,14 +245,12 @@ There is a template for standard latex notes that can be modified for each cruis
 
 
 
-
-
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Sensitivity Analysis}
 
+The sensitivity of the results to different parameters should be examined, including \verb+fmax+ and \verb+z_smooth+.
 
-
-
+\verb++
 
 
 
@@ -262,47 +273,68 @@ There is a template for standard latex notes that can be modified for each cruis
 \end{itemize}
 
 
+\clearpage
+\newpage
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\section{Example Figures}
+
+
 \begin{figure}[s]
-\includegraphics[scale=0.75]{cast_001_RawChipodTS.png}
+\includegraphics[scale=0.75]{SN1013_08402_Fig0_RawCTD.png}
+\caption{Time-series of raw CTD data for one cast.}
+\label{ctdraw}
+\end{figure}
+
+
+\begin{figure}[s]
+\includegraphics[scale=0.75]{SN1013_08402_Fig1_RawChipodTS.png}
 \caption{Time-series of raw $\chi$pod data for one cast.}
 \label{tsraw}
 \end{figure}
 
-
 \begin{figure}[s]
-\includegraphics[scale=0.75]{cast_001_w_dTdtSpectraCheck.png}
-\caption{dT/dt spectra for analog (TP) and digital derivatives. Spectra levels should match; if not time-constant may be wrong.}
-\label{speccheck}
-\end{figure}
-
-\begin{figure}[s]
-\includegraphics[scale=0.75]{cast_001_w_TimeOffset.png}
+\includegraphics[scale=0.75]{SN1013_08402_Fig2_w_TimeOffset.png}
 \caption{Time series of dp/dt CTD and chipod w. Top is original, bottom is after time-offset applied to chipod.}
 \label{align}
 \end{figure}
 
 \begin{figure}[s]
-\includegraphics[scale=0.75]{cast_001_w_TimeOffset_Zoom.png}
+\includegraphics[scale=0.75]{SN1013_08402_Fig3_w_TimeOffset_Zoom.png}
 \caption{Zoom-in of dp/dt and chipod w allowing one to check if time-offset is correct. Bottom panel should match.}
 \label{alignzoom}
 \end{figure}
 
 \begin{figure}[s]
-\includegraphics[scale=0.75]{cast_001_T_P_dTdz_fspd.png}
+\includegraphics[scale=0.75]{SN1013_08402_Fig4_dTdtSpectraCheck.png}
+\caption{dT/dt spectra for analog (TP) and digital derivatives. Spectra levels should match; if not time-constant may be wrong.}
+\label{speccheck}
+\end{figure}
+
+
+\begin{figure}[s]
+\includegraphics[scale=0.75]{SN1013_08402_Fig5_T_P_dTdz_fspd.png}
 \caption{Time series of aligned and calibrated chipod data for one cast.}
 \label{tscal}
 \end{figure}
 
 
 \begin{figure}[s]
-\includegraphics[scale=0.75]{cast_001_downcast_chi_SN600_T1_avg_chi_KT_dTdz.png}
-\caption{Results of chipod calculation for one cast. Red lines in lower panel are 100m? binned averages.}
+\includegraphics[scale=0.75]{SN1013_08402_Fig6_downcast_chi_T1_avgPhist.png}
+\caption{Histogram of the number of good $\chi$pod data windows in each 10m depth bin.}
+\label{histgood}
+\end{figure}
+
+
+\begin{figure}[s]
+\includegraphics[scale=0.75]{SN1013_08402_Fig7_upcast_chi_T1_avg_chi_KT_dTdz.png}
+\caption{Results of chipod calculation for one cast. Black lines in lower panel are 10m binned averages.}
 \label{avgsum}
 \end{figure}
 
 
 
-
+\clearpage
+\newpage
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{m-files}
 
@@ -322,7 +354,6 @@ Processing files are kept in a GitHub repository \verb+/mixingsoftware/CTD_Chipo
 %~~~~~~~~~~~~~~~~~~~~~~~~~
  \bibliographystyle{ametsoc2014}
 \bibliography{/Users/Andy/Cruises_Research/wavechasers_bib/main}
-
 
 
 

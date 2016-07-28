@@ -41,12 +41,13 @@ ytloff
 ylim([0 nanmax(avg.P)])
 gridxy
 
+interval=50;
 minobs=3;
 
 axes(ax(4))
 plot(log10(avg.chi1),avg.P,'.','color',0.5*[1 1 1]),axis ij
 hold on
-[dataout zout] = binprofile(avg.chi1,avg.P, 0, 10, nanmax(avg.P),minobs);
+[dataout zout] = binprofile(avg.chi1,avg.P, 0, interval, nanmax(avg.P),minobs);
 plot(log10(dataout),zout,'k')
 xlabel('log_{10}(avg chi)')
 axis tight
@@ -58,7 +59,7 @@ ylim([0 nanmax(avg.P)])
 axes(ax(5))
 plot(log10(avg.KT1),avg.P,'.','color',0.5*[1 1 1]),axis ij
 hold on
-[dataout zout] = binprofile(avg.KT1,avg.P, 0, 10, nanmax(avg.P),minobs);
+[dataout zout] = binprofile(avg.KT1,avg.P, 0, interval, nanmax(avg.P),minobs);
 plot(log10(dataout),zout,'k')
 axis tight
 xlim([-9 0])
@@ -70,7 +71,7 @@ ylim([0 nanmax(avg.P)])
 axes(ax(6))
 plot(log10(avg.eps1),avg.P,'.','color',0.5*[1 1 1]),axis ij
 hold on
-[dataout zout] = binprofile(avg.eps1,avg.P, 0, 10, nanmax(avg.P),minobs);
+[dataout zout] = binprofile(avg.eps1,avg.P, 0, interval, nanmax(avg.P),minobs);
 plot(log10(dataout),zout,'k')
 axis tight
 xlim([-12 -2])

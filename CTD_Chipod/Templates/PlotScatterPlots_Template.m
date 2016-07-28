@@ -16,10 +16,16 @@ clear ; close all
 saveplot=1
 
 % ***
-Load_chipod_paths_I09
-Chipod_Deploy_Info_I09
+Load_chipod_paths_Template
+Chipod_Deploy_Info_Template
+mixpath='/Users/Andy/Cruises_Research/mixingsoftware/'
+% ***
 
-load(fullfile(BaseDir,'Data',[ChiInfo.Project '_XC.mat']))
+Params=SetDefaultChiParams
+pathstr=MakePathStr(Params)
+addpath(fullfile(mixpath,'CTD_Chipod','mfiles'))
+
+load(fullfile(BaseDir,'Data',[ChiInfo.Project '_XC_' pathstr '.mat']))
 
 %% Scatter plot chi vs dTdz for each chipod
 
@@ -37,6 +43,10 @@ for iSN=1:length(ChiInfo.SNs)
     
     whSN=ChiInfo.SNs{iSN}
     castdir=ChiInfo.(whSN).InstDir
+    if isstruct(castdir)
+        castdir=castdir.(whsens)
+    end
+    
     X=XC.([whSN '_' castdir '_' whsens])
     ax1=subplot(ceil(length(ChiInfo.SNs)/2),2,iSN);
     loglog(X.dTdz(:),X.chi(:),'.')
@@ -71,6 +81,10 @@ for iSN=1:length(ChiInfo.SNs)
     
     whSN=ChiInfo.SNs{iSN}
     castdir=ChiInfo.(whSN).InstDir
+    if isstruct(castdir)
+        castdir=castdir.(whsens)
+    end
+    
     X=XC.([whSN '_' castdir '_' whsens])
     
     xbins=-8:0.05:0;
@@ -100,12 +114,12 @@ for iSN=1:length(ChiInfo.SNs)
     grid on
     title([whSN ' ' castdir])
     gridxy
-   
+    
     
     if iSN~=length(ChiInfo.SNs)
         xtloff
     else
-    xlabel('dT/dz','fontsize',16)
+        xlabel('dT/dz','fontsize',16)
     end
     ylabel('\chi','fontsize',16)
     
@@ -114,35 +128,3 @@ for iSN=1:length(ChiInfo.SNs)
 end % iSN
 
 %%
-
-% %%
-% figure(1);clf
-% agutwocolumn(1)
-% wysiwyg
-% 
-% ax1=subplot(311);
-% loglog(XC.dTdz(:),XC.chi(:),'.')
-% xlabel('dTdz','fontsize',16)
-% ylabel('chi','fontsize',16)
-% grid on
-% title(['P16N ' cruise])
-% 
-% ax2=subplot(312);
-% loglog(XC.dTdz(:),XC.eps(:),'.')
-% xlabel('dTdz','fontsize',16)
-% ylabel('eps','fontsize',16)
-% grid on
-% 
-% ax3=subplot(313);
-% loglog(XC.dTdz(:),XC.KT(:),'.')
-% xlabel('dTdz','fontsize',16)
-% ylabel('KT','fontsize',16)
-% grid on
-% 
-% linkaxes([ax1 ax2 ax3],'x')
-% 
-% % if saveplot==1
-% %     figdir='/Users/Andy/Cruises_Research/ChiPod/P16N/figures/';
-% %     print('-dpng','-r300',fullfile(figdir,cruise,['P16N_' cruise '_ChiEpsKtVsdTdz' ]))   ;
-% % end
-% %%

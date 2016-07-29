@@ -46,22 +46,35 @@ for iSN=1%:length(ChiInfo.SNs)
     % Load cast data and
     
     castdir=ChiInfo.(whSN).InstDir
-        
+    
     whsens='T1';
+    if isstruct(castdir)
+        castdir=castdir.(whsens)
+    end
     Params=SetDefaultChiParams
     pathstr=MakePathStr(Params)
     load(fullfile(chi_proc_path,whSN,'avg',pathstr,['avg_' castname '_' castdir 'cast_' whSN '_' whsens '.mat']))
-
+    
     %% Plot single spectra
     
-    for iz=100%:length(avg.P)
+    saveplots=1
+    
+    for iz=200:round(length(avg.P)/10):length(avg.P)
         figure(1);clf
-        ax=PlotSavedChiSpectra(avg,iz)
-        pause(0.2)
+        if sum(~isnan(avg.ks(iz,:)))>10
+            ax=PlotSavedChiSpectra(avg,iz);
+            pause(0.2)
+            
+            if saveplots==1
+                ChkMkDir(fullfile(figdir,'Spectra'))
+                print(fullfile(figdir,'Spectra',[whSN '_' whsens '_'  castdir 'cast_' castname '_wind' num2str(iz) '_fmax' num2str(Params.fmax)]),'-dpng')
+            end
+        end
+        
     end
     %%
-       
-      
+    
+    
     
 end % iSN
 
@@ -116,7 +129,7 @@ end % iSN
 %
 %     end % iwind
 %
-% 
+%
 %     figure(2);clf
 %     ezpc(freq,avg.P,log10(fspec))
 %     colorbar

@@ -24,7 +24,12 @@ Load_chipod_paths_Template
 Chipod_Deploy_Info_Template
 this_file_name='Make_Combined_Chi_Struct_Template.m'
 savedata=0
+% Local path for /mixingsoftware repo ***
+mixpath='/Users/Andy/Cruises_Research/mixingsoftware/';
 %***
+
+addpath(fullfile(mixpath,'CTD_Chipod','mfiles'));
+
 
 % Make a list of all the 24 hz CTD casts we have
 CTD_list=dir(fullfile(CTD_out_dir_24hz,['*' ChiInfo.CastString '*.mat*']));
@@ -42,7 +47,7 @@ Params.fc=99;        % cutoff frequency for response correction
 Params.gamma=0.2;    % mixing efficiency
 
 % Naming string for chipod files based on params
-params_str=['zsm' num2str(Params.z_smooth) 'm_fmax' num2str(Params.fmax) 'Hz_respcorr' num2str(Params.resp_corr) '_fc_' num2str(Params.fc) 'hz_gamma' num2str(Params.gamma*100)]
+params_str=MakePathStr(Params)
 
 % Parameters for depth-binnning
 zmin=0;

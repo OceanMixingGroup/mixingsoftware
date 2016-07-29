@@ -207,15 +207,15 @@ Result of $\chi$pod calculations. Contains data points for each 1 sec window.
 \item S [psu]
 \item theta
 \item sigma
-\item chi1- $\chi$ []
-\item eps1 $\epsilon$ []
-\item KT1 $K_T$ []
+\item chi1- $\chi$  [$K^2s^{-1}$]
+\item eps1 - $\epsilon$ [$Wkg^{-1}$]
+\item KT1 - $K_T$ [$m^2s^{-1}$]
 \item TP1var
 \item samplerate - [hz]
 \item nu
 \item tdif
-\item lat
-\item lon
+\item lat - [$^o$]
+\item lon - [$^o$]
 \item castname
 \item castdir
 \item Info
@@ -258,17 +258,22 @@ The sensitivity of the results to different parameters should be examined, inclu
 \section{Standard Plots made by processing}
 
 \begin{itemize}
-\item \verb+cast_001_RawChipodTS+ (Figure \ref{tsraw}).
 
-\item \verb+cast_001_w_dTdtSpectraCheck+ (Figure \ref{speccheck}). This compares the analog $dT/dt$ (T1P) to the differentiated T signal. The spectral amplitudes should agree up to a certain frequency where the digital dT/dt becomes dominated by noise. If the spectra below the noise level don't match, the time-constant used in calibration might need to be modified. 
+\item \verb+castname_Fig0_RawCTD+ (Figure \ref{ctdraw}).
 
-\item \verb+cast_001_w_TimeOffset+ (Figure \ref{align})
+\item \verb+castname_Fig1_RawChipodTS+ (Figure \ref{tsraw}).
 
-\item \verb+cast_001_w_TimeOffset_Zoom+ (Figure \ref{alignzoom}). Shows a zoomed-in period of the time-offset. The two timeseries should match in the lower panel. 
+\item \verb+castname_Fig2_w_TimeOffset+ (Figure \ref{align})
 
-\item \verb+cast_001_T_P_dTdz_fspd+ (Figure \ref{tscal}). Summary of the alilgned and calibrated data.
+\item \verb+castname_Fig3_w_TimeOffset_Zoom+ (Figure \ref{alignzoom}). Shows a zoomed-in period of the time-offset. The two timeseries should match in the lower panel. 
 
-\item \verb+cast_001_upcast_chi_SN600_T1_avg_chi_KT_dTdz+ (Figure \ref{avgsum}). Summary of the final data (`avg' structure).
+\item \verb+castname_Fig4_w_dTdtSpectraCheck+ (Figure \ref{speccheck}). This compares the analog $dT/dt$ (T1P) to the differentiated T signal. The spectral amplitudes should agree up to a certain frequency where the digital dT/dt becomes dominated by noise. If the spectra below the noise level don't match, the time-constant used in calibration might need to be modified. 
+
+\item \verb+castname_Fig5_T_P_dTdz_fspd+ (Figure \ref{tscal}). Summary of the alilgned and calibrated data.
+
+\item \verb+castname_Fig6_downcast_chi_T1_avgPhist+ (Figure \ref{histgood}).
+ 
+\item \verb+castnameFig7__upcast_chi_SN600_T1_avg_chi_KT_dTdz+ (Figure \ref{avgsum}). Summary of the final data (`avg' structure).
 
 \end{itemize}
 
@@ -327,7 +332,7 @@ The sensitivity of the results to different parameters should be examined, inclu
 
 \begin{figure}[s]
 \includegraphics[scale=0.75]{SN1013_08402_Fig7_upcast_chi_T1_avg_chi_KT_dTdz.png}
-\caption{Results of chipod calculation for one cast. Black lines in lower panel are 10m binned averages.}
+\caption{Results of chipod calculation for one cast. Black lines in lower panel are 10m binned averages. Note the spike in dT/dz near 1500m that likely causes false high values of $\chi$.}
 \label{avgsum}
 \end{figure}
 

@@ -28,6 +28,8 @@ saveplot=1
 Load_chipod_paths_Template
 % *** load deployment info
 Chipod_Deploy_Info_Template
+% You should't have to modify anything below this
+%~~~~~~~~~~~~~~~~~~~~~~
 
 xl=0.5*[-1 1];
 
@@ -136,6 +138,7 @@ for icast=1:Ncasts
             
         catch
             ax(whax)=subplot(rr,cc,iSN+iSNoffset+cc);
+            xlim(xl)
             if strcmp(castdir,ChiInfo.(whSN).InstDir.T1)
                 title(whSN,'color','g','fontweight','bold')
             else
@@ -177,7 +180,8 @@ for icast=1:Ncasts
             catch
                 
                 ax(whax)=subplot(rr,cc,iSN+iSNoffset);
-                            xlabel([whsens ' ' castdir])
+                xlim(xl)
+                xlabel([whsens ' ' castdir])
                 if strcmp(castdir,ChiInfo.(whSN).InstDir.(whsens))
                     title(whSN,'color','g','fontweight','bold')
                 else
@@ -210,7 +214,8 @@ for icast=1:Ncasts
                 
             catch
                 ax(whax)=subplot(rr,cc,iSN+iSNoffset+cc);
-                            xlabel([whsens ' ' castdir])
+                xlabel([whsens ' ' castdir])
+                xlim(xl)
                 if strcmp(castdir,ChiInfo.(whSN).InstDir.T1)
                     title(whSN,'color','g','fontweight','bold')
                 else

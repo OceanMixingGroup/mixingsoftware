@@ -3,6 +3,17 @@ function [spec_vals]=kraichnan(nu,k,kb,D,chi,qq)
 %
 % [spec_vals]=kraichnan(nu,k,kb,D,chi,qq)
 %
+% INPUT
+%   nu :
+%   k  : Wavenumber(s)
+%   kb : Batchelor wavenumber
+%   D  : Diffusivity
+%   chi: \chi
+%   qq : 'universal constant' (default=7)
+%
+% OUTPUT
+%   spec_vals : Values of spectra at wavenumber(s) k
+%
 % kraichnan determines the Kraichnan Spectra at a given wavenumber k
 % this requires chi, kb (the batchelor wavenumber) and the diffusivity D.
 % q could be set to 2.42
@@ -13,15 +24,15 @@ function [spec_vals]=kraichnan(nu,k,kb,D,chi,qq)
 %%
 warning off
 if nargin~=6
-%   q=5.3; was used as default untill 2012, but calc_chi explicitly calls
-%   with q=7 since 2008
-  q=7;
+    %   q=5.3; was used as default untill 2012, but calc_chi explicitly calls
+    %   with q=7 since 2008
+    q=7;
 else
-  q=qq;
+    q=qq;
 end
 test=size(k,2);
 if test==1
-  k=k';
+    k=k';
 end
 % C-star=0.024
 % C_star=0.032;% 0.024
@@ -32,7 +43,7 @@ k_cut=C_star*kb*sqrt(D/nu);
 epsil=(2*pi*kb)^4*nu*D^2;
 a=max(find(k<k_cut));
 if isempty(a)
-  a=0;
+    a=0;
 end
 b=length(k);
 const=(2*pi)^2*q*chi*sqrt(nu/epsil);
@@ -43,5 +54,5 @@ spec_vals2=const.*[k_cut k(a+1:b)].*exp(-sqrt(6*q)*[k_cut k(a+1:b)]/kb);
 spec_vals1=spec_vals2(1)*(k(1:a)/k_cut).^(1/3);
 spec_vals=[spec_vals1 spec_vals2(2:b-a+1)];
 if test==1
-  spec_vals=spec_vals';
+    spec_vals=spec_vals';
 end

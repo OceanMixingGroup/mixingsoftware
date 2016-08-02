@@ -4,7 +4,7 @@ function [spec_vals]=kraichnan(nu,k,kb,D,chi,qq)
 % [spec_vals]=kraichnan(nu,k,kb,D,chi,qq)
 %
 % INPUT
-%   nu :
+%   nu : viscosity
 %   k  : Wavenumber(s)
 %   kb : Batchelor wavenumber
 %   D  : Diffusivity

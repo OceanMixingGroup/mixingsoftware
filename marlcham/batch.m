@@ -3,7 +3,7 @@ function [spec_vals]=batch(nu,k,kb,D,chi,qq)
 % [spec_vals]=batch(nu,k,kb,D,chi,q)
 %
 % INPUT
-%   nu :
+%   nu : viscosity
 %   k  : Wavenumber(s)
 %   kb : Batchelor wavenumber
 %   D  : Diffusivity

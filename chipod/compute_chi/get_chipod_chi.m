@@ -23,7 +23,7 @@ function [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
 % - gamma - the mixing efficiency (default=0.2)
 % - g - gravity
 % - q : Universal constant for Kraichnan spectra (default=7)
-% - n_iterations - the number of times to iterate on epsilon (default=10)
+% - n_iterations - the number of times to iterate on epsilon (default=20)
 % - doplots - whether or not to plot the data.
 % - eps_start : Starting guess of epsilon (default=1e-7)
 %
@@ -73,7 +73,7 @@ if ~exist('nsqr','var')
     nsqr=g*alpha*dTdz;
 end
 if ~exist('n_iterations','var')
-    n_iterations=10;
+    n_iterations=20;
 end
 if ~exist('doplots','var')
     doplots=0;

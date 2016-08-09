@@ -17,13 +17,15 @@ function [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
 % - this_sensor (the sensor name in the head structure).
 %
 % In addition, here are some variables that could be set from varargin:
-% - alpha (1/rho drho/dT),
-% - nsqr (g/rho drho/dz) - buoyancy frequency,
-% - fmax - the maximum frequency to intergrate the temperatue spectrum to.
-% - gamma - the mixing efficiency
+% - alpha (1/rho drho/dT) (default=3e-4)
+% - nsqr (g/rho drho/dz) - buoyancy frequency (default=g*alpha*dTdz)
+% - fmax - the max. freq. to intergrate the dT/dz spectrum to (default=20)
+% - gamma - the mixing efficiency (default=0.2)
 % - g - gravity
-% - n_iterations - the number of times to iterate on epsilon
+% - q : Universal constant for Kraichnan spectra (default=7)
+% - n_iterations - the number of times to iterate on epsilon (default=10)
 % - doplots - whether or not to plot the data.
+% - eps_start : Starting guess of epsilon (default=1e-7)
 %
 % this routine makes n_iterations estimates of epsilon and chi, through
 % the assumption that K_T=K_\rho, and returns
@@ -76,6 +78,9 @@ end
 if ~exist('doplots','var')
     doplots=0;
 end
+if ~exist('eps_start','var')
+    eps_start=1e-7;
+end
 
 %%
 k=freq/fspd;
@@ -98,7 +103,7 @@ if doplots, figure(17),clf,cols='rbgmykbbbbbbbbbbbb';end
 
 %% calculate chi and epsilon
 
-epsilon=1e-7; % this is the first guess. ;
+epsilon=eps_start%1e-7; % this is the first guess. ;
 for b=1:n_iterations
     
     ks = ((epsilon/(nu^3))^.25 )/2/pi;

@@ -103,7 +103,7 @@ if doplots, figure(17),clf,cols='rbgmykbbbbbbbbbbbb';end
 
 %% calculate chi and epsilon
 
-epsilon=eps_start%1e-7; % this is the first guess. ;
+epsilon=eps_start;%1e-7; % this is the first guess. ;
 for b=1:n_iterations
     
     ks = ((epsilon/(nu^3))^.25 )/2/pi;
@@ -270,7 +270,7 @@ for b=1:n_iterations
         pdif_chi=(chi_out(b)-chi_out(b-1))/chi_out(b) *100;
         pdif_eps=(epsil(b)-epsil(b-1))/epsil(b) *100;
         if abs(pdif_chi)<0.005 && abs(pdif_eps)<0.005
-            disp(['chi and eps have converged after ' num2str(b) ' iterations'])
+%            disp(['chi and eps have converged after ' num2str(b) ' iterations'])
             break
         end
     end

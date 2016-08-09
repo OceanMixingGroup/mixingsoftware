@@ -263,12 +263,23 @@ for b=1:n_iterations
         plot([stats.k_start stats.k_start],ylim,'k--')
         plot([stats.k_stop stats.k_stop],ylim,'k--')
     end
-end
+    
+    % Check if \chi and/or \epsilon have converged, stop if they have
+    if b>1
+        clear pdif_chi pdif_eps
+        pdif_chi=(chi_out(b)-chi_out(b-1))/chi_out(b) *100;
+        pdif_eps=(epsil(b)-epsil(b-1))/epsil(b) *100;
+        if abs(pdif_chi)<0.005 && abs(pdif_eps)<0.005
+            disp(['chi and eps have converged after ' num2str(b) ' iterations'])
+            break
+        end
+    end
+    
+end % b=1:n_iterations
 
 chi=fliplr(chi_out);
 epsil=fliplr(epsil);
+
 return
-
-
 
 

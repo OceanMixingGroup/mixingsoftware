@@ -48,10 +48,12 @@ More details are given in the rest of the document.
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Software}
-The processing is done with Matlab codes, which are maintained in a github repository: \newline
- \url{https://github.com/OceanMixingGroup/mixingsoftware}.\newline
-  The CTD-$\chi$pod specific codes are in the folder \verb+/CTD_Chipod+. Codes for processing raw CTD data (.hex format) are contained in \verb+/ctd_processing+.
-
+\begin{itemize}
+\item The processing is done with Matlab codes, which are maintained in a github repository: \newline
+ \url{https://github.com/OceanMixingGroup/mixingsoftware}.
+ \item  The CTD-$\chi$pod specific codes are in the folder \verb+/CTD_Chipod+.
+ \item Codes for processing raw CTD data (.hex format) are contained in \verb+/ctd_processing+.
+\end{itemize}
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,7 +114,8 @@ Required fields for binned CTD data
 \end{itemize}
 
 
-
+\clearpage
+\newpage
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Processing steps}
 
@@ -185,8 +188,8 @@ Calibrated data for each cast. Up and down casts are saved in separate files. St
 \begin{itemize}
 \item datenum
 \item P [db]
-\item T1P - dT/dt [Ks^{-1}]
-\item fspd - [ms^{-1}]
+\item T1P - dT/dt [$Ks^{-1}$]
+\item fspd - [$ms^{-1}$]
 \item castidr - up/down
 \item info
 \item ctd
@@ -200,10 +203,10 @@ Result of $\chi$pod calculations. Contains data points for each 1 sec window.
 \item Params
 \item datenum
 \item  P - [db]
-\item N2 - 
-\item dTdz
-\item fspd - [ms^{-1}]
-\item T [^oC]
+\item N2 - [$s^{-2}$] 
+\item dTdz [$Km^{-1}$]
+\item fspd - [$ms^{-1}$]
+\item T [$^oC$]
 \item S [psu]
 \item theta
 \item sigma
@@ -286,26 +289,26 @@ The sensitivity of the results to different parameters should be examined, inclu
 
 \begin{figure}[s]
 \includegraphics[scale=0.75]{SN1013_08402_Fig0_RawCTD.png}
-\caption{Time-series of raw CTD data for one cast.}
+\caption{Time-series of raw CTD data for one cast: (a) Pressure (b) Temperature (c) Conductivity.}
 \label{ctdraw}
 \end{figure}
 
 
 \begin{figure}[s]
 \includegraphics[scale=0.75]{SN1013_08402_Fig1_RawChipodTS.png}
-\caption{Time-series of raw $\chi$pod data for one cast.}
+\caption{Time-series of raw $\chi$pod data (voltages) for one cast: (a) Temperature (b) dT/dt (c) Accelerometer.}
 \label{tsraw}
 \end{figure}
 
 \begin{figure}[s]
 \includegraphics[scale=0.75]{SN1013_08402_Fig2_w_TimeOffset.png}
-\caption{Time series of dp/dt CTD and chipod w. Top is original, bottom is after time-offset applied to chipod.}
+\caption{Time series of dp/dt from CTD and integrated vertical accelerations from $\chi$pod . Top is original, bottom is after time-offset applied to $\chi$pod.}
 \label{align}
 \end{figure}
 
 \begin{figure}[s]
 \includegraphics[scale=0.75]{SN1013_08402_Fig3_w_TimeOffset_Zoom.png}
-\caption{Zoom-in of dp/dt and chipod w allowing one to check if time-offset is correct. Bottom panel should match.}
+\caption{Zoom-in of previous plot allowing one to check if time-offset is correct. Bottom panel should match.}
 \label{alignzoom}
 \end{figure}
 
@@ -318,7 +321,7 @@ The sensitivity of the results to different parameters should be examined, inclu
 
 \begin{figure}[s]
 \includegraphics[scale=0.75]{SN1013_08402_Fig5_T_P_dTdz_fspd.png}
-\caption{Time series of aligned and calibrated chipod data for one cast.}
+\caption{Time series of aligned and calibrated $\chi$pod data for one cast.}
 \label{tscal}
 \end{figure}
 

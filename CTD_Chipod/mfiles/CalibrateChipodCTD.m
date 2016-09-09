@@ -11,13 +11,18 @@ function [CTD_24hz chidat]=CalibrateChipodCTD(CTD_24hz,chidat,az_correction,make
 %
 % INPUT
 % CTD_24hz       : 24hz CTD data (includes downcast and upcast)
-% chidat         : Chipod data for this period.
-% az_correction  : Correction for up/down mounting of accelerometer
+% chidat         : structure w/ Chipod data for this period
+% az_correction  : Correction for up/down mounting of accelerometer (+/-1)
 % makeplot       : option to make figure
 %
 % OUTPUT
-% CTD_24hz  : Same, w/ dp/dt added
+% CTD_24hz  : Same
 % chidat    : Same, w/ T1 and T1P calibrated
+%
+% Calls:
+%  fast_psd.m
+%  calibrate_chipod_dtdt.m
+%  get_T_calibration.m
 %
 %---------------------------------
 % 06/14/15 - A. Pickering - apickering@coas.oregonstate.edu
@@ -44,7 +49,6 @@ chidat.cal.fspd=chidat.fspd;
 %% Apply our calibration for DTdt.
 
 chidat.cal.T1P=calibrate_chipod_dtdt(chidat.T1P , chidat.cal.coef.T1P , chidat.T1 , chidat.cal.coef.T1);
-
 
 test_dtdt=1; %%% this does a digital differentiation to determine whether the differentiator time constant is correct.
 if test_dtdt
@@ -84,8 +88,7 @@ if test_dtdt
     freqline(0);
     freqline(20);
     
-end
-%%
+end % test_dtdt
 
 % if it's a 'big' chipod, do 2nd sensor also
 if chidat.Info.isbig
@@ -113,11 +116,11 @@ if chidat.Info.isbig
         title(['T2- Spectra of dT/dt - \tau =' num2str(chidat.cal.coef.T1P)])
         ylabel('\Phi_{T_z} [^oC^2/s^{-2}]')
         
-    end
+    end % test_dtdt
     
 else
     
-end
+end % isbig
 
 return
 

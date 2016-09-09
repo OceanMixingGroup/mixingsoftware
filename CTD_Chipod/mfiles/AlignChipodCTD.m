@@ -9,11 +9,10 @@ function [CTD_24hz chidat]=AlignChipodCTD(CTD_24hz,chidat,az_correction,makeplot
 %
 % Part of CTD-chipod processing routines. Calls function TimeOffset.m
 %
-%
 % INPUT
-% CTD_24hz       : 24hz CTD data
+% CTD_24hz       : 24hz CTD data structure
 % chidat         : Chipod data structure
-% az_correction  : Correction for accelerometer mounted up/down on Rosette
+% az_correction  : Accelerometer up/down on Rosette (-1 or +1)
 % makeplot       : option to make figure
 %
 % OUTPUT
@@ -69,7 +68,6 @@ min_p=50;
 inds=find(CTD_24hz.p>min_p);
 ginds=inds(1):inds(end);
 
-%%
 % find time offset between ctd and chipod data (by matching w)
 offset=TimeOffset(CTD_24hz.datenum(ginds),CTD_24hz.dpdt_hp(ginds),chidat.datenum,w_from_chipod);
 

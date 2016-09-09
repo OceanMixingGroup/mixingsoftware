@@ -30,8 +30,6 @@
 
 clear ; close all
 
-saveplot=0
-
 % *** Data paths
 Load_chipod_paths_Template
 % *** load deployment info
@@ -65,63 +63,64 @@ GBinds
 hb=waitbar(0)
 
 for icast=1:Ncasts
+    
     waitbar(icast/Ncasts,hb)
     castname=CTDlist(icast).name(1:end-4)
     
-    % Set up figure
-    figure(1);clf
-    agutwocolumn(1)
-    wysiwyg
-    set(gcf,'Name',[castname]);
-    rr=2;
-    if any(bc)==1
-        cc=length(ChiInfo.SNs)+Nbig;
-    else
-        cc=length(ChiInfo.SNs);
-    end
-    
-    ax=nan*ones(1,2*cc);
-    
     ymax=[];
-    
-    iSNoffset=0
     
     whax=1;
     for iSN=1:length(ChiInfo.SNs)
         
+        % Set up figure
+        figure(1);clf
+        agutwocolumn(1)
+        wysiwyg
+        set(gcf,'Name',[castname]);
+        
+        clear whSN castdir C
+        
+        whsens='T1';
+        whSN=ChiInfo.SNs{iSN};
+        castdir=ChiInfo.(whSN).InstDir.(whsens);
+        dir2=fullfile(whSN,'cal');
+        
+        disp(['/n Working on ' whSN ' ' castdir 'cast, cast ' castname])
+        
         try
-            
-            % 
-            whsens='T1';
-            whSN=ChiInfo.SNs{iSN};
-            castdir=ChiInfo.(whSN).InstDir.(whsens);
-            
-            dir2=fullfile(whSN,'cal');
             load(fullfile(chi_proc_path,dir2,[castname '_' whSN '_' castdir 'cast.mat']))
-            ymax=[ymax nanmax(C.P)];
+            disp(['Data loaded for ' whSN ' ' castdir 'cast, cast ' castname])
+        catch
+            disp(['Error loading data for ' whSN ' ' castdir 'cast, cast ' castname])
+        end
+        
+        if exist('C','var')
             
-            figure(1);clf
-            agutwocolumn(0.8)
-            wysiwyg
-            plot(C.([whsens 'P']),C.P)
-            xlim(xl)
-            ylim([0 ymax])
-            axis ij
-            grid on
-            xlabel([whsens ' ' castdir])
-            if strcmp(castdir,ChiInfo.(whSN).InstDir.T1)
+            try
+                ymax=nanmax(C.P);
+                
+                plot(C.([whsens 'P']),C.P)
+                xlim(xl)
+                ylim([0 ymax])
+                axis ij
+                grid on
+                xlabel([whsens ' ' castdir])
                 title(whSN,'color','g','fontweight','bold')
-            else
-                title(whSN)
+                
+                gridxy
+                
+                reply=input(' 1=good, 0=bad')
+                if isempty(reply)
+                    GBinds.(whSN)(icast)=1;
+                else
+                    GBinds.(whSN)(icast)=reply
+                end
+                
+            catch
+                disp(['Error plotting'])
             end
             
-            gridxy
-            
-            reply=input(' 1=good, 0=bad')
-            GBinds.(whSN)(icast)=reply
-            
-        catch
-        end % try
+        end
         
     end % iSN
     

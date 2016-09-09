@@ -101,6 +101,7 @@ for icast=1:Ncasts
             
         catch
             ax(whax)=subplot(rr,cc,iSN+iSNoffset);
+            xlim(xl)
             if strcmp(castdir,ChiInfo.(whSN).InstDir.T1)
                 title(whSN,'color','g','fontweight','bold')
             else

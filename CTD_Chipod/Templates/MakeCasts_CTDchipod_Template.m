@@ -75,16 +75,16 @@ MakeResultsTextFile
 
 % Make a structure to save processing summary info
 
-if ~exist('Xproc.mat','file')
+if ~exist('proc_info.mat','file')
     
-    Xproc=struct;
-    Xproc.SNs=ChiInfo.SNs;
-    Xproc.icast=nan*ones(1,length(CTD_list));
-    Xproc.Name=cell(1,length(CTD_list));
-    Xproc.duration=nan*ones(1,length(CTD_list));
-    Xproc.MaxP=nan*ones(1,length(CTD_list));
-    Xproc.Prange=nan*ones(1,length(CTD_list));
-    Xproc.drange=nan*ones(length(CTD_list),2);
+    proc_info=struct;
+    proc_info.SNs=ChiInfo.SNs;
+    proc_info.icast=nan*ones(1,length(CTD_list));
+    proc_info.Name=cell(1,length(CTD_list));
+    proc_info.duration=nan*ones(1,length(CTD_list));
+    proc_info.MaxP=nan*ones(1,length(CTD_list));
+    proc_info.Prange=nan*ones(1,length(CTD_list));
+    proc_info.drange=nan*ones(length(CTD_list),2);
     
     empt_struct.toffset=nan*ones(1,length(CTD_list));
     empt_struct.IsChiData=nan*ones(1,length(CTD_list));
@@ -92,12 +92,12 @@ if ~exist('Xproc.mat','file')
     empt_struct.T2cal=nan*ones(1,length(CTD_list));
     
     for iSN=1:length(ChiInfo.SNs)
-        Xproc.(ChiInfo.SNs{iSN})=empt_struct ;
+        proc_info.(ChiInfo.SNs{iSN})=empt_struct ;
     end
     
 else
-    disp('Xproc already exists, will load and add to it')
-    load('Xproc.mat')
+    disp('proc_info already exists, will load and add to it')
+    load('proc_info.mat')
 end
 
 % Loop through each ctd file
@@ -139,12 +139,12 @@ for icast=1:length(CTD_list)
     % Name of CTD cast to use (assumes 24Hz CTD cast files end in '_24hz.mat'
     castStr=castname(1:end-9)
     
-    Xproc.icast(icast)=icast;
-    Xproc.Name(icast)={castStr};
-    Xproc.MaxP(icast)=nanmax(CTD_24hz.p);
-    Xproc.duration(icast)=nanmax(CTD_24hz.datenum)-nanmin(CTD_24hz.datenum);
-    Xproc.Prange(icast)=range(CTD_24hz.p);
-    Xproc.drange(icast,:)=time_range;
+    proc_info.icast(icast)=icast;
+    proc_info.Name(icast)={castStr};
+    proc_info.MaxP(icast)=nanmax(CTD_24hz.p);
+    proc_info.duration(icast)=nanmax(CTD_24hz.datenum)-nanmin(CTD_24hz.datenum);
+    proc_info.Prange(icast)=range(CTD_24hz.p);
+    proc_info.drange(icast,:)=time_range;
     
     %-- Loop through each chipod SN --
     for iSN=1:length(ChiInfo.SNs)
@@ -222,7 +222,7 @@ for icast=1:length(CTD_list)
                     %                         chidat.AZ=A1;
                     %                     end
                     
-                    Xproc.(whSN).IsChiData(icast)=1;
+                    proc_info.(whSN).IsChiData(icast)=1;
                     
                     % Align w/ CTD timeseries
                     [CTD_24hz chidat]=AlignChipodCTD(CTD_24hz,chidat,az_correction,1);
@@ -273,13 +273,13 @@ for icast=1:length(CTD_list)
                         else
                             cal_good_T2=1;
                         end
-                        Xproc.(whSN).T2cal(icast)=cal_good_T2;
+                        proc_info.(whSN).T2cal(icast)=cal_good_T2;
                     else
                         cal_good_T2=nan;
                     end % isbig
                     
-                    Xproc.(whSN).T1cal(icast)=cal_good_T1;
-                    Xproc.(whSN).toffset(icast)=chidat.time_offset_correction_used*86400; % in sec
+                    proc_info.(whSN).T1cal(icast)=cal_good_T1;
+                    proc_info.(whSN).toffset(icast)=chidat.time_offset_correction_used*86400; % in sec
                     
                     %~~~~
                     do_timeseries_plot=1;
@@ -369,7 +369,7 @@ for icast=1:length(CTD_list)
                     %##
                     fprintf(fileID,' No chi file found ');
                     %##
-                    Xproc.(whSN).IsChiData(icast)=0;
+                    proc_info.(whSN).IsChiData(icast)=0;
                 end % if we have good chipod data for this profile
                 
             else
@@ -388,10 +388,10 @@ for icast=1:length(CTD_list)
     end % each chipod on rosette (up_down_big)
     
     % save processing info (save after each cast in case it crashes)
-    Xproc.MakeInfo=['Made ' datestr(now) ' w/ ' this_script_name]
-    Xproc.last_iSN=iSN;
-    Xproc.last_icast=icast;
-    save('Xproc.mat','Xproc')
+    proc_info.MakeInfo=['Made ' datestr(now) ' w/ ' this_script_name]
+    proc_info.last_iSN=iSN;
+    proc_info.last_icast=icast;
+    save('proc_info.mat','proc_info')
     
 end % icast (each CTD file)
 

@@ -2,7 +2,7 @@
 %
 % SummarizeProc_Template.m
 %
-% Load Xproc.mat from MakeCasts and summarize CTD and chippod data.
+% Load proc_info.mat from MakeCasts and summarize CTD and chippod data.
 %
 % Outputs go into standard latex notes template
 %
@@ -26,15 +26,15 @@ cd(['/Users/Andy/Cruises_Research/ChiPod/' cruise '/mfiles'])
 figdir=['/Users/Andy/Cruises_Research/ChiPod/' cruise '/Figures/']
 %~~~
 
-load('Xproc.mat')
+load('proc_info.mat')
 
 
 %% Plot if we have data, if T1cal is good, and time offset for one chipod
 
 iSN=2
-whSN=Xproc.SNs{iSN}
+whSN=proc_info.SNs{iSN}
 
-Ncasts=length(Xproc.icast)
+Ncasts=length(proc_info.icast)
 rr=3
 cc=1
 
@@ -43,18 +43,18 @@ agutwocolumn(1)
 wysiwyg
 
 ax1=subplot(rr,cc,1);
-plot(Xproc.icast,Xproc.(whSN).IsChiData,'o')
+plot(proc_info.icast,proc_info.(whSN).IsChiData,'o')
 grid on
 SubplotLetterMW('chi data');
 title(whSN)
 
 ax2=subplot(rr,cc,2);
-plot(Xproc.icast,Xproc.(whSN).T1cal,'o')
+plot(proc_info.icast,proc_info.(whSN).T1cal,'o')
 grid on
 SubplotLetterMW('T1 cal');
 
 ax3=subplot(rr,cc,3);
-plot(Xproc.icast,Xproc.(whSN).toffset,'o')
+plot(proc_info.icast,proc_info.(whSN).toffset,'o')
 grid on
 ylabel('toffset')
 xlabel('icast','fontsize',16)
@@ -68,20 +68,20 @@ figure(1);clf
 agutwocolumn(1)
 wysiwyg
 
-for iSN=1:length(Xproc.SNs)
+for iSN=1:length(proc_info.SNs)
     
     clear whSN idg
     
-    whSN=Xproc.SNs{iSN}
-    idg=find(Xproc.(whSN).IsChiData==1);
+    whSN=proc_info.SNs{iSN}
+    idg=find(proc_info.(whSN).IsChiData==1);
     
     ax1=subplot(2,1,1);
-    plot(Xproc.drange(idg,1),Xproc.(whSN).IsChiData(idg)+iSN-1,'o')
+    plot(proc_info.drange(idg,1),proc_info.(whSN).IsChiData(idg)+iSN-1,'o')
     hold on
     grid on
     
     ax2=subplot(212);
-    plot(Xproc.icast(idg),Xproc.(whSN).IsChiData(idg)+iSN-1,'o')
+    plot(proc_info.icast(idg),proc_info.(whSN).IsChiData(idg)+iSN-1,'o')
     hold on
     grid on
     
@@ -91,18 +91,18 @@ end % iSN
 axes(ax1)
 datetick('x')
 xlabel('date','fontsize',16)
-set(gca,'YTick',1:length(Xproc.SNs))
-set(gca,'YTickLabel',Xproc.SNs)%
+set(gca,'YTick',1:length(proc_info.SNs))
+set(gca,'YTickLabel',proc_info.SNs)%
 set(gca,'Fontsize',15)
 title([cruise ' - Casts w/ \chi pod data'])
-ylim([0 length(Xproc.SNs)+1])
+ylim([0 length(proc_info.SNs)+1])
 
 axes(ax2)
 xlabel('Cast id','fontsize',16)
-set(gca,'YTick',1:length(Xproc.SNs))
-set(gca,'YTickLabel',Xproc.SNs)%
+set(gca,'YTick',1:length(proc_info.SNs))
+set(gca,'YTickLabel',proc_info.SNs)%
 set(gca,'Fontsize',15)
-ylim([0 length(Xproc.SNs)+1])
+ylim([0 length(proc_info.SNs)+1])
 
 if saveplots==1
     figname=[cruise '_haveChiData_all']
@@ -117,28 +117,28 @@ wysiwyg
 
 yl=50*[-1 1];
 
-for iSN=1:length(Xproc.SNs)
+for iSN=1:length(proc_info.SNs)
     
     clear whSN idg
     
-    whSN=Xproc.SNs{iSN}
-    idg=find(Xproc.(whSN).IsChiData==1);
+    whSN=proc_info.SNs{iSN}
+    idg=find(proc_info.(whSN).IsChiData==1);
     
-    if length(Xproc.SNs)>1
+    if length(proc_info.SNs)>1
         
-        ax1=subplot(ceil(length(Xproc.SNs)/2),2,iSN);
+        ax1=subplot(ceil(length(proc_info.SNs)/2),2,iSN);
         
     else
         
     end % if more than 1 SN
     
-    plot(Xproc.icast(idg),Xproc.(whSN).toffset(idg),'o')
+    plot(proc_info.icast(idg),proc_info.(whSN).toffset(idg),'o')
     hold on
-    idb=find(abs(Xproc.(whSN).toffset(idg))>yl(2));
-    plot(Xproc.icast(idb),yl(2)*ones(size(idb)),'rx')
+    idb=find(abs(proc_info.(whSN).toffset(idg))>yl(2));
+    plot(proc_info.icast(idb),yl(2)*ones(size(idb)),'rx')
     grid on
     title(whSN)
-    xlim([1 length(Xproc.icast)])
+    xlim([1 length(proc_info.icast)])
     ylim(yl)
     gridxy
     xlabel('castID')
@@ -164,7 +164,7 @@ lend=' \\ ';
 
 disp('\begin{table}[htdp]')
 disp(['\caption{Some $\chi$pod processing summary info for ' cruise ...
-    '. There were ' num2str(length(Xproc.icast)) ' CTD casts.}'])
+    '. There were ' num2str(length(proc_info.icast)) ' CTD casts.}'])
 disp('\begin{center}')
 disp('\begin{tabular}{|c|c|c|c|}')
 
@@ -174,16 +174,16 @@ disp(['SN' and '$\chi$ data' and 'T1cal Good' and 'toffset $<$ 1min' lend])
 disp('\hline')
 disp('\hline')
 
-for iSN=1:length(Xproc.SNs)
+for iSN=1:length(proc_info.SNs)
     
     clear whSN id1 id2 id22 id3 id4 id5 idg
-    whSN=Xproc.SNs{iSN};
-    id1=find(Xproc.(whSN).IsChiData==1);   % Have chipod data
-    id2=find(Xproc.(whSN).T1cal==1);       % T1 cal good (1=good)
-    id22=find(Xproc.(whSN).T2cal==1);      % T1=2 cal good (1=good)
-    id5=find(abs(Xproc.(whSN).toffset)<60);% Time offset <1min (good)
-    id3=find(Xproc.duration*24*60 < 20);   % Cast duration <20min (probably bad)
-    id4=find(Xproc.Prange < 100);          % Cast pressure range <100m (probably bad)
+    whSN=proc_info.SNs{iSN};
+    id1=find(proc_info.(whSN).IsChiData==1);   % Have chipod data
+    id2=find(proc_info.(whSN).T1cal==1);       % T1 cal good (1=good)
+    id22=find(proc_info.(whSN).T2cal==1);      % T1=2 cal good (1=good)
+    id5=find(abs(proc_info.(whSN).toffset)<60);% Time offset <1min (good)
+    id3=find(proc_info.duration*24*60 < 20);   % Cast duration <20min (probably bad)
+    id4=find(proc_info.Prange < 100);          % Cast pressure range <100m (probably bad)
     idg=intersect(id2,id5);
     
     disp([whSN and num2str(length(id1)) and num2str(length(id2)) and num2str(length(id5)) lend])

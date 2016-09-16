@@ -26,6 +26,7 @@ data.fl = NaN*ones(nb, 1);
 data.lon = NaN*ones(nb, 1);
 data.lat = NaN*ones(nb, 1);
 data.time = NaN*ones(nb, 1);
+data.datenum=NaN*ones(nb, 1);
 data.nscan = zeros(nb, 1);
 data.depth = zbin;
 
@@ -57,13 +58,17 @@ for ibin = 1:nb
     data.theta2(ibin) = nanmean(datain.theta2(ii));
     data.sigma1(ibin) = nanmean(datain.sigma1(ii));
     data.sigma2(ibin) = nanmean(datain.sigma2(ii));
-    data.oxygen(ibin) = nanmean(datain.oxygen(ii));
-    data.trans(ibin) = nanmean(datain.trans(ii));
-    data.fl(ibin) = nanmean(datain.fl(ii));
+%    data.oxygen(ibin) = nanmean(datain.oxygen(ii));
+%    data.trans(ibin) = nanmean(datain.trans(ii));
+%    data.fl(ibin) = nanmean(datain.fl(ii));
     data.lon(ibin) = nanmean(datain.lon(ii));
     data.lat(ibin) = nanmean(datain.lat(ii));
     data.time(ibin) = nanmedian(datain.time(ii));
     data.nscan(ibin) = sum(isfinite(datain.t1(ii)));
+    
+    if isfield(data,'datenum')
+        data.datenum(ibin)=nanmedian(datain.datenum(ii));
+    end
     
     if isfield(datain,'epsilon1')
         data.epsilon1(ibin)=nanmean(datain.epsilon1(ii));

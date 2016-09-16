@@ -15,18 +15,16 @@ clear ; close all ; clc
 
 saveplot=1
 
+% *** Change 'Template' to project name
+Load_chipod_paths_Template
+Chipod_Deploy_Info_Template
+
 % *** path for 'mixingsoftware' ***
 mixpath='/Users/Andy/Cruises_Research/mixingsoftware/'
 addpath(fullfile(mixpath,'CTD_Chipod','mfiles'))
 addpath(fullfile(mixpath,'general')) % makelen.m in /general is needed
 addpath(fullfile(mixpath,'marlcham')) % for integrate.m
 addpath(fullfile(mixpath,'adcp')) % need for mergefields_jn.m in load_chipod_data
-
-Load_chipod_paths_Template
-Chipod_Deploy_Info_Template
-
-figdir=fullfile(BaseDir,'Figures','chipodraw',whSN)
-ChkMkDir(figdir)
 
 allSNs=ChiInfo.SNs
 
@@ -40,6 +38,10 @@ for iSN=1:length(allSNs)
     
     whSN=allSNs{iSN}
     data_dir=fullfile(chi_data_path,whSN)
+    
+    figdir=fullfile(BaseDir,'Figures','chipodraw',whSN)
+    ChkMkDir(figdir)
+    
     
     % make list of all the data files we have
     chi_file_list=dir( fullfile(data_dir,['/*' whSN '*']))

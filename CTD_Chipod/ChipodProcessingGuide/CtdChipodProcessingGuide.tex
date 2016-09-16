@@ -33,17 +33,6 @@
 This is a guide to processing data from CTD-$\chi$pods. $\chi$pods are self-contained instruments developed by the OSU Ocean Mixing Group to measure turbulence. They have a FP07 thermistor that measures temperature and temperature gradient, sampled at 100Hz. 
 
  
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-\section{Brief Outline of Major Processing Steps}
-
-\begin{enumerate}
-\item Find chipod data for each CTD cast
-\item Align chipod data with CTD data
-\item Calibrate chipod data
-\item Apply chipod calc in 1 sec windows
-\end{enumerate}
-More details are given in the rest of the document.
-
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -59,7 +48,8 @@ More details are given in the rest of the document.
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Data Organziation}
 
-Raw data should be organized into folders as:
+Raw data should be organized into folders as listed below. The function \verb+make_ctd_chipod_folders.m+ will make the empty folders when you start processing a project.
+
 \subsection{Raw Data}
 \begin{itemize}
 \item \verb+/Data/raw/Chipod/SNxxxx+ : Raw $\chi$pod data.
@@ -114,20 +104,34 @@ Required fields for binned CTD data
 \end{itemize}
 
 
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\section{Brief Outline of Major Processing Steps}
+
+\begin{enumerate}
+\item Find chipod data for each CTD cast
+\item Align chipod data with CTD data
+\item Calibrate chipod data
+\item Apply chipod calc in 1 sec windows
+\end{enumerate}
+More details are given in the next section.
+
 \clearpage
 \newpage
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Processing steps}
 
-All templates are located in \verb+/mixingsoftware/CTD_Chipod/Templates/+
+All templates are located in \verb+/mixingsoftware/CTD_Chipod/Templates/+. In all template files, `Templates' should be replaced with the project name in both the script name and witihin the script.
 
 \begin{enumerate}
 
+\item Check the excel log files to look for any major issues, sensors switched during cruise etc.. 
+
 \item Modify \verb+Load_chipod_paths_template.m+ . This specifies filepaths to raw data, as well as where output will be saved.
 
-\item Modify \verb+Chipod_Deploy_Info_template.m+ with info for specific deployment. Much of the rest of the processing uses information from the above two files.
+\item Modify \verb+Chipod_Deploy_Info_template.m+ with info for specific deployment. Much of the rest of the processing uses information from the above two files. *The info for each unit can be found in the excel log file*.
 
-\item Plot the raw chi-pod data (\verb+Plot_Raw_Data_template+?). This will let you see quickly if any sensors or files are obviously bad. If there are bad files you can specify these in a \verb+Bad_File…+  list so they will not be loaded during processing (this is not necessary, but will reduce time loading bad files, and may prevent bad data from accidentally being used).  Figure \ref{x} shows an example of a normal-looking file. Figure \ref{xx} shows an example of file that looks bad.
+\item Plot the raw chi-pod data (\verb+Plot_Raw_Data_template+?). This will let you see quickly if any sensors or files are obviously bad. If there are bad files you can specify these in a \verb+Bad_File…+  list so they will not be loaded during processing (this is not necessary, but will reduce time loading bad files, and may prevent bad data from accidentally being used).  Figure \ref{x} shows an example of a normal-looking file. Figure \ref{xx} shows an example of file that looks bad. * check that up/down from logs appears correct*
 
 \item  Modify \verb+MakeCasts_CTDchipod_Template.m+ for specific cruise. This script finds $\chi$pod data for each cast, aligns the data, calibrates the data, and saves a file with data for each cast. 
 
@@ -137,13 +141,15 @@ All templates are located in \verb+/mixingsoftware/CTD_Chipod/Templates/+
 
 \item Run \verb+SummarizeProc_Template+. This makes some summary tables and figures from the `Xproc.mat' data saved during  \verb+MakeCasts_CTDchipod+.
 
-\item \verb+Plot_TP_profiles_EachCast_Template.m+ For each cast, this plots the temperature derivative from all chi pod sensors on the same scale so you can compare them and check for bad profiles. Figures are save to \verb+/Figures/TPprofiles/+
+\item \verb+Plot_TP_profiles_EachCast_Template.m+ For each cast, this plots the temperature derivative from all chi pod sensors on the same scale so you can compare them and check for bad profiles. Figures are save to \verb+/Figures/TPprofiles/+. This is another good place to check that the up/down designations are correct; the title for the designated direction will be green. The corresponding profile should be less noisy than the other direction. 
 
 \item  Modify \verb+DoChiCalc_Template.m+ and run for all casts. This does the chi calculation for all the cast files made in \verb+MakeCasts_CTDchipod+. Data are saved to  \verb+/Data/proc/Chipod/avg/+
 
-\item \verb+Make_Combined_Chi_Struct_Template+
+\item Modify and run \verb+Make_Combined_Chi_Struct_Template+. This will combine all the processed `avg' files for each cast into a single structure `XC'.
 
-\item \verb+PlotXCsummaries_Template+. Make summary plots
+\item Modify and run \verb+PlotXCsummaries_Template+ to make summary plots from the combined `XC' structure.
+
+\item Run \verb+Make_kml_Template.m+ to make a kml file of CTD cast positions that can be viewed in Google Earth.
 
 \end{enumerate}
 

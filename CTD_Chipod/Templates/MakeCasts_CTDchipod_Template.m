@@ -85,6 +85,8 @@ if ~exist('proc_info.mat','file')
     proc_info.MaxP=nan*ones(1,length(CTD_list));
     proc_info.Prange=nan*ones(1,length(CTD_list));
     proc_info.drange=nan*ones(length(CTD_list),2);
+    proc_info.lon=nan*ones(1,length(CTD_list));
+    proc_info.lat=nan*ones(1,length(CTD_list));
     
     empt_struct.toffset=nan*ones(1,length(CTD_list));
     empt_struct.IsChiData=nan*ones(1,length(CTD_list));
@@ -145,6 +147,10 @@ for icast=1:length(CTD_list)
     proc_info.duration(icast)=nanmax(CTD_24hz.datenum)-nanmin(CTD_24hz.datenum);
     proc_info.Prange(icast)=range(CTD_24hz.p);
     proc_info.drange(icast,:)=time_range;
+    
+    proc_info.lon(icast)=nanmean(CTD_24hz.lon);
+    proc_info.lat(icast)=nanmean(CTD_24hz.lat);
+    
     
     %-- Loop through each chipod SN --
     for iSN=1:length(ChiInfo.SNs)

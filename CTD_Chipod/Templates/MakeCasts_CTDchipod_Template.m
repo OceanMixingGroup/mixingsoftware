@@ -78,6 +78,7 @@ MakeResultsTextFile
 if ~exist('proc_info.mat','file')
     
     proc_info=struct;
+    proc_info.Project=ChiInfo.Project;
     proc_info.SNs=ChiInfo.SNs;
     proc_info.icast=nan*ones(1,length(CTD_list));
     proc_info.Name=cell(1,length(CTD_list));
@@ -402,6 +403,11 @@ for icast=1:length(CTD_list)
 end % icast (each CTD file)
 
 delete(hb)
+
+% throw out any bad ranges in proc_info
+proc_info.Prange(find(proc_info.Prange>8000))=nan;
+save('proc_info.mat','proc_info')
+
 
 telapse=toc(tstart)
 

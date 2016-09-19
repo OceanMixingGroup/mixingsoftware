@@ -75,7 +75,7 @@ MakeResultsTextFile
 
 % Make a structure to save processing summary info
 
-if ~exist('proc_info.mat','file')
+if ~exist(fullfile(BaseDir,'Data','proc_info.mat','file'))
     
     proc_info=struct;
     proc_info.Project=ChiInfo.Project;
@@ -100,7 +100,7 @@ if ~exist('proc_info.mat','file')
     
 else
     disp('proc_info already exists, will load and add to it')
-    load('proc_info.mat')
+    load(fullfile(BaseDir,'Data','proc_info.mat'))
 end
 
 % Loop through each ctd file
@@ -406,7 +406,7 @@ delete(hb)
 
 % throw out any bad ranges in proc_info
 proc_info.Prange(find(proc_info.Prange>8000))=nan;
-save('proc_info.mat','proc_info')
+save(fullfile(BaseDir,'Data','proc_info.mat'),'proc_info')
 
 
 telapse=toc(tstart)

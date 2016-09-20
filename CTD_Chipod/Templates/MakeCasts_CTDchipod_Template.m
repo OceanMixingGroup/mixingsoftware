@@ -64,7 +64,6 @@ addpath(fullfile(mixpath,'chipod'))    ;% raw_load_chipod.m
 addpath(fullfile(mixpath,'general'))   ;% makelen.m in /general is needed
 addpath(fullfile(mixpath,'marlcham'))  ;% for integrate.m
 addpath(fullfile(mixpath,'adcp'))      ;% need for mergefields_jn.m in load_chipod_data
-addpath(fullfile(mixpath,'mfiles'))
 
 % Make a list of all ctd files we have
 CTD_list=dir(fullfile(CTD_out_dir_24hz,['*' ChiInfo.CastString '*.mat*']));
@@ -75,7 +74,7 @@ MakeResultsTextFile
 
 % Make a structure to save processing summary info
 
-if ~exist(fullfile(BaseDir,'Data','proc_info.mat','file'))
+if ~exist(fullfile(BaseDir,'Data','proc_info.mat'),'file')
     
     proc_info=struct;
     proc_info.Project=ChiInfo.Project;
@@ -406,6 +405,12 @@ delete(hb)
 
 % throw out any bad ranges in proc_info
 proc_info.Prange(find(proc_info.Prange>8000))=nan;
+
+proc_info.Readme={'Prange : max pressure of each CTD cast' ; ...
+    'drange : time range of each cast (datenum)' ;...
+    'Name : CTD filename for each cast';...
+    'duration : length of cast in days'}
+
 save(fullfile(BaseDir,'Data','proc_info.mat'),'proc_info')
 
 

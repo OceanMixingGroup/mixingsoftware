@@ -22,11 +22,12 @@ saveplots=1
 
 %***
 cruise='Template'
-cd(['/Users/Andy/Cruises_Research/ChiPod/' cruise '/mfiles'])
-figdir=['/Users/Andy/Cruises_Research/ChiPod/' cruise '/Figures/']
+Load_chipod_paths_P15S
 %~~~
 
-load('proc_info.mat')
+cd(fullfile(BaseDir,'mfiles'))
+figdir=fullfile(BaseDir,'Figures')
+load(fullfile(BaseDir,'Data','proc_info.mat'))
 
 
 %% Plot if we have data, if T1cal is good, and time offset for one chipod
@@ -196,5 +197,10 @@ disp('\end{center}')
 disp('\label{procinfo}')
 disp('\end{table}')
 
+
+%% Make a table with deployment info that can be pasted into Latex notes
+
+Chipod_Deploy_Info_P15S
+MakeTableChiDeploy(ChiInfo)
 
 %%

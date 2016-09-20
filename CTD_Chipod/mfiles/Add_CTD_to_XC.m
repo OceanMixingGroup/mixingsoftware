@@ -1,16 +1,24 @@
+function proc_info = Add_CTD_to_XC(project)
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % Add a 'ctd' structure to XC with 1m binned CTD for all profiles.
 %
+%
+%----------------------
+% 09/20/16 - A.Pickering
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
-clear ; close all
+%clear ; close all
 
-project='P15S'
+%project='P15S'
 
 eval(['Load_chipod_paths_' project])
 
+clear proc_info
 load(fullfile(BaseDir,'mfiles','proc_info.mat'))
 
+% throw out any unreasonable depths
 proc_info.Prange(find(proc_info.Prange>8000))=nan;
 
 Nfiles=length(proc_info.icast);
@@ -39,19 +47,13 @@ for ifile=1:Nfiles
     catch
         disp(['Problem with ' proc_info.Name{ifile}])
         
-    end
-end
-%%
+    end % try
+    
+end % ifile
+
+%
 proc_info.ctd.t=t;
 proc_info.ctd.s=s;
 proc_info.ctd.p=zout;
-
+clear t s zout
 %%
-ax=plot_ctd_from_xc(proc_info)
-%%
-
-
-figname='P15S_ctd_t_s.png'
-print(fullfile(BaseDir,'Figures',figname),'-dpng')
-
-%

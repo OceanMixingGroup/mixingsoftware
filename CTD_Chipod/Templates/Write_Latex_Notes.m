@@ -11,7 +11,10 @@
 
 clear ; close all
 
-project='IO8'
+project='IO9'
+
+Chipod_Deploy_Info_IO9
+
 %% open a text file
 
 txtfname=['Chipod_Note_' project '_test.tex'];
@@ -46,7 +49,12 @@ fprintf(fileID,'\\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/
 fprintf(fileID,'\\graphicspath{\n')
 fprintf(fileID,['{/Users/Andy/Cruises_Research/Chipod/' project '/}\n'])
 fprintf(fileID,['{/Users/Andy/Cruises_Research/Chipod/' project '/Figures/}\n'])
-fprintf(fileID,['{/Users/Andy/Cruises_Research/ChiPod/' project '/Data/proc/Chipod/SNyyyy/figures/}\n'])
+
+% need to loop through and add path to each SN here
+
+for iSN=1:length(ChiInfo.SNs)
+    fprintf(fileID,['{/Users/Andy/Cruises_Research/ChiPod/' project '/Data/proc/Chipod/SN' ChiInfo.SNs{iSN} '/figures/}\n'])
+end
 fprintf(fileID,'} \n\n')
 
 %% Begin document
@@ -167,19 +175,20 @@ fprintf(fileID, '\\label{toffs} \n')
 fprintf(fileID, '\\end{figure} \n\n')
 
 
-fprintf(fileID, '%% raw data figs (*need to loop over SNs ) \n\n')
 
 fprintf(fileID, '\\newpage \n\n')
 fprintf(fileID, '%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n')
 fprintf(fileID, '\\section{Example Raw Chipod Data for 1 cast} \n\n')
 
-fprintf(fileID, '\\begin{figure}[htbp] \n')
-fprintf(fileID, '\\includegraphics[scale=0.7]{SNyyyy_001_Fig1_RawChipodTS.png} \n')
-fprintf(fileID, '\\caption{Raw chipod data from SNyyyy for a CTD cast.} \n')
-fprintf(fileID, '\\label{snyyyy_1} \n')
-fprintf(fileID, '\\end{figure} \n\n')
-
-
+for iSN=1:length(ChiInfo.SNs)
+    
+    fprintf(fileID, '\\begin{figure}[htbp] \n')
+    fprintf(fileID, ['\\includegraphics[scale=0.7]{SN' ChiInfo.SNs{iSN} '_001_Fig1_RawChipodTS.png} \n'])
+    fprintf(fileID, ['\\caption{Raw chipod data from SN' ChiInfo.SNs{iSN} 'for a CTD cast.} \n'])
+    fprintf(fileID, ['\\label{sn' ChiInfo.SNs{iSN} '_1} \n'])
+    fprintf(fileID, '\\end{figure} \n\n')
+    
+end
 %%
 
 fprintf(fileID, '\\newpage \n\n')
@@ -205,12 +214,13 @@ fprintf(fileID, '\\subsubsection{Data from each individual Chipod} \n\n')
 
 % LOOP over SNs
 % *** One for each chipod
-fprintf(fileID, '\\begin{figure}[htbp] \n')
-fprintf(fileID, '\\includegraphics[scale=0.7]{XC_SNX_xx_Vs_lat_AllVars.png} \n')
-fprintf(fileID, '\\caption{All chipod profiles from sensor SNX. Variables are: N2, dTdz, chi, eps, and KT.} \n')
-fprintf(fileID, '\\label{} \n')
-fprintf(fileID, '\\end{figure} \n\n')
-
+for iSN=1:length(ChiInfo.SNs)
+    fprintf(fileID, '\\begin{figure}[htbp] \n')
+    fprintf(fileID, ['\\includegraphics[scale=0.7]{XC_SN' ChiInfo.SNs{iSN} '_Vs_lat_AllVars.png} \n'])
+    fprintf(fileID, ['\\caption{All chipod profiles from sensor SN' ChiInfo.SNs{iSN} '. Variables are: N2, dTdz, chi, eps, and KT.} \n'])
+    fprintf(fileID, '\\label{} \n')
+    fprintf(fileID, '\\end{figure} \n\n')
+end
 
 fprintf(fileID, '\\clearpage \n')
 fprintf(fileID, '\\newpage \n')
@@ -232,3 +242,4 @@ fprintf(fileID, '\\end{figure} \n\n')
 
 fprintf(fileID, '\\end{document}  \n')
 
+%%

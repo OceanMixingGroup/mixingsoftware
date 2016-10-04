@@ -16,7 +16,7 @@ function proc_info = Add_CTD_to_XC(project)
 eval(['Load_chipod_paths_' project])
 
 clear proc_info
-load(fullfile(BaseDir,'mfiles','proc_info.mat'))
+load(fullfile(BaseDir,'Data','proc_info.mat'))
 
 % throw out any unreasonable depths
 proc_info.Prange(find(proc_info.Prange>8000))=nan;

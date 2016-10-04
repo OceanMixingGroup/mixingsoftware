@@ -158,8 +158,8 @@ for icast=1:length(ctdlist)
         
         disp('calculating:')
         % *** despike oxygen
-        datad5 = swcalcs(datad4, cfg); % calc S, theta, sigma, depth
-        datau5 = swcalcs(datau4, cfg); % calc S, theta, sigma, depth
+        datad5 = swcalcs(datad4); % calc S, theta, sigma, depth
+        datau5 = swcalcs(datau4); % calc S, theta, sigma, depth
         
         %%
         disp('removing loops:')

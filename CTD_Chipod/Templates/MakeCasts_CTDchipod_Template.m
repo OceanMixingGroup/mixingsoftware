@@ -397,8 +397,8 @@ for icast=1:length(CTD_list)
     proc_info.MakeInfo=['Made ' datestr(now) ' w/ ' this_script_name]
     proc_info.last_iSN=iSN;
     proc_info.last_icast=icast;
-    save('proc_info.mat','proc_info')
-    
+    save(fullfile(BaseDir,'Data','proc_info.mat'),'proc_info')
+ 
 end % icast (each CTD file)
 
 delete(hb)

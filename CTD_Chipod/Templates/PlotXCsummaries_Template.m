@@ -36,7 +36,7 @@ Params=SetDefaultChiParams
 
 pathstr=MakePathStr(Params)
 
-load(fullfile(BaseDir,'data',[ChiInfo.Project '_XC_' pathstr]),'XC')
+load(fullfile(BaseDir,'Data',[ChiInfo.Project '_XC_' pathstr]),'XC')
 
 xvar='lat'
 %xvar='dnum'

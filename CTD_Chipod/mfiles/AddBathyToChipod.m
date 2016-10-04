@@ -12,56 +12,90 @@
 
 clear ; close all
 
-% Load structure w/ processed data
-load('/Users/Andy/Cruises_Research/ChiPod/IO8S/Data/IO8_XC.mat')
+project='P15S'
+
+eval(['Load_chipod_paths_' project])
+load(fullfile(BaseDir,'Data','proc_info.mat'))
 
 % Get lat/lons
-X=XC.SN1013_down_T1
+lat=proc_info.lat;
+lon=proc_info.lon;
 
+% check distribution of lat/lon to see if any outliers (might need to wrap)
+figure(1);clf
+
+subplot(121)
+%histogram(lon(:),30)
+boxplot(lon)
+
+subplot(122)
+%histogram(lon(:),30)
+boxplot(lat)
+
+% for P15S, one lon is +150, rest are ~-160
+ib=find(lon<0)
+lon(ib)=lon(ib)+360;
+%%
 % Plot lat/lons
 figure(1);clf
-plot(X.lon,X.lat,'o')
+plot(lon,lat,'o')
+grid on
+%% get a 2D lat/lon grid of depths covering the transect
 
-%
-lonrange=[nanmin(X.lon)-1 nanmax(X.lon)+1]
-latrange=[nanmin(X.lat)-1 nanmax(X.lat)+1]
+% should add a line to make lons all negative or positive (example w/ P15S,
+% almost all -160, but one or two are + 150, which makes the depth matrix
+% HUGE
+
+lonrange=[nanmin(lon)-1 nanmax(lon)+1]
+latrange=[nanmin(lat)-1 nanmax(lat)+1]
+
+addpath /Users/Andy/Cruises_Research/mixingsoftware/smith_sandwell/
+
 SS=GetSSbathy(lonrange,latrange)
 
 
 %%
 
 figure(2);clf
-ezpc(SS.lon,SS.lat,SS.depth)
-xlabel('Longitude')
-ylabel('Latitude')
+ezpc(SS.lon,SS.lat,SS.depth);
+xlabel('Longitude','fontsize',16)
+ylabel('Latitude','fontsize',16)
 axis xy
 hold on
-plot(X.lon,X.lat,'ko')
+plot(lon,lat,'ko')
 cb=colorbar;
 cb.Label.String='Depth [m]';
-title('Cruise Track and Bathymetry')
+colormap(ocean3);
+caxis([nanmin(SS.depth(:)) 0])
+title(['Cruise Track and Bathymetry for ' project ])
 
 %% Now get vector of points for each station
 
-Dsta=nan*ones(1,length(X.lon));
-for i=1:length(X.lon)
+Dsta=nan*ones(1,length(lon));
+for i=1:length(lon)
    
-    [val,Ilon]=nanmin(abs(SS.lon-X.lon(i)));
-    [val,Ilat]=nanmin(abs(SS.lat-X.lat(i)));
+    [val,Ilon]=nanmin(abs(SS.lon-lon(i)));
+    [val,Ilat]=nanmin(abs(SS.lat-lat(i)));
     Dsta(i)=SS.depth(Ilat,Ilon);
 end
 
 %%
 figure(3);clf
 %plot(1:length(Dsta),Dsta,'ko-')
-plot(X.lat,Dsta,'ko-')
+plot(lat,Dsta,'mo','LineWidth',2)
+%plot(lon,Dsta,'mo','LineWidth',2)
 %plot(X.dnum,Dsta,'ko-');datetick('x')
 ylabel('Depth [m]')
+xlabel('Latitude')
+grid on
+
+%% add SS to proc_info ?
+
 
 %%
 
 figure(4);clf
-ezpc(X.lat,X.P,log10(X.chi))
+ezpc(lat,X.P,log10(X.chi))
 hold on
 plot(X.lat,-Dsta,'kd-','linewidth',2,'markersize',10)
 colorbar

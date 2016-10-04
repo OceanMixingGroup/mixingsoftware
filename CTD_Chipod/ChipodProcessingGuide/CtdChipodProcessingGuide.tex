@@ -139,7 +139,9 @@ All templates are located in \verb+/mixingsoftware/CTD_Chipod/Templates/+. In al
 
 \item  Once that is figured out, run \verb+MakeCasts_CTDchipod+ for all casts. Data are saved to \verb+/Data/proc/Chipod/cast+ and \verb+/Data/proc/Chipod/cal+.
 
-\item Run \verb+SummarizeProc_Template+. This makes some summary tables and figures from the `Xproc.mat' data saved during  \verb+MakeCasts_CTDchipod+.
+\item Modify and run \verb+add_plot_ctd_Template.m+. This will add CTD data to the \verb+proc_info+ strucutre and make a summary plot of temp and sal for the transect. 
+
+\item Run \verb+SummarizeProc_Template+. This makes some summary tables and figures from the `Xproc.mat' data saved during  \verb+MakeCasts_CTDchipod+. The two latex tables it produces can be copied and pasted into the Latex notes template.
 
 \item \verb+Plot_TP_profiles_EachCast_Template.m+ For each cast, this plots the temperature derivative from all chi pod sensors on the same scale so you can compare them and check for bad profiles. Figures are save to \verb+/Figures/TPprofiles/+. This is another good place to check that the up/down designations are correct; the title for the designated direction will be green. The corresponding profile should be less noisy than the other direction. 
 
@@ -150,6 +152,8 @@ All templates are located in \verb+/mixingsoftware/CTD_Chipod/Templates/+. In al
 \item Modify and run \verb+PlotXCsummaries_Template+ to make summary plots from the combined `XC' structure.
 
 \item Run \verb+Make_kml_Template.m+ to make a kml file of CTD cast positions that can be viewed in Google Earth.
+
+\item Screen processed casts... \verb+VisCheck_TP_profiles+ , \verb+Combine_XC_sensors_IO9+ etc..?
 
 \end{enumerate}
 

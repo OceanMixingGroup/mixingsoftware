@@ -19,7 +19,8 @@ if ~isempty(igprmc)
     gprmc=tt(igprmc,:);
     gprmc(:,end+1)=',';
     frm='%s %s %s %s %s %f %s %f %s %s %s %s %s %s';
-    gprmc=textscan(gprmc',frm,size(gprmc,1),'delimiter',',','bufsize',1e6);
+    %gprmc=textscan(gprmc',frm,size(gprmc,1),'delimiter',',','bufsize',1e6);
+    gprmc=textscan(gprmc',frm,size(gprmc,1),'delimiter',',');
     tm=char(gprmc{2});
     if strcmp(tm(1,1),'"') == 1
         tm = tm(:,2:end-1);
@@ -41,7 +42,8 @@ if ~isempty(igpvtg)
     gpvtg=tt(igpvtg,:);
     gpvtg(:,end+1)=',';
     frm='%s %s %s %s %s %f %s %s %s %s %s';
-    gpvtg=textscan(gpvtg',frm,size(gpvtg,1),'delimiter',',','bufsize',1e6);
+    %gpvtg=textscan(gpvtg',frm,size(gpvtg,1),'delimiter',',','bufsize',1e6);
+    gpvtg=textscan(gpvtg',frm,size(gpvtg,1),'delimiter',',');
     tm=char(gpvtg{2});
     if strcmp(tm(1,1),'"') == 1
         tm = tm(:,2:end-1);

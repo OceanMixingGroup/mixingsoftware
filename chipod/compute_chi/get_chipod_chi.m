@@ -4,43 +4,45 @@ function [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
 % function [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
 %    get_chipod_chi(freq,tp_power,fspd,nu,tdif,dTdz,varargin)
 %
-% to compute chi and epsilon from chipod data.  
+% to compute chi and epsilon from chipod data.
 %
 % Required arguments are:
 % - freq,
-% - the frequencies of tp_spec (corrected temperature gradient [dT/dt] spectrum), 
-% - fallspd (in m/s), 
+% - the frequencies of tp_spec (corrected temperature gradient [dT/dt] spectrum),
+% - fallspd (in m/s),
 % - nu (viscosity),
-% - tdif (thermal diffusivity), 
-% - dTdz (a scalar vertical gradient), 
-% - the head structure, and 
-% - this_sensor (the sensor name in the head structure). 
+% - tdif (thermal diffusivity),
+% - dTdz (a scalar vertical gradient),
+% - the head structure, and
+% - this_sensor (the sensor name in the head structure).
 %
 % In addition, here are some variables that could be set from varargin:
-% - alpha (1/rho drho/dT), 
-% - nsqr (g/rho drho/dz) - buoyancy frequency,  
-% - fmax - the maximum frequency to intergrate the temperatue spectrum to.
-% - gamma - the mixing efficiency
+% - alpha (1/rho drho/dT) (default=3e-4)
+% - nsqr (g/rho drho/dz) - buoyancy frequency (default=g*alpha*dTdz)
+% - fmax - the max. freq. to intergrate the dT/dz spectrum to (default=20)
+% - gamma - the mixing efficiency (default=0.2)
 % - g - gravity
-% - n_iterations - the number of times to iterate on epsilon
-% - doplots - whether or not to plot the data.  
+% - q : Universal constant for Kraichnan spectra (default=7)
+% - n_iterations - the number of times to iterate on epsilon (default=20)
+% - doplots - whether or not to plot the data.
+% - eps_start : Starting guess of epsilon (default=1e-7)
 %
 % this routine makes n_iterations estimates of epsilon and chi, through
-% the assumption that K_T=K_\rho, and returns 
+% the assumption that K_T=K_\rho, and returns
 % chi (a vector of chi estimates, where chi(1) is the value on which the
 % routine converged, and chi(10) was the first estimate)
 % epsil (a vector of epsilon estimates, where epsil(1) is the converged
 % value, and epsil(10) was the first estimate
 % k, spec and k_kraich, spec_kraich, both wavenumbers and spectra
-% associated with the final fits.    
+% associated with the final fits.
 %   $Revision: 1.7 $  $Date: 2011/02/17 22:44:01 $
 %
 % First, you must send the power spectral density calculated as
 %    [tp_power,freq]=fast_psd(tp,nfft,samplerate);
-% And corrected as:    
+% And corrected as:
 % tp_power=invert_filt(freq,invert_filt(freq,tp_power,thermistor_filter_order, ...
 %     thermistor_cutoff_frequency),analog_filter_order,analog_filter_freq);
-    
+
 %% get input variables in order
 
 warning off
@@ -71,24 +73,27 @@ if ~exist('nsqr','var')
     nsqr=g*alpha*dTdz;
 end
 if ~exist('n_iterations','var')
-    n_iterations=10;
+    n_iterations=20;
 end
 if ~exist('doplots','var')
     doplots=0;
 end
+if ~exist('eps_start','var')
+    eps_start=1e-7;
+end
 
 %%
 k=freq/fspd;
-spec_time=tp_power/fspd^2;% If tp_power is power of dT/dt, than our units are 
-                     % K^2/[s^2 Hz]=[K^2/s] we need to
-                     % divide by fspd^2 to get [K^2/m^2/Hz] 
+spec_time=tp_power/fspd^2;% If tp_power is power of dT/dt, than our units are
+% K^2/[s^2 Hz]=[K^2/s] we need to
+% divide by fspd^2 to get [K^2/m^2/Hz]
 
-                     
+
 %% good indices
 
 good_inds=find(~isnan(tp_power));
 tp_power=tp_power(good_inds);
-freq=freq(good_inds);    
+freq=freq(good_inds);
 if isempty(good_inds)
     freq(1)=0.001;
 end
@@ -98,9 +103,9 @@ if doplots, figure(17),clf,cols='rbgmykbbbbbbbbbbbb';end
 
 %% calculate chi and epsilon
 
-epsilon=1e-7; % this is the first guess. ;
+epsilon=eps_start;%1e-7; % this is the first guess. ;
 for b=1:n_iterations
-
+    
     ks = ((epsilon/(nu^3))^.25 )/2/pi;
     k_start = 2;
     kb=(ks*sqrt(nu/tdif));
@@ -190,14 +195,14 @@ for b=1:n_iterations
         end
         if count>50
             f_stop=f_start;
-%                 disp(['Exceeded maximum number of iterations: count=' num2str(count)])
-%                 disp(['Result converged within ' num2str(abs(chi_part/chi_test-1)*100) '%'])
-%                 disp('\chi is set to NaN')
+            %                 disp(['Exceeded maximum number of iterations: count=' num2str(count)])
+            %                 disp(['Result converged within ' num2str(abs(chi_part/chi_test-1)*100) '%'])
+            %                 disp('\chi is set to NaN')
             break
         end
-
+        
     end
-
+    
     % Now determine some statistics.
     if f_stop>=f_start
         iq=find(freq>=f_start & freq<=f_stop, 1);
@@ -221,7 +226,7 @@ for b=1:n_iterations
             end
         end
     end
-    f_range=freq(freq>f_start & freq<f_stop);
+    f_range=freq(freq>=f_start & freq<=f_stop);
     if numel(f_range)>0
         stats.k_start=f_range(1)/fspd;
         stats.k_stop=f_range(end)/fspd;
@@ -238,16 +243,16 @@ for b=1:n_iterations
         b_spec=NaN;
         chi=NaN;
     end
-
+    
     % Now estimate epsilon from chi:
     epsilon=nsqr*chi/(2*gamma*dTdz^2);
     chi_out(b)=chi;
     epsil(b)=epsilon;
-
+    
     k_kraich=b_freq/fspd;
     spec_kraich=b_spec*fspd;% to convert from K/[m^2*Hz] to K/[m^2*cpm]
     spec=spec_time*fspd;% to convert from K/[m^2*Hz] to K/[m^2*cpm]
-
+    
     if doplots
         loglog(k,spec,k_kraich,spec_kraich,cols(b))
         hold on;
@@ -258,12 +263,23 @@ for b=1:n_iterations
         plot([stats.k_start stats.k_start],ylim,'k--')
         plot([stats.k_stop stats.k_stop],ylim,'k--')
     end
-end
+    
+    % Check if \chi and/or \epsilon have converged, stop if they have
+    if b>1
+        clear pdif_chi pdif_eps
+        pdif_chi=(chi_out(b)-chi_out(b-1))/chi_out(b) *100;
+        pdif_eps=(epsil(b)-epsil(b-1))/epsil(b) *100;
+        if abs(pdif_chi)<0.005 && abs(pdif_eps)<0.005
+%            disp(['chi and eps have converged after ' num2str(b) ' iterations'])
+            break
+        end
+    end
+    
+end % b=1:n_iterations
 
 chi=fliplr(chi_out);
 epsil=fliplr(epsil);
+
 return
-
-
 
 

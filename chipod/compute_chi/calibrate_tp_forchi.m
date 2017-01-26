@@ -23,6 +23,9 @@ end
 if coeff_tp(2)==0
   coeff_tp(2)=coeff_tp(1);
 end
+if coeff_tp(5)==0
+  coeff_tp(5)= 1;
+end
 warning off
 % add a gain step if coeff(5) is non-zero
 if coeff_t(5), t=t/coeff_t(5); end

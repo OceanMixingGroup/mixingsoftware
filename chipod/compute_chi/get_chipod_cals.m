@@ -48,6 +48,7 @@ function [cal,data,head]=get_chipod_cals(dpath,dpl,unit,ts,tf,depth,...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
 %% get inputs
 
 clear vel disp
@@ -81,6 +82,8 @@ end
 
 % load mooring temperature, salinity and velocity
 [moor]=get_mooring(dpath,ts,tf,depth,dpl,unit);
+moor.N2b = moor.N2;
+moor.dTdzb = moor.dTdz;
 
 
 %% calcualte chipod motion and current speeds

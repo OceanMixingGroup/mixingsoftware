@@ -7,6 +7,8 @@ function [dnum , magX , magY, offX , offY]=ParseMAGline(a)
 %
 % a is line from txt file that contains 'MAG'
 %
+%
+%
 %------------------
 % 11/30/15 - A. Pickering
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

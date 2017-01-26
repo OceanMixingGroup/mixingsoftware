@@ -78,21 +78,24 @@ if f>0
     
 
     % calculate lat and lon
-    bad_gps=0;
-    if length(head.lon.start)<10; head.lon.start='00000.0000'; bad_gps=1; end
-    if length(head.lat.start)<9; head.lat.start='0000.0000'; bad_gps=1; end
-    if length(head.lon.end)<10; head.lon.end=head.lon.start; bad_gps=1; end
-    if length(head.lat.end)<9; head.lat.end=head.lat.start; bad_gps=1; end
+%     bad_gps=0;
+%     if length(head.lon.start)<10; head.lon.start='00000.0000'; bad_gps=1; end
+%     if length(head.lat.start)<9; head.lat.start='0000.0000'; bad_gps=1; end
+%     if length(head.lon.end)<10; head.lon.end=head.lon.start; bad_gps=1; end
+%     if length(head.lat.end)<9; head.lat.end=head.lat.start; bad_gps=1; end
+% 
+%     lat_start_b=str2num(head.lat.start(1:2))+str2num(head.lat.start(3:9))/60;
+%     lat_end_b=str2num(head.lat.end(1:2))+str2num(head.lat.end(3:9))/60;
+%     lat_b=lat_start_b;
+%     lon_start_b=str2num(head.lon.start(1:3))+str2num(head.lon.start(4:10))/60;
+%     lon_end_b=str2num(head.lon.end(1:3))+str2num(head.lon.end(4:10))/60;
+%     lon_b=lon_start_b;
+%     
+%     cham.lat(1,n)=lat_start_b;
+%     cham.lon(1,n)=-lon_start_b;
 
-    lat_start_b=str2num(head.lat.start(1:2))+str2num(head.lat.start(3:9))/60;
-    lat_end_b=str2num(head.lat.end(1:2))+str2num(head.lat.end(3:9))/60;
-    lat_b=lat_start_b;
-    lon_start_b=str2num(head.lon.start(1:3))+str2num(head.lon.start(4:10))/60;
-    lon_end_b=str2num(head.lon.end(1:3))+str2num(head.lon.end(4:10))/60;
-    lon_b=lon_start_b;
-    
-    cham.lat(1,n)=lat_start_b;
-    cham.lon(1,n)=-lon_start_b;
+    cham.lat = str2num(head.lat.end(1:2)) + str2num(head.lat.end(3:end))/60;
+    cham.lon = -(str2num(head.lon.end(1:3)) + str2num(head.lon.end(4:end))/60);
     
     %%%%%%%%
     % calculate the time

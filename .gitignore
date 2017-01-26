@@ -2,3 +2,13 @@
 *.m~
 
 *.mat
+
+*.aux
+
+*.log
+
+*.out
+
+*.gz
+
+*.toc

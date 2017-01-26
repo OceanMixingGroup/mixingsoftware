@@ -1,4 +1,4 @@
-function nadcp=bm2earth(adcp);
+function nadcp=beam2earth_workhorse(adcp);
 % bm2earth.m converts RDI data recorded in BEAM to earth coordinates
 %
 % function earth=bm2earth(beam, head, HeadingOffset, roll, ssnd, ECssnd, ...
@@ -141,7 +141,7 @@ for ii=1:size(adcp.vel1,2)
     % convention for theta as beam angle from the vertical
     VXS = SSCOR/(2.0*S30);
     VYS = VXS;
-    VZS = SSCOR/(2.0*C30);
+    VZS = SSCOR/(4.0*C30);
     VES = VZS;
 
     [NBINS, n]=size(beam);

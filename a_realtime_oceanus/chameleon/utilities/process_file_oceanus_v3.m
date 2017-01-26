@@ -22,11 +22,13 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % !!!!! comment out when running with the timer !!!!!
-% disp('If you are running with a timer, stop and comment out the clear')
-% disp('statement in process_file_oceanus_v3.m')
-% clear
-% set_chameleon_oceanus;
-% initialize_summary_file_oceanus;
+disp('If you are running with a timer, stop and comment out the clear')
+disp('statement in process_file_oceanus_v3.m')
+clear all
+set_chameleon_oceanus;
+initialize_summary_file_oceanus;
+! rmdir -r ~/Dropbox/data/Concorde/chameleon/processed/sum/
+! rmdir -r ~/Dropbox/data/Concorde/chameleon/processed/mat/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -161,9 +163,30 @@ for ii = 1:length(indtoprocess)
 
     % if the data is not good, save a .mat file full of NaNs 
     else
-        names=fieldnames(avg);
+%         names=fieldnames(avg);
+        names = {'FALLSPD'
+                'T1'
+                'T2'
+                'COND'
+                'SAL'
+                'THETA'
+                'SIGMA'
+                'EPSILON1'
+                'EPSILON2'
+                'EPSILON'
+                'CHI'
+                'N2'
+                'AZ2'
+                'DTDZ'
+                'DRHODZ'
+                'SCAT'
+                'FLR'
+                'AX_TILT'
+                'AY_TILT'
+                'P'};
         for mm=1:length(names)
-            eval(['avg.' char(names(mm)) '(:) = NaN;'])
+%             eval(['avg.' char(names(mm)) '(:) = NaN;'])
+            avg.(char(names(mm)))(1:max_depth_bins,1) = NaN;
             head.dynamic_gz=NaN;
             head.direction='u';
         end

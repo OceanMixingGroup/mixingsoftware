@@ -14,7 +14,7 @@ d.t1 = preen(d.t1, -3, 35);
 d.t2 = preen(d.t2, -3, 35);
 d.c1 = preen(d.c1, 2.5, 6);
 d.c2 = preen(d.c2, 2.5, 6);
-d.oxygen = preen(d.oxygen, 0.5, 3.5); % volts
+%d.oxygen = preen(d.oxygen, 0.5, 3.5); % volts
 %d.trans = preen(d.trans, 3, 5);
 %d.fl = preen(d.fl, 3, 5);
 %%

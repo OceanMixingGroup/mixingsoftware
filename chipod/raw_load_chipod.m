@@ -26,6 +26,9 @@ if nargin<1
         return
     end
 end
+
+disp(['raw_load_chipod  filnam=' filnam])
+
 epoch=datenum(1970,1,1);%reference time - times written in days since epoch
 
 data_temp.cmp = [];
@@ -38,6 +41,8 @@ end
 % read header
 head.thisfile=filnam;
 head.version  = fread(fid,1,'int32=>double','b');
+
+%%%%%%%%%%%%%%%% VERSION 80 %%%%%%%%%%%%%%%%
 if head.version==80; % Chipod2
     F=fread(fid,2,'uchar');
     head.maxsensors=F(1);
@@ -117,6 +122,8 @@ if head.version==80; % Chipod2
         data.(char(names(ii)))=data.(char(names(ii)))/65535*4.098;
     end
     fclose(fid);
+    
+%%%%%%%%%%%%%%%% VERSION 96 %%%%%%%%%%%%%%%%
 elseif head.version==96; % MPChipod2
     F=fread(fid,2,'uchar');
     head.maxsensors=F(1);
@@ -192,6 +199,8 @@ elseif head.version==96; % MPChipod2
         data.(char(names(ii)))=data.(char(names(ii)))/65535*4.098;
     end
     fclose(fid);
+    
+%%%%%%%%%%%%%%%% ALL OTHER VERSIONS %%%%%%%%%%%%%%%% 
 else % Chipod1
     if head.version==16;
         DataPointsPerStructure=1800;
@@ -206,7 +215,7 @@ else % Chipod1
         DataPointsPerStructure=1200;
         number_of_sensors=13;
     end
-    %     head.version
+
     head.inst_id = fread(fid, 16, 'char=>char')';
     head.cf2_id = fread(fid, 16, 'char=>char')';
     head.AD_convertor_id = fread(fid, 16, 'char=>char')';
@@ -303,16 +312,29 @@ else % Chipod1
             end
             head.sensor_name(n,1:7)='No_Name';
         end
-        head.coef.(head.sensor_name(n,:))=coefficients(n,:);
-        head.irep.(head.sensor_name(n,:))=head.submax_oversample/head.oversample(n);
-        head.sensor_index.(head.sensor_name(n,:))=n;
-        head.modulas(n)=head.irep.(head.sensor_name(n,:));
-        data.(head.sensor_name(n,:))=data_temp.ch{n};
+        
+        % updated by sjw (June 2016): cannot have extra blank characters in
+        % head.sensor_name when creating structure variables
+        %         head.coef.(head.sensor_name(n,:))=coefficients(n,:);
+        %         head.irep.(head.sensor_name(n,:))=head.submax_oversample/head.oversample(n);
+        %         head.sensor_index.(head.sensor_name(n,:))=n;
+        %         head.modulas(n)=head.irep.(head.sensor_name(n,:));
+        %         data.(head.sensor_name(n,:))=data_temp.ch{n};
+        head.coef.(head.sensor_name(n, regexpi(head.sensor_name(n,:),'\w'))) ...
+            = coefficients(n,:);
+        head.irep.(head.sensor_name(n, regexpi(head.sensor_name(n,:),'\w'))) ...
+            = head.submax_oversample/head.oversample(n);
+        head.sensor_index.(head.sensor_name(n, regexpi(head.sensor_name(n,:),'\w'))) = n;
+        head.modulas(n)=head.irep.(head.sensor_name(n, regexpi(head.sensor_name(n,:),'\w')));
+        data.(head.sensor_name(n, regexpi(head.sensor_name(n,:),'\w'))) ...
+            = data_temp.ch{n};
     end
+    
     data.CMP=data_temp.cmp;
     % make time base
     n=find(head.modulas==1);n=n(1);
-    time=([1:length(data.(head.sensor_name(n,:)))]'-1)./sr;
+%     time=([1:length(data.(head.sensor_name(n,:)))]'-1)./sr;
+    time=([1:length(data.(head.sensor_name(n, regexpi(head.sensor_name(n,:),'\w'))))]'-1)./sr;
     data.datenum=double(head.start_cf2_datenum+time./24./3600);
 end
 

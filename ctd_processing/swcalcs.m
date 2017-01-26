@@ -1,5 +1,5 @@
-  function data = swcalcs(data, cfg)
-% function data = swcalcs(data, cfg)
+  function data = swcalcs(data)
+% function data = swcalcs(data)
 % calc s1 s2 theta1 theta2 sigma1 sigma2 oxygen depth
   
 data.s1 = sw_salt(10*data.c1/sw_c3515, data.t1, data.p);

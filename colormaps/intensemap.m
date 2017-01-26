@@ -1,4 +1,4 @@
-function intensemap = intensemap;
+function cmp = intensemap;
 % cmp = land(vargin);
 % 
 

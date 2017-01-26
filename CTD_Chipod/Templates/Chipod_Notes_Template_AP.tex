@@ -1,0 +1,302 @@
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%
+% This is a template for standard notes for a CTD-chipod cruise/deployment. 
+%
+% - Use command-F to find 'XXXX' and replace with the cruise name.
+% - Edit graphics paths. Add folder for each chipod deployed.
+% - Make table w/  MakeTableChiDeploy.m and paste in appropriate spot.
+% -  Make table w/  SummarizeProc_XXXX.m  and paste in appropriate spot.
+%
+% 06/16/16 - A.Pickering - apickering@coas.oregonstate.edu
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+%~~~~~~~~ Set up document (these are all just defaults I think)
+\documentclass[11pt]{article}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                  % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}      % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+\usepackage{hyperref}
+\usepackage{natbib}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+%~~~~~~~~
+
+
+%*** Set graphics path for figures
+\graphicspath{
+{/Users/Andy/Cruises_Research/Chipod/XXXX/}
+{/Users/Andy/Cruises_Research/Chipod/XXXX/Figures/}
+{/Users/Andy/Cruises_Research/ChiPod/XXXX/Data/proc/Chipod/SNyyyy/figures/}
+}
+
+\title{XXXX CTD-Chipod Notes}
+\author{Andy Pickering}
+%\date{}                                           % Activate to display a given date or no date
+
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+\newpage
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\section{About}
+
+Notes on processing and analysis of CTD-chipod data collected during XXXX cruise..
+
+\begin{figure}[htbp]
+\includegraphics[width=38pc]{XXXX_kml_map.jpg}
+\caption{Map of CTD cast locations during cruise XXXX.}
+\label{map}
+\end{figure}
+
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\section{Data and Processing}
+
+Data paths are set w/ : 
+\begin{itemize}
+\item \verb+Load_chipod_paths_XXXX.m+
+\end{itemize}
+
+Chipod deployment info is given in 
+\begin{itemize}
+\item \verb+Chipod_Deploy_Info_XXXX+
+\end{itemize}
+
+
+%~~~~~~~~
+\subsection{CTD}
+
+Raw (hex) CTD data are processed with:
+\begin{itemize}
+\item \verb+Process_CTD_hex_XXXX.m+
+\end{itemize}
+
+%~~~~~~~~
+\subsection{Chipod}
+
+% **** Made w/ MakeTableChiDeploy
+\begin{table}[htdp]
+\caption{Summary of Chipod deployment .}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\end{tabular}
+\end{center}
+\label{default}
+\end{table}%
+
+
+Raw chipod files are plotted with 
+\begin{itemize}
+\item \verb+PlotChipodDataRaw_XXXX.m+
+\end{itemize}
+to check for obvious issues/malfunctions with any of the instruments; these plots are saved in \verb+/Figures/chipodraw/+. 
+
+%*** Note any major issues here
+Based on a quick look at these:
+\begin{itemize}
+\item
+\end{itemize}
+
+Files with obviously bad or missing data (based on above raw plots) are noted in \verb+bad_file_list_XXXX.m+ and, which will prevent them from being loaded in the processing.
+
+Processing scripts are:
+\begin{itemize}
+\item \verb+MakeCasts_CTDchipod_XXXX.m+
+\item \verb+DoChiCalc_XXXX.m+
+\end{itemize}
+
+%~~~~~~~~
+\subsection{Further processing and analysis}
+
+\begin{itemize}
+\item Data from all casts are combined into a single structure w/ \verb+MakeCombinedStruct_XXXX.m+
+\item 
+\end{itemize}
+
+
+\newpage
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\section{Processing Notes}
+
+\begin{itemize}
+\item Table \ref{chidepinfo} gives the info for $\chi$pods deployed.
+\item Table \ref{procsum} gives a summary of the processing from MakeCasts.
+\end{itemize}
+
+% **** table made in SummarizeProc_XXXX.m, copy latex here
+\begin{table}[htdp]
+\caption{Some $\chi$pod processing summary info for XXXX. }
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+SN & $\chi$ data & T1cal Good & toffset $<$ 1min \\ 
+\hline
+\hline
+\hline
+\end{tabular}
+\end{center}
+\label{procsum}
+\end{table}
+
+
+\begin{figure}[htbp]
+\includegraphics[scale=0.7]{XXXX_haveChiData_all.png}
+\caption{Figure showing which casts there is $\chi$pod data for. Note castid is NOT necessarily same as cast numbers in CTD files.}
+\label{ischidata}
+\end{figure}
+
+
+%~~
+\subsubsection{Time Offsets}
+
+
+\begin{figure}[htbp]
+\includegraphics[scale=1]{XXXX_timeoffsets_all.png}
+\caption{Time-offsets for all $\chi$pods, found by aligning with CTD data.}
+\label{toffs}
+\end{figure}
+
+
+
+\newpage
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\section{Example Raw Chipod Data for 1 cast}
+
+\begin{figure}[htbp]
+\includegraphics[scale=0.7]{SNyyyy_001_Fig1_RawChipodTS.png}
+\caption{Raw chipod data from SNyyyy for a CTD cast.}
+\label{snyyyy_1}
+\end{figure}
+
+
+
+\newpage
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\section{Results}
+
+
+\clearpage
+%~~
+\subsubsection{CTD Data }
+
+% Figure showing pcolor of t and s from all casts
+\begin{figure}[htbp]
+\includegraphics[scale=0.7]{XXXX_ctd_t_s.png}
+\caption{Plot of temperature and salinity from CTD downcasts on all casts.}
+\label{}
+\end{figure}
+
+
+\clearpage
+%~~
+\subsubsection{Data from each individual Chipod}
+
+
+% *** One for each chipod
+\begin{figure}[htbp]
+\includegraphics[scale=0.7]{XC_SNX_xx_Vs_lat_AllVars.png}
+\caption{All chipod profiles from sensor SNX. Variables are: N2, dTdz, chi, eps, and KT.}
+\label{}
+\end{figure}
+
+
+
+\clearpage
+\newpage
+%~~
+\subsubsection{One variable from all Chipods}
+
+\begin{figure}[htbp]
+\includegraphics[scale=0.7]{XXXX_chi_AllSNs_Vslat.png}
+\caption{Plot of one variable from all chipods.}
+\label{}
+\end{figure}
+
+\begin{figure}[htbp]
+\includegraphics[scale=0.7]{XXXX_KT_AllSNs_Vslat.png}
+\caption{Plot of one variable from all chipods.}
+\label{}
+\end{figure}
+
+
+
+\clearpage
+\newpage
+%~~
+\subsubsection{One variable from all Chipods with bad casts screened out}
+
+
+\begin{figure}[htbp]
+\includegraphics[scale=0.7]{XXXX_Transect_AllSN_chi_screened.png}
+\caption{Plot of one variable from all chipods, with bad casts eliminated.}
+\label{}
+\end{figure}
+
+\begin{figure}[htbp]
+\includegraphics[scale=0.7]{XXXX_Transect_AllSN_eps_screened.png}
+\caption{Plot of one variable from all chipods, with bad casts eliminated.}
+\label{}
+\end{figure}
+
+
+\begin{figure}[htbp]
+\includegraphics[scale=0.7]{XXXX_Transect_AllSN_KT_screened.png}
+\caption{Plot of one variable from all chipods, with bad casts eliminated.}
+\label{}
+\end{figure}
+
+
+
+\clearpage
+\newpage
+%~~
+\subsubsection{Best Combined Transect}
+
+
+\begin{figure}[htbp]
+\includegraphics[scale=0.7]{XXXX_Transect_allSN_BestCombo.png}
+\caption{Best combined transect from all chipods. Bottom panel indicates which sensor is used for each cast.}
+\label{}
+\end{figure}
+
+
+
+
+\clearpage
+\newpage
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\section{Scatter Plots}
+
+\begin{figure}[htbp]
+\includegraphics[scale=0.7]{XXXX_ChiEpsKtVsdTdz.png}
+\caption{Scatter plot of chipod variables vs dTdz .}
+\label{}
+\end{figure}
+
+
+
+\newpage
+\clearpage
+\newpage
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\section{To-Do}
+
+\begin{itemize}
+\item 
+\end{itemize}
+
+
+\end{document}  
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+

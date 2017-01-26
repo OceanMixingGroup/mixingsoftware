@@ -2,7 +2,14 @@
 %
 % ParsePixhawkLogs.m
 %
-% Script to parse txt logs from Pixhawk for IMU, compass data
+% Script to parse txt logs from Pixhawk for IMU, compass data.
+%
+% Logs are converted from .BIN to txt with a python script.
+%
+% Dependencies:
+% ParseATTlines.m
+% ParseATTlines.m
+% ParseMAGline.m
 %
 %-----------------
 % 11/25/15 - A.Pickering - Initial coding
@@ -26,7 +33,14 @@
 
 clear; close all
 
-filename='/Users/Andy/Google Drive/Deploy4/Processed Files/8/IMUlog.txt'
+addpath /Users/Andy/Cruises_Research/mixingsoftware/ARV/PixHawk/
+
+%datadir='/Users/Andy/Desktop/4'
+datadir='/Users/Andy/Google Drive/Deploy4/Processed Files/5'
+
+filename=fullfile(datadir,'IMUlog.txt')
+
+%filename='/Users/Andy/Google Drive/Deploy4/Processed Files/8/IMUlog.txt'
 
 % try to figure out # lines in file
 Nlines=linecount(filename)
@@ -177,7 +191,9 @@ while keepgoing
 end
 TE=toc(tstart)/60
 disp(['took ' num2str(TE) ' mins '])
+
 %%
+
 figure(1);clf
 
 subplot(311)
@@ -233,6 +249,6 @@ M2.filename=filename;
 M2.MakeInfo=['Made ' datestr(now) 'w/ ParsePixhawkLogs.m']
 
 
-save([filename(1:end-4) '.mat'],'A','M','M2')
+%save([filename(1:end-4) '.mat'],'A','M','M2')
 
 %%

@@ -1,4 +1,4 @@
-function h=PlotBinnedCTDprofiles(datad_1m,datau_1m,ctdlist,icast)
+function h=PlotBinnedCTDprofiles(datad_1m,datau_1m,castStr)
 %%
 h=figure;clf
 agutwocolumn(1)
@@ -15,18 +15,18 @@ axis ij
 grid on
 xlabel('Temp [^oC]')
 ylabel('Pressure [db]')
-set(gcf,'Name',ctdlist(icast).name)
+set(gcf,'Name',castStr)
 %title(ctdlist(icast).name,'interpreter','none')
 title('downcast','fontsize',16)
 %legend('t1 down','t2 down','t1 up','t2 up','location','Southeast')
-legend('t1 down','t2 down','location','best')
+legend('t1 down','t2 down','location','east')
 
 axes(ax(2))
 plot(datau_1m.t1,datau_1m.p,'.')
 hold on
 plot(datau_1m.t2,datau_1m.p,'.')
 ylim([0 nanmax(datad_1m.p)])
-legend('t1 up','t2 up','location','best')
+legend('t1 up','t2 up','location','east')
 axis ij
 grid on
 ytloff
@@ -42,7 +42,7 @@ axis ij
 grid on
 xlabel('Sal.')
 ylabel('Pressure [db]')
-legend('s1 down','s2 down','location','best')
+legend('s1 down','s2 down','location','east')
 
 axes(ax(4))
 plot(datau_1m.s1,datau_1m.p,'.')
@@ -54,7 +54,7 @@ ytloff
 grid on
 xlabel('Sal.')
 %ylabel('Pressure [db]')
-legend('s1 up','s2 up','location','best')
+legend('s1 up','s2 up','location','east')
 
 linkaxes(ax,'y')
 

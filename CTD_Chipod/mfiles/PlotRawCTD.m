@@ -22,6 +22,7 @@ datetick('x')
 grid on
 title(CTD_24hz.ctd_file,'interpreter','none')
 ylabel('Pressure','fontsize',16)
+ylim([0 nanmax(CTD_24hz.p)])
 
 ax2=subplot(312);
 plot(CTD_24hz.datenum,CTD_24hz.t1)

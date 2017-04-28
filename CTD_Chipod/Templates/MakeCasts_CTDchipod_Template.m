@@ -43,6 +43,9 @@ clear ; close all ; clc
 % Should only need to edit info below
 %~~~~~~~~~~~~~~~~~~~~~~~~
 
+%***
+Project='test'
+
 % ***
 this_script_name = 'ProcessCTDchipod_Template.m'
 
@@ -50,13 +53,15 @@ this_script_name = 'ProcessCTDchipod_Template.m'
 mixpath = '/Users/Andy/Cruises_Research/mixingsoftware/';
 
 % *** Load paths for CTD and chipod data
-Load_chipod_paths_TestData
+eval(['Load_chipod_paths_' Project])
 
 % *** Load chipod deployment info
-Chipod_Deploy_Info_template
+eval(['Chipod_Deploy_Info_' Project])
 
 % optional list of bad chi files to ignore
-%bad_file_list_
+try
+eval(['bad_file_list_' Project])
+end
 
 %~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -85,17 +90,17 @@ MakeResultsTextFile
 % Make a structure to save processing summary info
 if ~exist(fullfile(BaseDir,'Data','proc_info.mat'),'file')
     
-    proc_info = struct;
+    proc_info         = struct;
     proc_info.Project = ChiInfo.Project;
-    proc_info.SNs   = ChiInfo.SNs;
-    proc_info.icast = nan*ones(1,length(CTD_list));
-    proc_info.Name  = cell(1,length(CTD_list));
-    proc_info.duration = nan*ones(1,length(CTD_list));
-    proc_info.MaxP = nan*ones(1,length(CTD_list));
-    proc_info.Prange = nan*ones(1,length(CTD_list));
-    proc_info.drange = nan*ones(length(CTD_list),2);
-    proc_info.lon = nan*ones(1,length(CTD_list));
-    proc_info.lat = nan*ones(1,length(CTD_list));
+    proc_info.SNs     = ChiInfo.SNs;
+    proc_info.icast   = nan*ones(1,length(CTD_list));
+    proc_info.Name    = cell(1,length(CTD_list));
+    proc_info.duration= nan*ones(1,length(CTD_list));
+    proc_info.MaxP    = nan*ones(1,length(CTD_list));
+    proc_info.Prange  = nan*ones(1,length(CTD_list));
+    proc_info.drange  = nan*ones(length(CTD_list),2);
+    proc_info.lon     = nan*ones(1,length(CTD_list));
+    proc_info.lat     = nan*ones(1,length(CTD_list));
     
     empt_struct.toffset  = nan*ones(1,length(CTD_list));
     empt_struct.IsChiData= nan*ones(1,length(CTD_list));
@@ -193,7 +198,7 @@ for icast=1:length(CTD_list)
         
         % Plot the raw CTD data
         ax = PlotRawCTD(CTD_24hz)
-        print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig0_RawCTD']))
+        print(fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig0_RawCTD']),'-dpng')
         
         try
             
@@ -204,7 +209,11 @@ for icast=1:length(CTD_list)
                 disp('loading chipod data')
                 
                 % Find and load chipod data for this time range
+                if exist('bad_file_list','var')
+                chidat = load_chipod_data(chi_path,time_range,suffix,isbig,1,bad_file_list);
+                else
                 chidat = load_chipod_data(chi_path,time_range,suffix,isbig,1);
+                end
                 
                 % If we have enough good chipod data, continue
                 if length(chidat.datenum)>1000
@@ -228,14 +237,14 @@ for icast=1:length(CTD_list)
                     chidat.cal   = this_chi_info.cal;
                     az_correction= this_chi_info.az_correction;
                     
-                    % *** Might need something like this here
-                    %                     if strcmp(whSN,'SN2020')
-                    %                         A1=chidat.AX;
-                    %                         A2=chidat.AZ;
-                    %                         rmfield(chidat,{'AX','AZ'})
-                    %                         chidat.AX=A2;
-                    %                         chidat.AZ=A1;
-                    %                     end
+                    % change in Chipod_Deploy_Info... if needed
+                    if this_chi_info.flip_ax_az==1
+                        A1=chidat.AX;
+                        A2=chidat.AZ;
+                        chidat = rmfield(chidat,{'AX','AZ'});
+                        chidat.AX=A2;
+                        chidat.AZ=A1;
+                    end
                     
                     proc_info.(whSN).IsChiData(icast) = 1;
                     

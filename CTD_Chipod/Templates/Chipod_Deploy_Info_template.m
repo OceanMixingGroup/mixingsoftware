@@ -41,6 +41,7 @@ S.isbig=0;           % 1 for 'big' chipods
 S.az_correction=-1;  % See note above
 S.suffix='mlg';      % suffix for chipod raw data filenames
 S.cal.coef.T1P=0.097;% TP calibration coeff (time constant)
+S.flip_ax_az = 1 ;
 ChiInfo.(['SN' SN])=S;clear S
 
 

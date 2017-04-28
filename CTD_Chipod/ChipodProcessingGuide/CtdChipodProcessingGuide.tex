@@ -137,7 +137,7 @@ All templates are located in \verb+/mixingsoftware/CTD_Chipod/Templates/+. In al
 
 \item  Run \verb+MakeCasts_CTDchipod+ for one good cast for each SN. Check time-offset / alignment; if not right, probably need to modify \verb+az_correction+ or switch AX and AZ. Figure \ref{x} shows an example of where AX and AZ are flipped.  * figures showing example of flipped ax etc*
 
-\item  Once that is figured out, run \verb+MakeCasts_CTDchipod+ for all casts. Data are saved to \verb+/Data/proc/Chipod/cast+ and \verb+/Data/proc/Chipod/cal+.
+\item  Once that is figured out, run \verb+MakeCasts_CTDchipod+ for all casts. Data are saved to \verb+/Data/proc/Chipod/cast+ and \verb+/Data/proc/Chipod/cal+. If Matlab crashes before finishing (which seems to happen relatively often on my laptop, you can load \verb+proc_info.mat+ and look at the \verb+last_icast+ field to see where to restart \verb+MakeCasts_CTDchipod+.
 
 \item Modify and run \verb+add_plot_ctd_Template.m+. This will add CTD data to the \verb+proc_info+ strucutre and make a summary plot of temp and sal for the transect. 
 

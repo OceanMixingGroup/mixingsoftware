@@ -30,24 +30,24 @@ function [todo_inds,Nwindows]=MakeCtdChiWindows(TP,nfft)
 %%
 
 % parameters
-min_seg_length=85;
-max_seg_length=180;
+min_seg_length = 85  ;
+max_seg_length = 180 ;
 
 % first, find continous segments of good data (no NaNs)
 clear idg b Nsegs todo_inds
-idg=~isnan(TP);
-b=FindContigSeq(idg);
-Nsegs=length(b.reglen);
+idg   = ~isnan(TP) ;
+b     = FindContigSeq(idg) ;
+Nsegs = length(b.reglen) ;
 
-todo_inds=[];
+todo_inds = [] ;
 
 %~ loop through segments and find inds
-for iseg=1:Nsegs
+for iseg = 1:Nsegs
     
     clear seglength inds
     
     % length of this segment
-    seglength=b.reglen(iseg);
+    seglength = b.reglen(iseg) ;
     
     if seglength > max_seg_length % long segment, use multiple overlapping windows
         clear indc
@@ -66,8 +66,8 @@ for iseg=1:Nsegs
         
     elseif seglength > min_seg_length  &&  seglength < max_seg_length % shorter segment, use just 1 window
         
-        inds=b.first(iseg):b.last(iseg);
-        todo_inds=[todo_inds ; [inds(1) inds(end)]];
+        inds      = b.first(iseg):b.last(iseg) ;
+        todo_inds = [todo_inds ; [inds(1) inds(end)]] ;
         
     end % seg length
     

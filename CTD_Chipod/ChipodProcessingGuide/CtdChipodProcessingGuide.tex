@@ -131,11 +131,15 @@ All templates are located in \verb+/mixingsoftware/CTD_Chipod/Templates/+. In al
 
 \item Modify \verb+Chipod_Deploy_Info_template.m+ with info for specific deployment. Much of the rest of the processing uses information from the above two files. *The info for each unit can be found in the excel log file*.
 
-\item Plot the raw chi-pod data (\verb+Plot_Raw_Data_template+?). This will let you see quickly if any sensors or files are obviously bad. If there are bad files you can specify these in a \verb+Bad_File…+  list so they will not be loaded during processing (this is not necessary, but will reduce time loading bad files, and may prevent bad data from accidentally being used).  Figure \ref{x} shows an example of a normal-looking file. Figure \ref{xx} shows an example of file that looks bad. * check that up/down from logs appears correct*
+\item Plot the raw chi-pod data (\verb+Plot_Raw_Data_template+?). This will let you see quickly if any sensors or files are obviously bad. If there are bad files you can specify these in a \verb+Bad_File…+  list so they will not be loaded during processing (this is not necessary, but will reduce time loading bad files, and may prevent bad data from accidentally being used).  
+
+% Figure \ref{x} shows an example of a normal-looking file. Figure \ref{xx} shows an example of file that looks bad. * check that up/down from logs appears correct*
 
 \item  Modify \verb+MakeCasts_CTDchipod_Template.m+ for specific cruise. This script finds $\chi$pod data for each cast, aligns the data, calibrates the data, and saves a file with data for each cast. 
 
-\item  Run \verb+MakeCasts_CTDchipod+ for one good cast for each SN. Check time-offset / alignment; if not right, probably need to modify \verb+az_correction+ or switch AX and AZ. Figure \ref{x} shows an example of where AX and AZ are flipped.  * figures showing example of flipped ax etc*
+\item  Run \verb+MakeCasts_CTDchipod+ for one good cast for each SN. Check time-offset / alignment (figure \ref{alignzoom}); if not right, probably need to modify \verb+az_correction+ or \verb+flip_ax_az+ in \verb+Chipod_Deploy_Info+. * Note if $\chi$pod clock is off by a large amount (for example you forgot to set clock), processing will not work because it finds the files for each cast by the timestamp in their name. You will need to apply a time offset to the raw files (make copies first) and rename them in this case.
+
+%Figure \ref{x} shows an example of where AX and AZ are flipped.  * figures showing example of flipped ax etc*
 
 \item  Once that is figured out, run \verb+MakeCasts_CTDchipod+ for all casts. Data are saved to \verb+/Data/proc/Chipod/cast+ and \verb+/Data/proc/Chipod/cal+. If Matlab crashes before finishing (which seems to happen relatively often on my laptop, you can load \verb+proc_info.mat+ and look at the \verb+last_icast+ field to see where to restart \verb+MakeCasts_CTDchipod+.
 
@@ -165,7 +169,7 @@ All templates are located in \verb+/mixingsoftware/CTD_Chipod/Templates/+. In al
 Variable parameters for the processing are specified in a `Params' structure.
 
 \begin{itemize}
-\item fmax : Maximum frequency to integrate temperature gradient spectrum to (default 7 Hz).
+\item fmax : Maximum frequency to integrate temperature gradient spectrum to (default 7 Hz). In practice this varies with each sensor. 
 \item gamma : Assumed mixing efficiency (default 0.2).
 \item \verb+resp_corr+ : Option to apply frequency response correction (default 0).
 \item fc : Cutoff frequency for response correction (if applied) (default 99 for naming purposes).

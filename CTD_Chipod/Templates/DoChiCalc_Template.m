@@ -53,16 +53,16 @@ mixpath='/Users/Andy/Cruises_Research/mixingsoftware/';
 savespec=1 % Option to save spectra
 
 %~~ set some params for following calcs
-do_T2_big=1;         % do calc for T2 if big chipod
-Params.z_smooth=20;  % distance (m) over which to smooth N^2 and dT/dz
-Params.nfft=128;     % nfft to use in computing wavenumber spectra
-Params.extra_z=2;    % number of extra meters to get rid of due to CTD pressure loops.
-Params.wthresh = 0.3;% w threshold for removing CTD pressure loops
-Params.TPthresh=1e-6 % minimum TP variance to do calculation
-Params.fmax=7;      % max freq to integrate TP spectrum to in chi calc
-Params.resp_corr=0;  % correct TP spectra for freq response of thermistor
-Params.fc=99;        % cutoff frequency for response correction
-Params.gamma=0.2;    % mixing efficiency
+do_T2_big       = 1  ;  % do calc for T2 if big chipod
+Params.z_smooth = 20 ;  % distance (m) over which to smooth N^2 and dT/dz
+Params.nfft     = 128;  % nfft to use in computing wavenumber spectra
+Params.extra_z  = 2  ;  % number of extra meters to get rid of due to CTD pressure loops.
+Params.wthresh  = 0.3;  % w threshold for removing CTD pressure loops
+Params.TPthresh = 1e-6  % minimum TP variance to do calculation
+Params.fmax     = 7  ;  % max freq to integrate TP spectrum to in chi calc
+Params.resp_corr=0   ;  % correct TP spectra for freq response of thermistor
+Params.fc       = 99 ;  % cutoff frequency for response correction
+Params.gamma    = 0.2;  % mixing efficiency
 %~~
 %~~~~~~~~~~~~~~~~~~~~~
 
@@ -81,16 +81,16 @@ end
 MakeResultsTextFile_ChiCalc_DoChiCalc
 
 % Choose which sensor to work on
-for iSN=1:length(ChiInfo.SNs)
+for iSN = 1:length(ChiInfo.SNs)
     
     clear whSN
-    whSN=ChiInfo.SNs{iSN}
+    whSN = ChiInfo.SNs{iSN}
     
     % Specific paths for this sensor
     clear chi_proc_path_specific chi_fig_path savedir_cal
-    chi_proc_path_specific=fullfile(chi_proc_path,[whSN]);
-    chi_fig_path_specific=fullfile(chi_proc_path_specific,'figures')
-    savedir_cal=fullfile(chi_proc_path_specific,'cal')
+    chi_proc_path_specific = fullfile(chi_proc_path,[whSN]);
+    chi_fig_path_specific  = fullfile(chi_proc_path_specific,'figures')
+    savedir_cal = fullfile(chi_proc_path_specific,'cal')
     
     %##
     fprintf(fileID,['\n processed path: \n ' chi_proc_path  ]);
@@ -98,7 +98,7 @@ for iSN=1:length(ChiInfo.SNs)
     
     % Get list of cast files we have
     clear Flist
-    Flist=dir(fullfile(savedir_cal,['*' whSN '*cast.mat']));
+    Flist = dir(fullfile(savedir_cal,['*' whSN '*cast.mat']));
     disp(['There are ' num2str(length(Flist)) ' casts to process '])
     
     %##
@@ -108,7 +108,7 @@ for iSN=1:length(ChiInfo.SNs)
     if length(Flist)>1
         
         % For each cast, do chi calculations
-        for icast=1:length(Flist)
+        for icast = 1:length(Flist)
             
             try
                 
@@ -147,33 +147,33 @@ for iSN=1:length(ChiInfo.SNs)
                     
                     %-- load data
                     clear fname castfile id1
-                    castfile=Flist(icast).name;
-                    id1=strfind(castfile,['_' whSN]);
-                    castStr=castfile(1:id1-1);
+                    castfile = Flist(icast).name;
+                    id1 = strfind(castfile,['_' whSN]);
+                    castStr = castfile(1:id1-1);
                     %fname=fullfile(savedir_cal,[castStr '_' whSN '_' castdir 'cast.mat']);
-                    fname=fullfile(savedir_cal,castfile)
+                    fname = fullfile(savedir_cal,castfile)
                     load(fname)
                     %---
                     
                     clear TP ctd
-                    TP=C.([whsens 'P']);
+                    TP = C.([whsens 'P']);
                     
                     % compute background N^2 and dT/dz for chi calculations
                     clear ctd
-                    ctd=Compute_N2_dTdz_forChi(C.ctd.bin,Params.z_smooth);
+                    ctd = Compute_N2_dTdz_forChi(C.ctd.bin,Params.z_smooth);
                     
                     % remove loops in CTD data
                     clear datau2 bad_inds tmp
                     [datau2,bad_inds] = ctd_rmdepthloops(C.ctd.raw,Params.extra_z,Params.wthresh);
-                    tmp=ones(size(datau2.p));
+                    tmp = ones(size(datau2.p));
                     tmp(bad_inds)=0;
                     
                     %chi_todo_now.is_good_data=interp1(datau2.datenum,tmp,chi_todo_now.datenum,'nearest');
-                    C.is_good_data=interp1(datau2.datenum,tmp,C.datenum,'nearest');
+                    C.is_good_data = interp1(datau2.datenum,tmp,C.datenum,'nearest');
                     
                     clear ib_loop Nloop
-                    ib_loop=find(C.is_good_data==0);
-                    Nloop=length(ib_loop);
+                    ib_loop = find(C.is_good_data==0);
+                    Nloop = length(ib_loop);
                     %##
                     fprintf(fileID,['\n  ' num2str(round(Nloop/length(C.datenum)*100)) ' percent of points removed for depth loops ']);
                     %##
@@ -192,45 +192,45 @@ for iSN=1:length(ChiInfo.SNs)
                     % Find segments of good data (where no glitches AND
                     % no depth loops)
                     clear idg b Nsegs
-                    TP(ib_loop)=nan;
+                    TP(ib_loop) = nan;
                     
                     % Get windows for chi calculation
                     clear todo_inds Nwindows
-                    [todo_inds,Nwindows]=MakeCtdChiWindows(TP,Params.nfft);
+                    [todo_inds,Nwindows] = MakeCtdChiWindows(TP,Params.nfft);
                     
                     % Make 'avg' structure for the processed data
                     clear avg
-                    avg=struct();
-                    avg.Params=Params;
+                    avg = struct();
+                    avg.Params = Params;
                     tfields={'datenum','P','N2','dTdz','fspd','T','S','P','theta','sigma',...
                         'chi1','eps1','KT1','TP1var'};
                     for n=1:length(tfields)
                         avg.(tfields{n})=NaN*ones(Nwindows,1);
                     end
                     
-                    avg.samplerate=1./nanmedian(diff(C.datenum))/24/3600;
+                    avg.samplerate = 1./nanmedian(diff(C.datenum))/24/3600;
                     
                     % Get average time, pressure, and fallspeed in each window
-                    for iwind=1:Nwindows
+                    for iwind = 1:Nwindows
                         clear inds
-                        inds=todo_inds(iwind,1) : todo_inds(iwind,2);
-                        avg.datenum(iwind)=nanmean(C.datenum(inds));
-                        avg.P(iwind)=nanmean(C.P(inds));
-                        avg.fspd(iwind)=nanmean(C.fspd(inds));
+                        inds = todo_inds(iwind,1) : todo_inds(iwind,2);
+                        avg.datenum(iwind)= nanmean(C.datenum(inds));
+                        avg.P(iwind)      = nanmean(C.P(inds));
+                        avg.fspd(iwind)   = nanmean(C.fspd(inds));
                     end
                     
                     % make empty arrays for spectra
                     if savespec==1
                         % observed wavenumber
-                        ks=nan*ones(Nwindows,Params.nfft /2);
+                        ks = nan*ones(Nwindows,Params.nfft /2);
                         % observed wave# spectra
-                        kspec=nan*ones(Nwindows,Params.nfft /2);
+                        kspec = nan*ones(Nwindows,Params.nfft /2);
                         % fit wavenumber
-                        kks=nan*ones(Nwindows,56);
+                        kks = nan*ones(Nwindows,56);
                         % fit wave# spectra
-                        kkspec=nan*ones(Nwindows,56);
+                        kkspec = nan*ones(Nwindows,56);
                         % observed frequency spectra
-                        tpspec=nan*ones(Nwindows,Params.nfft /2);
+                        tpspec = nan*ones(Nwindows,Params.nfft /2);
                         %~
                     end
                     
@@ -316,7 +316,7 @@ for iSN=1:length(ChiInfo.SNs)
                     
                     
                     % Plot summary figure
-                    ax=CTD_chipod_profile_summary(avg,C,TP);
+                    ax = CTD_chipod_profile_summary(avg,C,TP);
                     axes(ax(1))
                     title(['cast ' castStr],'interpreter','none')
                     axes(ax(2))
@@ -329,28 +329,28 @@ for iSN=1:length(ChiInfo.SNs)
                     
                     if savespec==1
                         %~
-                        avg.tpspec=tpspec;
-                        avg.kspec=kspec;
-                        avg.kkspec=kkspec;
-                        avg.ks=ks;
-                        avg.kks=kks;
-                        avg.fspec=fspec;
+                        avg.tpspec= tpspec;
+                        avg.kspec = kspec;
+                        avg.kkspec= kkspec;
+                        avg.ks    = ks;
+                        avg.kks   = kks;
+                        avg.fspec = fspec;
                     end
                     
                     castname=castStr;
                     
                     % Add lat/lon to avg structure
-                    avg.lat=nanmean(ctd.lat);
-                    avg.lon=nanmean(ctd.lon);
-                    avg.castname=castname;
-                    avg.castdir=C.castdir;
-                    avg.Info=C.Info;
-                    avg.MakeInfo=['Made ' datestr(now) ' w/ ' this_script_name ];
+                    avg.lat = nanmean(ctd.lat);
+                    avg.lon = nanmean(ctd.lon);
+                    avg.castname = castname;
+                    avg.castdir = C.castdir;
+                    avg.Info = C.Info;
+                    avg.MakeInfo = ['Made ' datestr(now) ' w/ ' this_script_name ];
                     
-                    ctd.castname=castname;
-                    ctd.MakeInfo=['Made ' datestr(now) ' w/ ' this_script_name ];
+                    ctd.castname = castname;
+                    ctd.MakeInfo = ['Made ' datestr(now) ' w/ ' this_script_name ];
                     
-                    chi_proc_path_avg=fullfile(chi_proc_path_specific,'avg',...
+                    chi_proc_path_avg = fullfile(chi_proc_path_specific,'avg',...
                         ['zsm' num2str(Params.z_smooth) 'm_fmax' num2str(Params.fmax) 'Hz_respcorr' num2str(Params.resp_corr) '_fc_' num2str(Params.fc) 'hz_gamma' num2str(Params.gamma*100)] )
                     
                     ChkMkDir(chi_proc_path_avg)

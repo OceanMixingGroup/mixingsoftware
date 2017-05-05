@@ -249,7 +249,7 @@ for icast=1:length(CTD_list)
                     proc_info.(whSN).IsChiData(icast) = 1;
                     
                     % Align w/ CTD timeseries
-                    [CTD_24hz chidat]=AlignChipodCTD(CTD_24hz,chidat,az_correction,1);
+                    [CTD_24hz chidat] = AlignChipodCTD(CTD_24hz,chidat,az_correction,1);
                     print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig2_w_TimeOffset']))
                     
                     % Zoom in and plot again to check alignment
@@ -257,7 +257,7 @@ for icast=1:length(CTD_list)
                     print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig3_w_TimeOffset_Zoom']))
                     
                     % Calibrate T and dT/dt
-                    [CTD_24hz chidat]=CalibrateChipodCTD(CTD_24hz,chidat,az_correction,1);
+                    [CTD_24hz chidat] = CalibrateChipodCTD(CTD_24hz,chidat,az_correction,1);
                     print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig4_dTdtSpectraCheck']))
                     
                     % Save again, with time-offset and calibration added

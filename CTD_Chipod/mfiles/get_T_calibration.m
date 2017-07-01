@@ -1,7 +1,7 @@
 function [coef,out]=get_T_calibration(ref_time,ref_T,raw_time,raw_T)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% function [coef,out]=get_T_calibration(ref_time,ref_T,raw_time,raw_T)
+% [coef,out] = get_T_calibration(ref_time,ref_T,raw_time,raw_T)
 %
 % Calibrate absoulte temperature from chipod using CTD temperature
 % timeseries. Part of CTD_Chipod processing software.

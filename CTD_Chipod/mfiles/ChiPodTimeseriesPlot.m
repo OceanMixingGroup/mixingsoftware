@@ -1,7 +1,7 @@
-function ax=ChiPodTimeseriesPlot(CTD_24hz,chidat)
+function ax = ChiPodTimeseriesPlot(CTD_24hz,chidat)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% function ax=ChiPodTimeseriesPlot(CTD_24hz,chidat)
+% function ax = ChiPodTimeseriesPlot(CTD_24hz,chidat)
 %
 % Function to make a summary plot of chipod data.
 %
@@ -12,7 +12,7 @@ function ax=ChiPodTimeseriesPlot(CTD_24hz,chidat)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
-xls=[min(CTD_24hz.datenum) max(CTD_24hz.datenum)];
+xls = [min(CTD_24hz.datenum) max(CTD_24hz.datenum)];
 
 hf=figure;clf
 agutwocolumn(1)

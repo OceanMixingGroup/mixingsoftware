@@ -1,7 +1,7 @@
 function big=load_chipod_data(the_path,time_range,suffix,isbig,plotit,bad_file_list)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% function big=load_chipod_data(the_path,time_range,suffix,isbig,plotit,bad_file_list)
+% big=load_chipod_data(the_path,time_range,suffix,isbig,plotit,bad_file_list)
 %
 % Load chipod data for a specified time range. If time range spans multiple
 % chipod files, get data from both and combine. The chipod file name
@@ -27,8 +27,10 @@ function big=load_chipod_data(the_path,time_range,suffix,isbig,plotit,bad_file_l
 %
 % Part of CTD_chipod software in OSU 'mixingsoftware' github repository.
 %
-% Dependencies:
-% calls mixingsoftware/adcp/mergefields_jn.m
+% DEPENDS:
+% mixingsoftware/adcp/mergefields_jn.m
+% raw_load_chipod.m
+% load_mini_chipod.m
 %
 %--------------------------
 % Original - J. Nash, J. Marion?
@@ -74,7 +76,7 @@ if check_bad_files==1
 end
 
 %
-t_extra=24;% AP
+t_extra = 24;% AP
 if isbig==1
     t_extra=24;
 end
@@ -169,16 +171,16 @@ if isempty(big)
     big.fname='Did not find any files';
 end
 
-ginds=find(big.datenum>time_range(1) & big.datenum<time_range(2));
-fnames=fieldnames(big);
+ginds  = find(big.datenum>time_range(1) & big.datenum<time_range(2));
+fnames = fieldnames(big);
 for a=1:length(fnames)
     big.(fnames{a})=big.(fnames{a})(ginds);
 end
 
-big.MakeInfo=['Made ' datestr(now) ' w/ ' mfilename ' in ' version];
+big.MakeInfo = ['Made ' datestr(now) ' w/ ' mfilename ' in ' version];
 
 % also save name of chi file data is from - AP
-big.chi_files=fnamelist;
+big.chi_files = fnamelist;
 
 if plotit==1
     

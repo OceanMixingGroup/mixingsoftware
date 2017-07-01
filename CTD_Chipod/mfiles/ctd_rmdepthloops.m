@@ -19,10 +19,10 @@ function [data,loop_inds] = ctd_rmdepthloops(data,extra_z,wthresh)
 %%
 
 tsmooth = 1; % seconds
-fs = 24; % Hz
+fs      = 24; % Hz
+np      = length(data.p);
+data.w  = wsink(data.p, tsmooth, fs); % down/up +/-ve
 [pmax, ipmax] = max(data.p);
-np = length(data.p);
-data.w = wsink(data.p, tsmooth, fs); % down/up +/-ve
 
 % downcast
 fup = find(data.w < wthresh & [1:np]' <= ipmax);

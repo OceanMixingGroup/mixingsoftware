@@ -1,5 +1,6 @@
-function out=calibrate_chipod_dtdt(tp,coeff_tp,t,coeff_t)
+function out = calibrate_chipod_dtdt(tp, coeff_tp, t, coeff_t)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%
 % function out=calibrate_tp(tp,coeff_tp,t,coeff_t)
 %
 % This function does a polynomial calibration on the

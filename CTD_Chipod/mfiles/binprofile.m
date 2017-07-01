@@ -1,8 +1,22 @@
-function [dataout zout Nobs] = binprofile(datain,zin, zmin, dz, zmax,minobs)
+function [dataout zout Nobs] = binprofile(datain, zin, zmin, dz, zmax, minobs)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% function [dataout zout] = binprofile(datain,zin, zmin, dz, zmax)
+%
+% function [dataout zout] = binprofile(datain, zin, zmin, dz, zmax)
 %
 % Bin datain by depth on zmin:dz:zmax
+%
+% INPUT
+% - datain
+% - zin
+% - zmin
+% - dz
+% - zmax
+% - minobs
+%
+% OUTPUT
+% - dataout
+% - zout
+% - Nobs
 %
 %------------
 % Modified for more general use from ctd_bincast.m (in mixing software /
@@ -13,32 +27,31 @@ function [dataout zout Nobs] = binprofile(datain,zin, zmin, dz, zmax,minobs)
 
 % minimum # observations in bin
 if ~exist('minobs','var')
-    minobs=2;%
+    minobs = 2;%
 end
 
 zbin = [zmin:dz:zmax]';
-nb = length(zbin);
-dz2 = dz/2;
+nb   = length(zbin);
+dz2  = dz/2;
 
-dataout=nan*ones(size(zbin));
-Nobs=nan*ones(size(zbin));
-%hwb = waitbar(0, ['binning ' inputname(1)]);
+dataout = nan*ones(size(zbin));
+Nobs    = nan*ones(size(zbin));
 
 for ibin = 1:nb
-    
-%    waitbar(ibin/nb, hwb)
-    
+        
+    clear zb ii
     zb = zbin(ibin);
     ii = find((zin - zb) <= dz2 & (zin - zb) > -dz2);
+    
     if numel(ii)>minobs
-    dataout(ibin)=nanmean(datain(ii));
-    Nobs(ibin)=numel(ii);
+    dataout(ibin) = nanmean(datain(ii));
+    Nobs(ibin)    = numel(ii);
     end
         
 end
-dataout=dataout(:);
-Nobs=Nobs(:);
-zout=zbin;
-%close(hwb)
+
+dataout = dataout(:);
+Nobs = Nobs(:);
+zout = zbin;
 
 %%

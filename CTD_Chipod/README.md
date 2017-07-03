@@ -15,6 +15,8 @@ The starting point for these codes were codes written by Jonathan Nash, June Mar
 
 ### Basic Processing Outline 
 
-See <https://github.com/OceanMixingGroup/mixingsoftware/blob/master/CTD_Chipod/ChipodProcessingGuide/CtdChipodProcessingGuide.pdf>
+A guide to processing CTD-chipod cruise data is at: <https://github.com/OceanMixingGroup/mixingsoftware/blob/master/CTD_Chipod/ChipodProcessingGuide/CtdChipodProcessingGuide.pdf>
 
-*Note* CTD-chipod processing and analysis is a work in progress. Any results should be considered with caution. If you have any questions about the processing, or plan to make any major changes to the codes, please contact Andy Pickering. (apickering@coas.oregonstate.edu)
+If you encounter any mistakes or missing information in the guide, please contact us or open an issue.
+
+*Note* CTD-chipod processing and analysis is a work in progress. Any results should be considered with caution. If you have any questions about the processing, or plan to make any major changes to the codes, please contact Andy Pickering. (andypicke@gmail.edu)

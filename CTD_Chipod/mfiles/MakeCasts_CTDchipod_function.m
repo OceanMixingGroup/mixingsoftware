@@ -15,7 +15,7 @@ function MakeCasts_CTDchipod_function(Project)
 % be in the directory specified by 'CTD_out_dir_24hz', which is set in Load_Chipod_paths...
 % - This script assumes 24Hz CTD cast files end in '_24hz.mat'
 % - This script assumes 24Hz CTD cast data are in structure 'data2'
-% 
+%
 % '***' indicates where changes need to be made to modify the template for
 % specific cruises
 %
@@ -61,7 +61,7 @@ eval(['Chipod_Deploy_Info_' Project])
 
 % optional list of bad chi files to ignore
 try
-eval(['bad_file_list_' Project ';'])
+    eval(['bad_file_list_' Project ';'])
 end
 
 %~~~~~~~~~~~~~~~~~~~~~~~~
@@ -78,7 +78,12 @@ addpath(fullfile(mixpath,'marlcham'))  ;% for integrate.m
 addpath(fullfile(mixpath,'adcp'))      ;% need for mergefields_jn.m in load_chipod_data
 
 % Make a list of all ctd files we have
+if ~isempty(ChiInfo.CastString)
 CTD_list = dir(fullfile(CTD_out_dir_24hz,['*' ChiInfo.CastString '*.mat*']));
+else
+CTD_list = dir(fullfile(CTD_out_dir_24hz,['*.mat*']));
+end
+
 disp(['There are ' num2str(length(CTD_list)) ' CTD casts to process in ' CTD_out_dir_24hz])
 
 if length(CTD_list)<1
@@ -118,7 +123,7 @@ else
 end
 
 % Loop through each ctd file
-hb=waitbar(0,'Looping through ctd files');
+%hb=waitbar(0,'Looping through ctd files');
 
 for icast=1:length(CTD_list)
     
@@ -126,7 +131,7 @@ for icast=1:length(CTD_list)
     clear castname tlim time_range cast_suffix_tmp cast_suffix CTD_24hz
     
     % Update waitbar
-    waitbar(icast/length(CTD_list),hb)
+ %   waitbar(icast/length(CTD_list),hb)
     
     % CTD castname we are working with
     castname=CTD_list(icast).name
@@ -212,9 +217,9 @@ for icast=1:length(CTD_list)
                 
                 % Find and load chipod data for this time range
                 if exist('bad_file_list','var')
-                chidat = load_chipod_data(chi_path,time_range,suffix,isbig,1,bad_file_list);
+                    chidat = load_chipod_data(chi_path,time_range,suffix,isbig,1,bad_file_list);
                 else
-                chidat = load_chipod_data(chi_path,time_range,suffix,isbig,1);
+                    chidat = load_chipod_data(chi_path,time_range,suffix,isbig,1);
                 end
                 
                 % If we have enough good chipod data, continue
@@ -421,7 +426,7 @@ for icast=1:length(CTD_list)
     
 end % icast (each CTD file)
 
-delete(hb)
+%delete(hb)
 
 % throw out any bad ranges in proc_info
 proc_info.Prange(find(proc_info.Prange>8000))=nan;
@@ -431,7 +436,7 @@ proc_info.Readme = {'Prange : max pressure of each CTD cast' ; ...
     'Name : CTD filename for each cast';...
     'duration : length of cast in days'}
 
-save(fullfile(BaseDir,'Data','proc_info.mat'),'proc_info')
+save(fullfile(BaseDir,'Data','proc','proc_info.mat'),'proc_info')
 
 telapse = toc(tstart);
 

@@ -1,4 +1,4 @@
-function PlotChipodDataRaw_General(BaseDir,chi_data_path,ChiInfo)
+function PlotChipodDataRaw_General(BaseDir,chi_data_path,fig_path,ChiInfo)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % PlotChipodDataRaw_General.m
@@ -177,11 +177,15 @@ for iSN=1:length(allSNs)
             end
             
             if saveplot==1
-                clear figdir
-                figdir=fullfile(BaseDir,'figures','chipodraw',whSN)
+%                 clear figdir
+%                 figdir=fullfile(BaseDir,'figures','chipodraw',whSN)
+%                 ChkMkDir(figdir)
+%                 figname=fullfile(figdir,[whSN '_RawData_' chi_file_list(whfile).name(1:end-4)])
+%                 print('-dpng','-r300',figname)
+                figdir = fullfile(fig_path,'chipodraw',whSN);
                 ChkMkDir(figdir)
-                figname=fullfile(figdir,[whSN '_RawData_' chi_file_list(whfile).name(1:end-4)])
-                print('-dpng','-r300',figname)
+                figname = [chi_file_list(whfile).name(1:end-4)]
+                print( fullfile(figdir,figname),'-dpng')
             end
             
         end % try

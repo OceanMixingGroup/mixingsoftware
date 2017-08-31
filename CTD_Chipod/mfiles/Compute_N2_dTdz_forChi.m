@@ -14,6 +14,10 @@ function ctd=Compute_N2_dTdz_forChi(ctd,z_smooth)
 % OUTPUT
 % ctd      : Structure with dT/dz and N^2 added.
 %
+% DEPENDS : 
+% - interp_missing_data.m
+%
+%
 %-------------------------------
 % 05/11/15 - A. Pickering - apickering@coas.oregonstate.edu
 % 01/21/16 - AP - Clean up and document a little

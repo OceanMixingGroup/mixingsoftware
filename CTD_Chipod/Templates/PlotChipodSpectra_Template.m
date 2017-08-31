@@ -18,120 +18,70 @@
 
 clear ; close all
 
-% ***
-cruise='Template'
-mixpath='/Users/Andy/Cruises_Research/mixingsoftware/';
-addpath(fullfile(mixpath,'CTD_Chipod','mfiles')
-Load_chipod_paths_Template
-Chipod_Deploy_Info_Template
-%***
+Project = 'IO8'
 
-figdir=fullfile(BaseDir,'Figures');
-%~~~
+mixpath = '/Users/Andy/Cruises_Research/mixingsoftware/';
+addpath(fullfile(mixpath,'CTD_Chipod','mfiles'))
 
-load('Xproc.mat')
-
-%%
-
-for iSN=1%:length(ChiInfo.SNs)
-    
-    whSN=ChiInfo.SNs{iSN}
-    
-    % Find a good cast (T1cal good, t-offset good)
-    
-    idg=find( Xproc.(whSN).IsChiData==1 & Xproc.(whSN).T1cal==1)
-    ig=idg(1)
-    castname=Xproc.Name{ig}
-    
-    % Load cast data and
-    
-    castdir=ChiInfo.(whSN).InstDir
-    
-    whsens='T1';
-    if isstruct(castdir)
-        castdir=castdir.(whsens)
-    end
-    Params=SetDefaultChiParams
-    pathstr=MakePathStr(Params)
-    load(fullfile(chi_proc_path,whSN,'avg',pathstr,['avg_' castname '_' castdir 'cast_' whSN '_' whsens '.mat']))
-    
-    %% Plot single spectra
-    
-    saveplots=1
-    
-    for iz=200:round(length(avg.P)/10):length(avg.P)
-        figure(1);clf
-        if sum(~isnan(avg.ks(iz,:)))>10
-            ax=PlotSavedChiSpectra(avg,iz);
-            pause(0.2)
-            
-            if saveplots==1
-                ChkMkDir(fullfile(figdir,'Spectra'))
-                print(fullfile(figdir,'Spectra',[whSN '_' whsens '_'  castdir 'cast_' castname '_wind' num2str(iz) '_fmax' num2str(Params.fmax)]),'-dpng')
-            end
-        end
-        
-    end
-    %%
-    
-    
-    
-end % iSN
+eval(['Load_chipod_paths_' Project])
+eval(['Chipod_Deploy_Info_' Project])
 
 
+%% Now we want to cycle through some profiles and plot spectra
 
-%%
-% %% Compute spectra
-%
-%     Params.nfft=128;
-%     TP=C.T1P;
-%
-%     % Get windows for chi calculation
-%     clear todo_inds Nwindows
-%     [todo_inds,Nwindows]=MakeCtdChiWindows(TP,Params.nfft);
-%
-%     % Make 'avg' structure for the processed data
-%     clear avg
-%     avg=struct();
-%     avg.Params=Params;
-%     tfields={'datenum','P','N2','dTdz','fspd','T','S','P','theta','sigma',...
-%         'chi1','eps1','KT1','TP1var'};
-%     for n=1:length(tfields)
-%         avg.(tfields{n})=NaN*ones(Nwindows,1);
-%     end
-%
-%     avg.samplerate=1./nanmedian(diff(C.datenum))/24/3600;
-%
-%     % Get average time, pressure, and fallspeed in each window
-%     for iwind=1:Nwindows
-%         clear inds
-%         inds=todo_inds(iwind,1) : todo_inds(iwind,2);
-%         avg.datenum(iwind)=nanmean(C.datenum(inds));
-%         avg.P(iwind)=nanmean(C.P(inds));
-%         avg.fspd(iwind)=nanmean(C.fspd(inds));
-%     end
-%
-%     % Loop through each window and do the chi computation
-%
-%     % make empty array for spectra
-%     fspec=nan*ones(Nwindows,Params.nfft/2);
-%
-%     for iwind=1:Nwindows
-%         clear inds
-%         inds=todo_inds(iwind,1) : todo_inds(iwind,2);
-%
-%         clear tp_power freq
-%         [fspec(iwind,:),freq]=fast_psd(TP(inds),Params.nfft,avg.samplerate);
-%
-%         %         figure(1);clf
-%         %         loglog(freq,tp_power)
-%         %         grid on
-%
-%     end % iwind
-%
-%
-%     figure(2);clf
-%     ezpc(freq,avg.P,log10(fspec))
-%     colorbar
-%     %       caxis([-8 -1])
+whSN='SN1013'
+file_list = dir(fullfile(chi_proc_path,whSN,'cal','*.mat'))
+
+load(fullfile(chi_proc_path,whSN,'cal',file_list(12).name))
+
+id1 = round(.42*length(C.datenum)) ;
+inds = [id1 : 100+id1 ] ;
+
+figure(1) ; clf
+plot(C.datenum,C.T1P)
+ylim([-1 1])
+
+hold on
+plot(C.datenum(inds),C.T1P(inds),'r')
+
+% now plot spectra
+
+addpath /Users/Andy/Cruises_Research/mixingsoftware/general
+nfft = 128
+samplerate = 1./nanmedian(diff(C.datenum))/24/3600;
+fspd = abs(nanmean(C.fspd(inds))) ;
+
+clear tp_power freq
+[fspec,freq]=fast_psd(C.T1P(inds),nfft,samplerate);
+
+k=freq/fspd;
+spec_time=fspec/fspd^2;% If tp_power is power of dT/dt, than our units are
+% K^2/[s^2 Hz]=[K^2/s] we need to
+% divide by fspd^2 to get [K^2/m^2/Hz]
+kspec=spec_time*fspd;% to convert from K/[m^2*Hz] to K/[m^2*cpm]
+
+figure(2);clf
+agutwocolumn(1);wysiwyg
+
+subplot(311)
+plot(C.datenum([inds(1)-100:inds(end)+100]),C.T1P([inds(1)-100 : inds(end)+100]))
+hold on
+plot(C.datenum(inds),C.T1P(inds),'r')
+grid on
+
+subplot(312)
+loglog(freq,fspec)
+xlabel('frequency')
+ylabel('TP spectra')
+grid on
+axis tight
+xlim([1e0 1e2])
+
+subplot(313)
+loglog(k,kspec)
+xlabel('wavenumber')
+ylabel('TP spectra')
+grid on
+axis tight
+
 %%

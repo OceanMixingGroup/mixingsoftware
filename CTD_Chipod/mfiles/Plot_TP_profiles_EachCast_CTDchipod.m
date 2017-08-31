@@ -33,11 +33,11 @@ eval(['Chipod_Deploy_Info_' Project])
 % You should't have to modify anything below this
 %~~~~~~~~~~~~~~~~~~~~~~
 
-xl=1*[-1 1];
+xl = 1*[-1 1] ;
 
 % Make list of which CTD casts we have processed
-CTDlist=dir([CTD_out_dir_bin '/*.mat'])
-Ncasts=length(CTDlist)
+CTDlist = dir([CTD_out_dir_bin '/*.mat'])
+Ncasts  = length(CTDlist)
 
 % Check if we have any 'big' chipods
 bc=[];
@@ -68,7 +68,7 @@ for icast=1:Ncasts
     
     ymax=[];
     
-    iSNoffset=0
+    iSNoffset = 0 ;
     
     whax=1;
     for iSN=1:length(ChiInfo.SNs)

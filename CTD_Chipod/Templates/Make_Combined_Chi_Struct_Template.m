@@ -19,9 +19,12 @@
 
 clear ; close all
 
+Project= 'Template'
+
 %***
-Load_chipod_paths_Template
-Chipod_Deploy_Info_Template
+eval(['Load_chipod_paths_' Project])
+eval(['Chipod_Deploy_Info_' Project])
+
 this_file_name = 'Make_Combined_Chi_Struct_Template.m'
 savedata = 0
 % Local path for /mixingsoftware repo ***
@@ -29,7 +32,6 @@ mixpath = '/Users/Andy/Cruises_Research/mixingsoftware/';
 %***
 
 addpath(fullfile(mixpath,'CTD_Chipod','mfiles'));
-
 
 % Make a list of all the 24 hz CTD casts we have
 CTD_list = dir(fullfile(CTD_out_dir_24hz,['*' ChiInfo.CastString '*.mat*']));

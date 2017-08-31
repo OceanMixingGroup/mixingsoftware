@@ -47,8 +47,8 @@ function [chi,epsil,k,spec,k_kraich,spec_kraich,stats]=...
 
 warning off
 if length(varargin)>1
-    n=length(varargin);
-    for a=1:floor(n/2);
+    n = length(varargin);
+    for a = 1:floor(n/2);
         eval([varargin{a*2-1} '=' num2str(varargin{a*2}) ';'])
     end
 end
@@ -154,14 +154,14 @@ for b=1:n_iterations
     count=0;
     while abs(chi_part/chi_test-1)>.01
         count=count+1;
-        b_spec= kraichnan(nu,b_freq/fspd,kb,tdif,chi,q)/fspd;
-        chi_part= 6*tdif* integrate(f_start,f_stop,freq',spec_time','inclusive');
-        chi_test=6*tdif*integrate(f_start,f_stop,b_freq,b_spec,'inclusive');
-        chi=chi*chi_part/chi_test;
+        b_spec   = kraichnan(nu,b_freq/fspd,kb,tdif,chi,q)/fspd;
+        chi_part = 6*tdif* integrate(f_start,f_stop,freq',spec_time','inclusive');
+        chi_test = 6*tdif*integrate(f_start,f_stop,b_freq,b_spec,'inclusive');
+        chi = chi*chi_part/chi_test;
         % Now get a new estimate of kb and f_stop:
-        epsilon=nsqr*chi/(2*gamma*dTdz^2);
+        epsilon = nsqr*chi/(2*gamma*dTdz^2);
         kb = (((epsilon/(nu^3))^.25 )/2/pi)*sqrt(nu/tdif);
-        f_stop=(kb/2)*fspd;
+        f_stop = (kb/2)*fspd;
         if f_stop>fmax;
             f_stop=fmax;
         end
@@ -184,12 +184,12 @@ for b=1:n_iterations
             end
             iq2=find(b_freq>=f_start & b_freq<=f_stop, 1);
             if isempty(iq2)
-                [c1,i1]=min(abs(b_freq-f_start));
-                [c2,i2]=min(abs(b_freq-f_stop));
+                [c1,i1] = min(abs(b_freq-f_start));
+                [c2,i2] = min(abs(b_freq-f_stop));
                 if c2<c1
-                    f_stop=b_freq(i2);
+                    f_stop  = b_freq(i2);
                 else
-                    f_start=b_freq(i1);
+                    f_start = b_freq(i1);
                 end
             end
         end
@@ -207,12 +207,12 @@ for b=1:n_iterations
     if f_stop>=f_start
         iq=find(freq>=f_start & freq<=f_stop, 1);
         if isempty(iq)
-            [c1,i1]=min(abs(freq-f_start));
-            [c2,i2]=min(abs(freq-f_stop));
+            [c1,i1] = min(abs(freq-f_start));
+            [c2,i2] = min(abs(freq-f_stop));
             if c2<c1
-                f_stop=freq(i2);
+                f_stop  = freq(i2);
             else
-                f_start=freq(i1);
+                f_start = freq(i1);
             end
         end
         iq2=find(b_freq>=f_start & b_freq<=f_stop, 1);
@@ -226,14 +226,15 @@ for b=1:n_iterations
             end
         end
     end
+    
     f_range=freq(freq>=f_start & freq<=f_stop);
     if numel(f_range)>0
-        stats.k_start=f_range(1)/fspd;
-        stats.k_stop=f_range(end)/fspd;
-        stats.f_start=f_range(1);
-        stats.f_stop=f_range(end);
-        stats.n_freq=length(f_range);
-        chi=6*tdif*integrate(min(b_freq),max(b_freq),b_freq,b_spec,'inclusive');
+        stats.k_start = f_range(1)/fspd;
+        stats.k_stop  = f_range(end)/fspd;
+        stats.f_start = f_range(1);
+        stats.f_stop  = f_range(end);
+        stats.n_freq  = length(f_range);
+        chi = 6*tdif*integrate(min(b_freq),max(b_freq),b_freq,b_spec,'inclusive');
     else
         stats.k_start=NaN;
         stats.k_stop=NaN;
@@ -245,13 +246,13 @@ for b=1:n_iterations
     end
     
     % Now estimate epsilon from chi:
-    epsilon=nsqr*chi/(2*gamma*dTdz^2);
-    chi_out(b)=chi;
-    epsil(b)=epsilon;
+    epsilon   = nsqr*chi/(2*gamma*dTdz^2);
+    chi_out(b)= chi;
+    epsil(b)  = epsilon;
     
-    k_kraich=b_freq/fspd;
-    spec_kraich=b_spec*fspd;% to convert from K/[m^2*Hz] to K/[m^2*cpm]
-    spec=spec_time*fspd;% to convert from K/[m^2*Hz] to K/[m^2*cpm]
+    k_kraich = b_freq/fspd;
+    spec_kraich = b_spec*fspd;% to convert from K/[m^2*Hz] to K/[m^2*cpm]
+    spec = spec_time*fspd;% to convert from K/[m^2*Hz] to K/[m^2*cpm]
     
     if doplots
         loglog(k,spec,k_kraich,spec_kraich,cols(b))
@@ -267,8 +268,8 @@ for b=1:n_iterations
     % Check if \chi and/or \epsilon have converged, stop if they have
     if b>1
         clear pdif_chi pdif_eps
-        pdif_chi=(chi_out(b)-chi_out(b-1))/chi_out(b) *100;
-        pdif_eps=(epsil(b)-epsil(b-1))/epsil(b) *100;
+        pdif_chi = ( chi_out(b)-chi_out(b-1) ) / chi_out(b) *100;
+        pdif_eps = ( epsil(b)-epsil(b-1) ) / epsil(b) *100;
         if abs(pdif_chi)<0.005 && abs(pdif_eps)<0.005
 %            disp(['chi and eps have converged after ' num2str(b) ' iterations'])
             break
@@ -277,8 +278,8 @@ for b=1:n_iterations
     
 end % b=1:n_iterations
 
-chi=fliplr(chi_out);
-epsil=fliplr(epsil);
+chi   = fliplr(chi_out);
+epsil = fliplr(epsil);
 
 return
 

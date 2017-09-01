@@ -1,4 +1,4 @@
-function PlotTimeOffsetsCTDchipod_General(ChiInfo,chi_proc_path)
+function PlotTimeOffsetsCTDchipod_General(Project)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % PlotTimeOffsetsCTDchipod_General.m
@@ -20,7 +20,10 @@ function PlotTimeOffsetsCTDchipod_General(ChiInfo,chi_proc_path)
 close all
 
 %saveplot=1
+eval(['Load_chipod_paths_' Project])
+eval(['Chipod_Deploy_Info_' Project])
 
+load( fullfile(BaseDir,'Data','proc','proc_info.mat'))
 
 % loop through chipods
 for iSN=1:length(ChiInfo.SNs)
@@ -29,28 +32,28 @@ for iSN=1:length(ChiInfo.SNs)
     whSN=ChiInfo.SNs{iSN}
     
     % make list of files for this sensor
-    clear Flist
-    Flist=dir( fullfile( chi_proc_path,whSN,'cal',['*' whSN '.mat']) )
-    
-    tms=nan*ones(1,length(Flist));
-    toffs=nan*ones(1,length(Flist));
+%    clear Flist
+%    Flist=dir( fullfile( chi_proc_path,whSN,'cal',['*' whSN '.mat']) )
+    cnums = proc_info.icast;
+    tms   = nan*ones(1,length(proc_info.icast));
+    toffs = nan*ones(1,length(proc_info.icast));
     hb=waitbar(0)
-    for icast=1:length(Flist)
-        waitbar(icast/length(Flist),hb,['Working on ' whSN])
-        try
-            clear chidat
-            load(fullfile(  chi_proc_path,whSN,'cal',Flist(icast).name))
-            toffs(icast)=chidat.time_offset_correction_used*86400;
-            tms(icast)=nanmean(chidat.datenum);
-        end
-    end
-    delete(hb)
+%     for icast=1:length(proc_info.icast)
+%         waitbar(icast/length(proc_info.icast),hb,['Working on ' whSN])
+%         try
+%             clear chidat
+%             %load(fullfile(  chi_proc_path,whSN,'cal',Flist(icast).name))
+%             toffs(icast)=proc_info.(whSN).toffset ;
+%             %tms(icast)=nanmean(chidat.datenum);
+%         end
+%     end
+%     delete(hb)
     
     
     figure;clf
     agutwocolumn(0.6)
     wysiwyg
-    plot(tms,toffs,'o')
+    plot(proc_info.icast,proc_info.(whSN).toffset,'o')
     datetick('x')
     xlabel('date','fontsize',15)
     ylabel('time offset (sec)','fontsize',15)

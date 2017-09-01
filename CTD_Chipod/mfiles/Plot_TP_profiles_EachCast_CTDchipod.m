@@ -3,10 +3,11 @@ function Plot_TP_profiles_EachCast_CTDchipod(Project)
 %
 % function Plot_TP_profiles_EachCast_CTDchipod(Project)
 %
-%
-% Template for script to plot TP profiles from all chipods for each
+% Script to plot TP profiles from all chipods for each
 % cast. Allows comparison of TP from different sensors.
 %
+% INPUT
+% - Project
 %
 % Dependencies:
 % Load_chipod_paths_Template.m
@@ -19,11 +20,7 @@ function Plot_TP_profiles_EachCast_CTDchipod(Project)
 %% Plot T' profiles from each sensor/cast direction for one cast
 % trying to assess which sensors are clean/noisy
 
-%clear ; close all
-
 saveplot = 1
-
-%Project = 'IO8'
 
 % Data paths
 eval(['Load_chipod_paths_' Project])

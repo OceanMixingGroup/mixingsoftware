@@ -1,4 +1,4 @@
-function PlotChipodDataRaw_General(BaseDir,chi_data_path,fig_path,ChiInfo)
+function PlotChipodDataRaw_General(Project,mixpath)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % PlotChipodDataRaw_General.m
@@ -7,11 +7,10 @@ function PlotChipodDataRaw_General(BaseDir,chi_data_path,fig_path,ChiInfo)
 % any issues with data.
 %
 % INPUTS
-% BaseDir       : From Load_chipod_paths_xxxx.m
-% chi_data_path : From Load_chipod_paths_xxxx.m
-% ChiInfo       : From Chipod_Deploy_Info_xxxx.m
+% Project
+% mixpath
 %
-% Saves figures to /BaseDir/figures/chipodraw/
+% Saves figures to fig_path/chipodraw/[whSN]
 %
 % Dependencies:
 % raw_load_chipod.m
@@ -28,21 +27,18 @@ function PlotChipodDataRaw_General(BaseDir,chi_data_path,fig_path,ChiInfo)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
-%clear ; close all ; clc
-
 saveplot=1
 
-% *** path for 'mixingsoftware' ***
-mixpath='/Users/Andy/Cruises_Research/mixingsoftware/'
 addpath(fullfile(mixpath,'CTD_Chipod'))
 
-%Load_chipod_paths_Geotraces
+% Load paths for CTD and chipod data
+eval(['Load_chipod_paths_' Project])
 
-%Chipod_Deploy_Info_Geotraces
-%
+% Load chipod deployment info
+eval(['Chipod_Deploy_Info_' Project])
+
 allSNs=ChiInfo.SNs
 
-%
 for iSN=1:length(allSNs)
     
     clear data_dir chi_file_list Nfiles whSN isbig
@@ -56,10 +52,10 @@ for iSN=1:length(allSNs)
     
     % make list of all the data files we have
     %chi_file_list=dir( fullfile(data_dir,['/*' whSN '*']))
-    chi_file_list=dir( fullfile(data_dir));
-    Nfiles=length(chi_file_list);
+    chi_file_list = dir( fullfile(data_dir));
+    Nfiles = length(chi_file_list);
     
-    for whfile=1:Nfiles
+    for whfile = 1:Nfiles
         
         clear fname
         fname=fullfile(data_dir,chi_file_list(whfile).name)
@@ -177,11 +173,6 @@ for iSN=1:length(allSNs)
             end
             
             if saveplot==1
-%                 clear figdir
-%                 figdir=fullfile(BaseDir,'figures','chipodraw',whSN)
-%                 ChkMkDir(figdir)
-%                 figname=fullfile(figdir,[whSN '_RawData_' chi_file_list(whfile).name(1:end-4)])
-%                 print('-dpng','-r300',figname)
                 figdir = fullfile(fig_path,'chipodraw',whSN);
                 ChkMkDir(figdir)
                 figname = [chi_file_list(whfile).name(1:end-4)]

@@ -1,4 +1,4 @@
-function MakeCasts_CTDchipod_function(Project)
+function MakeCasts_CTDchipod_function(Project,mixpath)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % MakeCasts_CTDchipod_Template.m
@@ -26,6 +26,11 @@ function MakeCasts_CTDchipod_function(Project)
 % This script is part of CTD-chipod routines maintained in a github repo at
 % https://github.com/OceanMixingGroup/mixingsoftware/tree/master/CTD_Chipod
 %
+% INPUT
+% - Project
+% - mixpath
+%
+%
 % Dependencies:
 % - MakeResultsTextFile.m
 % - load_chipod_data.m
@@ -44,14 +49,6 @@ function MakeCasts_CTDchipod_function(Project)
 % Should only need to edit info below
 %~~~~~~~~~~~~~~~~~~~~~~~~
 
-%***
-%Project='test'
-
-% ***
-%this_script_name = 'ProcessCTDchipod_Template.m'
-
-% *** Local path for /mixingsoftware repo ***
-mixpath = '/Users/Andy/Cruises_Research/mixingsoftware/';
 
 % *** Load paths for CTD and chipod data
 eval(['Load_chipod_paths_' Project])
@@ -137,7 +134,7 @@ for icast=1:length(CTD_list)
     castname=CTD_list(icast).name
     
     %##
-    fprintf(fileID,[ '\n\n\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' ]);
+    fprintf(fileID,[ '\n\n\n\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' ]);
     fprintf(fileID,[' \n \n CTD-file: ' castname ' (icast=' num2str(icast) ')' ]);
     %##
     
@@ -203,6 +200,9 @@ for icast=1:length(CTD_list)
         chi_fig_path_specific = fullfile(fig_path,'proc',whSN)
         ChkMkDir(chi_fig_path_specific)
         
+        savedir_cal=fullfile(chi_proc_path_specific,'cal')
+        ChkMkDir(savedir_cal)
+        
         % Plot the raw CTD data
         ax = PlotRawCTD(CTD_24hz)
         print(fullfile(chi_fig_path_specific,[whSN '_Cast_' castStr '_Fig0_RawCTD']),'-dpng')
@@ -267,11 +267,6 @@ for icast=1:length(CTD_list)
                     [CTD_24hz chidat] = CalibrateChipodCTD(CTD_24hz,chidat,az_correction,1);
                     print('-dpng',fullfile(chi_fig_path_specific,[whSN '_Cast_' castStr '_Fig4_dTdtSpectraCheck']))
                     
-                    % Save again, with time-offset and calibration added
-                    savedir_cal=fullfile(chi_proc_path_specific,'cal')
-                    ChkMkDir(savedir_cal)
-                    % processed_file=fullfile(chi_proc_path_specific,['cast_' cast_suffix '_' whSN '.mat'])
-                    %save(fullfile(savedir_cal,[castStr '_' whSN '.mat']),'chidat')
                     
                     % Check if T1 calibration is ok
                     clear out2 err pvar cal_good_T1 cal_good_T2
@@ -422,7 +417,7 @@ for icast=1:length(CTD_list)
     proc_info.MakeInfo=['Made ' datestr(now) ]
     proc_info.last_iSN=iSN;
     proc_info.last_icast=icast;
-    save(fullfile(BaseDir,'Data','proc_info.mat'),'proc_info')
+    save(fullfile(BaseDir,'Data','proc','proc_info.mat'),'proc_info')
     
 end % icast (each CTD file)
 

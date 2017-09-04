@@ -25,7 +25,7 @@ function w = wsink(p,Ts,Fs);
 % Author: Fabian Wolk
 % Revision: 2002/08/01
 
-error(nargchk(1,3,nargin));
+narginchk(1,3);
 DEFAULTTS = 10;
 if nargin<3 Fs = parameter_list('mss','Fs'); end
 if nargin<2 Ts = DEFAULTTS; end

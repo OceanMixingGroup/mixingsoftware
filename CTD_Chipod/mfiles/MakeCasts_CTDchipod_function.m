@@ -1,7 +1,7 @@
 function MakeCasts_CTDchipod_function(Project,mixpath)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% MakeCasts_CTDchipod_Template.m
+% MakeCasts_CTDchipod_function.m
 %
 % This is the 1st part of the CTD-chipod processing. Here we find raw chipod
 % data for each cast, align the data and calibrate etc.. . A mat file is saved
@@ -41,19 +41,14 @@ function MakeCasts_CTDchipod_function(Project,mixpath)
 %---------------------
 % 10/26/15 - A.Pickering - Initial coding
 % 06/08/16 - AP - Updating...
+% 09/03/17 - AP - Make into general function
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
-%clear ; close all ; clc
-
-% Should only need to edit info below
-%~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-% *** Load paths for CTD and chipod data
+% Load paths for CTD and chipod data
 eval(['Load_chipod_paths_' Project])
 
-% *** Load chipod deployment info
+% Load chipod deployment info
 eval(['Chipod_Deploy_Info_' Project])
 
 % optional list of bad chi files to ignore
@@ -76,9 +71,9 @@ addpath(fullfile(mixpath,'adcp'))      ;% need for mergefields_jn.m in load_chip
 
 % Make a list of all ctd files we have
 if ~isempty(ChiInfo.CastString)
-CTD_list = dir(fullfile(CTD_out_dir_24hz,['*' ChiInfo.CastString '*.mat*']));
+    CTD_list = dir(fullfile(CTD_out_dir_24hz,['*' ChiInfo.CastString '*.mat*']));
 else
-CTD_list = dir(fullfile(CTD_out_dir_24hz,['*.mat*']));
+    CTD_list = dir(fullfile(CTD_out_dir_24hz,['*.mat*']));
 end
 
 disp(['There are ' num2str(length(CTD_list)) ' CTD casts to process in ' CTD_out_dir_24hz])
@@ -128,10 +123,10 @@ for icast=1:length(CTD_list)
     clear castname tlim time_range cast_suffix_tmp cast_suffix CTD_24hz
     
     % Update waitbar
- %   waitbar(icast/length(CTD_list),hb)
+    %   waitbar(icast/length(CTD_list),hb)
     
     % CTD castname we are working with
-    castname=CTD_list(icast).name
+    castname=CTD_list(icast).name ;
     
     %##
     fprintf(fileID,[ '\n\n\n\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' ]);
@@ -156,7 +151,7 @@ for icast=1:length(CTD_list)
     d.time_range = datestr(time_range);
     
     % Name of CTD cast to use (assumes 24Hz CTD cast files end in '_24hz.mat'
-    castStr = castname(1:end-9)
+    castStr = castname(1:end-9) ;
     
     proc_info.icast(icast)    = icast;
     proc_info.Name(icast)     = {castStr};
@@ -197,14 +192,14 @@ for icast=1:length(CTD_list)
         ChkMkDir(chi_proc_path_specific)
         
         %chi_fig_path_specific = fullfile(chi_proc_path_specific,'figures')
-        chi_fig_path_specific = fullfile(fig_path,'proc',whSN)
+        chi_fig_path_specific = fullfile(fig_path,'proc',whSN) ;
         ChkMkDir(chi_fig_path_specific)
         
-        savedir_cal=fullfile(chi_proc_path_specific,'cal')
+        savedir_cal = fullfile(chi_proc_path_specific,'cal') ;
         ChkMkDir(savedir_cal)
         
         % Plot the raw CTD data
-        ax = PlotRawCTD(CTD_24hz)
+        ax = PlotRawCTD(CTD_24hz) ;
         print(fullfile(chi_fig_path_specific,[whSN '_Cast_' castStr '_Fig0_RawCTD']),'-dpng')
         
         try
@@ -235,7 +230,7 @@ for icast=1:length(CTD_list)
                     chidat.time_range = time_range;
                     chidat.castname   = castname;
                     
-                    savedir_cast=fullfile(chi_proc_path_specific,'cast')
+                    savedir_cast = fullfile(chi_proc_path_specific,'cast');
                     ChkMkDir(savedir_cast)
                     save(fullfile(savedir_cast,[castStr '_' whSN '.mat']),'chidat')
                     
@@ -311,9 +306,9 @@ for icast=1:length(CTD_list)
                     do_timeseries_plot=1;
                     if do_timeseries_plot
                         h=ChiPodTimeseriesPlot(CTD_24hz,chidat);
-                        axes(h(1))
+                        axes(h(1));
                         title([castStr ', ' whSN '  ' datestr(time_range(1),'dd-mmm-yyyy HH:MM') '-' datestr(time_range(2),15) ', ' CTD_list(icast).name],'interpreter','none')
-                        axes(h(end))
+                        axes(h(end));
                         xlabel(['Time on ' datestr(time_range(1),'dd-mmm-yyyy')])
                         print('-dpng','-r300',fullfile(chi_fig_path_specific,[whSN '_Cast_' castStr '_Fig5_T_P_dTdz_fspd.png']));
                     end
@@ -414,9 +409,9 @@ for icast=1:length(CTD_list)
     end % each chipod on rosette (up_down_big)
     
     % save processing info (save after each cast in case it crashes)
-    proc_info.MakeInfo=['Made ' datestr(now) ]
-    proc_info.last_iSN=iSN;
-    proc_info.last_icast=icast;
+    proc_info.MakeInfo = ['Made ' datestr(now) ] ;
+    proc_info.last_iSN = iSN;
+    proc_info.last_icast = icast;
     save(fullfile(BaseDir,'Data','proc','proc_info.mat'),'proc_info')
     
 end % icast (each CTD file)
@@ -424,12 +419,12 @@ end % icast (each CTD file)
 %delete(hb)
 
 % throw out any bad ranges in proc_info
-proc_info.Prange(find(proc_info.Prange>8000))=nan;
+proc_info.Prange(find(proc_info.Prange>8000)) = nan;
 
 proc_info.Readme = {'Prange : max pressure of each CTD cast' ; ...
     'drange : time range of each cast (datenum)' ;...
     'Name : CTD filename for each cast';...
-    'duration : length of cast in days'}
+    'duration : length of cast in days'} ;
 
 save(fullfile(BaseDir,'Data','proc','proc_info.mat'),'proc_info')
 

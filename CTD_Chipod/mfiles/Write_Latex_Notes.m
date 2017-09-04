@@ -1,19 +1,28 @@
+function Write_Latex_Notes(Project)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % Write_Latex_Notes.m
 %
-% Script to write an entire .tex file for standard ctd-Chipod cruise notes
+% Function to write an entire .tex file for standard ctd-Chipod cruise notes
+%
+% Need to run standard processing before this:
+% -
+% -
 %
 %-------------
 % 09/27/16 - A.Pickering - andypicke@gmail.com
+% 09/03/17 - AP - Turn into general function
 %~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
-clear ; close all
+% *** Load paths for CTD and chipod data
+eval(['Load_chipod_paths_' Project])
 
-project='IO9'
+% *** Load chipod deployment info
+eval(['Chipod_Deploy_Info_' Project])
 
-Chipod_Deploy_Info_IO9
+% ** need to specify directory to write to
+
 
 %% open a text file
 

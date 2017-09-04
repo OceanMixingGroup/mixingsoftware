@@ -21,39 +21,29 @@ function do_chi_calc_ctd_chipod(Project,mixpath)
 % - fast_psd.m
 % - get_chipod_chi.m
 %
+% TO-DO
+% - add option to specify Params (uses default right now)
+% - add option to save k spec
+%
 %----------------
 % 10/26/15 - AP - Initial coding
 % 01/03/16 - AP - Modify for files saved as separate upcasts/downcasts
 % 02/07/16 - AP - Add fmax to specified params
 % 02/16/16 - AP - Add option for freq response correction
 % 06/08/16 - AP - Clean up and organize
+% 09/03/17 - AP - turn into general function
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
-%clear ; close all
+this_script_name = 'do_chi_calc_ctd_chipod.m' ;
 
-%~~~~~~~~~~~~~~~~~~~~~
-% ***
-this_script_name='do_chi_calc_ctd_chipod.m'
-
-% *** load/set paths for data
-%Load_chipod_paths_TestData
-
-% *** load deployment info
-%Chipod_Deploy_Info_template
-
-% *** Local path for /mixingsoftware repo ***
-%mixpath='/Users/Andy/Cruises_Research/mixingsoftware/';
-
-
-
-% *** Load paths for CTD and chipod data
+% Load paths for CTD and chipod data
 eval(['Load_chipod_paths_' Project])
 
-% *** Load chipod deployment info
+% Load chipod deployment info
 eval(['Chipod_Deploy_Info_' Project])
 
-savespec=0 % Option to save spectra
+savespec = 0 ; % Option to save spectra
 
 %~~ set some params for following calcs
 do_T2_big       = 1  ;  % do calc for T2 if big chipod
@@ -61,9 +51,9 @@ Params.z_smooth = 20 ;  % distance (m) over which to smooth N^2 and dT/dz
 Params.nfft     = 128;  % nfft to use in computing wavenumber spectra
 Params.extra_z  = 2  ;  % number of extra meters to get rid of due to CTD pressure loops.
 Params.wthresh  = 0.3;  % w threshold for removing CTD pressure loops
-Params.TPthresh = 1e-6  % minimum TP variance to do calculation
+Params.TPthresh = 1e-6 ; % minimum TP variance to do calculation
 Params.fmax     = 7  ;  % max freq to integrate TP spectrum to in chi calc
-Params.resp_corr=0   ;  % correct TP spectra for freq response of thermistor
+Params.resp_corr= 0  ;  % correct TP spectra for freq response of thermistor
 Params.fc       = 99 ;  % cutoff frequency for response correction
 Params.gamma    = 0.2;  % mixing efficiency
 %~~
@@ -87,14 +77,13 @@ MakeResultsTextFile_ChiCalc_DoChiCalc
 for iSN = 1:length(ChiInfo.SNs)
     
     clear whSN
-    whSN = ChiInfo.SNs{iSN}
+    whSN = ChiInfo.SNs{iSN} ;
     
     % Specific paths for this sensor
     clear chi_proc_path_specific chi_fig_path savedir_cal
-    chi_proc_path_specific = fullfile(chi_proc_path,[whSN]);
-    %chi_fig_path_specific  = fullfile(chi_proc_path_specific,'figures')
-    chi_fig_path_specific  = fullfile(fig_path,'proc',whSN)
-    savedir_cal = fullfile(chi_proc_path_specific,'cal')
+    chi_proc_path_specific = fullfile(chi_proc_path,[whSN]) ;
+    chi_fig_path_specific  = fullfile(fig_path,'proc',whSN) ;
+    savedir_cal = fullfile(chi_proc_path_specific,'cal')    ;
     
     %##
     fprintf(fileID,['\n processed path: \n ' chi_proc_path  ]);
@@ -103,7 +92,7 @@ for iSN = 1:length(ChiInfo.SNs)
     % Get list of cast files we have
     clear Flist
     Flist = dir(fullfile(savedir_cal,['*' whSN '*cast.mat']));
-    disp(['There are ' num2str(length(Flist)) ' casts to process '])
+    disp(['There are ' num2str(length(Flist)) ' casts and ' num2str(length(ChiInfo.SNs)) ' chipods to process '])
     
     %##
     fprintf(fileID,['\n There are ' num2str(length(Flist)) ' casts to process \n\n ']);
@@ -119,6 +108,8 @@ for iSN = 1:length(ChiInfo.SNs)
                 %##
                 fprintf(fileID,['\n\n--------------------------\n working on ' Flist(icast).name ' (iSN=' num2str(iSN) ', icast=' num2str(icast) ')\n--------------------------']);
                 %##
+                
+               display([' working on ' Flist(icast).name ' (iSN=' num2str(iSN) ', icast=' num2str(icast) ')' ]);
                 
                 close all
                 
@@ -155,7 +146,7 @@ for iSN = 1:length(ChiInfo.SNs)
                     id1 = strfind(castfile,['_' whSN]);
                     castStr = castfile(1:id1-1);
                     %fname=fullfile(savedir_cal,[castStr '_' whSN '_' castdir 'cast.mat']);
-                    fname = fullfile(savedir_cal,castfile)
+                    fname = fullfile(savedir_cal,castfile) ;
                     load(fname)
                     %---
                     
@@ -181,7 +172,7 @@ for iSN = 1:length(ChiInfo.SNs)
                     %##
                     fprintf(fileID,['\n  ' num2str(round(Nloop/length(C.datenum)*100)) ' percent of points removed for depth loops ']);
                     %##
-                    disp(['\n  ' num2str(round(Nloop/length(C.datenum)*100)) ' percent of points removed for depth loops ']);
+                    %disp(['\n  ' num2str(round(Nloop/length(C.datenum)*100)) ' percent of points removed for depth loops ']);
                     
                     figure(55);clf
                     plot(C.datenum,C.P)
@@ -238,6 +229,8 @@ for iSN = 1:length(ChiInfo.SNs)
                         %~
                     end
                     
+                    plot_hist = 0 ;
+                    if plot_hist==1
                     %~~ Plot histogram of avg.P to see how many good windows we have in
                     % each 10m bin
                     figure
@@ -248,6 +241,7 @@ for iSN = 1:length(ChiInfo.SNs)
                     title([whSN ' cast ' castStr ' - ' C.castdir 'cast'],'interpreter','none')
                     print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avgPhist']))
                     whfig=whfig+1;
+                    end
                     
                     % Get N2, dTdz for each window
                     good_inds=find(~isnan(ctd.p));
@@ -355,7 +349,7 @@ for iSN = 1:length(ChiInfo.SNs)
                     ctd.MakeInfo = ['Made ' datestr(now) ' w/ ' this_script_name ];
                     
                     chi_proc_path_avg = fullfile(chi_proc_path_specific,'avg',...
-                        ['zsm' num2str(Params.z_smooth) 'm_fmax' num2str(Params.fmax) 'Hz_respcorr' num2str(Params.resp_corr) '_fc_' num2str(Params.fc) 'hz_gamma' num2str(Params.gamma*100)] )
+                        ['zsm' num2str(Params.z_smooth) 'm_fmax' num2str(Params.fmax) 'Hz_respcorr' num2str(Params.resp_corr) '_fc_' num2str(Params.fc) 'hz_gamma' num2str(Params.gamma*100)] ) ;
                     
                     ChkMkDir(chi_proc_path_avg)
                     processed_file=fullfile(chi_proc_path_avg,['avg_' castStr '_' avg.castdir 'cast_' whSN '_' whsens '.mat']);
@@ -385,7 +379,7 @@ for iSN = 1:length(ChiInfo.SNs)
     
 end % iSN (different chipods)
 
-telapse=toc(tstart)
+telapse = toc(tstart)
 
 %##
 fprintf(fileID,['\n \n Done! \n Processing took ' num2str(telapse/60) ' mins to run']);

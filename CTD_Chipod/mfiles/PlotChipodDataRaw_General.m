@@ -37,18 +37,18 @@ eval(['Load_chipod_paths_' Project])
 % Load chipod deployment info
 eval(['Chipod_Deploy_Info_' Project])
 
-allSNs=ChiInfo.SNs
+allSNs = ChiInfo.SNs ;
 
-for iSN=1:length(allSNs)
+for iSN = 1:length(allSNs)
     
     clear data_dir chi_file_list Nfiles whSN isbig
     
-    whSN=allSNs{iSN};
+    whSN = allSNs{iSN};
     
     %data_dir=fullfile(chi_data_path,whSN(3:end))
-    data_dir=fullfile(chi_data_path,whSN);
+    data_dir = fullfile(chi_data_path,whSN);
     
-    isbig=ChiInfo.(whSN).isbig;
+    isbig = ChiInfo.(whSN).isbig ;
     
     % make list of all the data files we have
     %chi_file_list=dir( fullfile(data_dir,['/*' whSN '*']))
@@ -58,7 +58,7 @@ for iSN=1:length(allSNs)
     for whfile = 1:Nfiles
         
         clear fname
-        fname=fullfile(data_dir,chi_file_list(whfile).name)
+        fname=fullfile(data_dir,chi_file_list(whfile).name);
         
         clear data head chidat
         close all
@@ -108,33 +108,33 @@ for iSN=1:length(allSNs)
                 wysiwyg
                 ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.08, 1,4);
                 
-                axes(ax(1))
+                axes(ax(1)) ;
                 plot(chidat.datenum,chidat.T1)
                 datetick('x',15)
                 title([whSN ' - ' chi_file_list(whfile).name],'interpreter','none')
                 grid on
-                SubplotLetterMW('T1')
+                SubplotLetterMW('T1');
                 
-                axes(ax(2))
+                axes(ax(2));
                 plot(chidat.datenum,chidat.T2)
                 datetick('x',15)
                 grid on
-                SubplotLetterMW('T2')
+                SubplotLetterMW('T2');
                 
-                axes(ax(3))
+                axes(ax(3)) ;
                 plot(chidat.datenum,chidat.T1P)
                 datetick('x',15)
                 ylim([2 2.1])
                 grid on
-                SubplotLetterMW('T1P')
+                SubplotLetterMW('T1P');
                 
-                axes(ax(4))
+                axes(ax(4)) ;
                 plot(chidat.datenum,chidat.T2P)
                 datetick('x',15)
                 xlabel(['Time on ' datestr(floor(chidat.datenum(1)))])
                 ylim([2 2.1])
                 grid on
-                SubplotLetterMW('T2P')
+                SubplotLetterMW('T2P') ;
                 
                 linkaxes(ax,'x')
                 
@@ -145,22 +145,22 @@ for iSN=1:length(allSNs)
                 wysiwyg
                 ax = MySubplot(0.1, 0.03, 0.02, 0.06, 0.1, 0.05, 1,3);
                 
-                axes(ax(1))
+                axes(ax(1)) ;
                 plot(chidat.datenum,chidat.T1)
                 datetick('x',15)
                 title(chi_file_list(whfile).name,'interpreter','none')
                 title([whSN ' - ' chi_file_list(whfile).name],'interpreter','none')
                 grid on
-                SubplotLetterMW('T1')
+                SubplotLetterMW('T1') ;
                 
-                axes(ax(2))
+                axes(ax(2)) ;
                 plot(chidat.datenum,chidat.T1P)
                 datetick('x',15)
                 ylim([2 2.1])
                 grid on
-                SubplotLetterMW('T1P')
+                SubplotLetterMW('T1P') ;
                 
-                axes(ax(3))
+                axes(ax(3)) ;
                 plot(chidat.datenum,chidat.AX)
                 hold on
                 plot(chidat.datenum,chidat.AZ)
@@ -175,7 +175,7 @@ for iSN=1:length(allSNs)
             if saveplot==1
                 figdir = fullfile(fig_path,'chipodraw',whSN);
                 ChkMkDir(figdir)
-                figname = [chi_file_list(whfile).name(1:end-4)]
+                figname = [chi_file_list(whfile).name(1:end-4)] ;
                 print( fullfile(figdir,figname),'-dpng')
             end
             

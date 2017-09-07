@@ -1,4 +1,4 @@
-function do_chi_calc_ctd_chipod(Project,mixpath)
+function do_chi_calc_ctd_chipod(the_project,mixpath)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % Function version of DoChiCalc_Template.m
@@ -38,10 +38,10 @@ function do_chi_calc_ctd_chipod(Project,mixpath)
 this_script_name = 'do_chi_calc_ctd_chipod.m' ;
 
 % Load paths for CTD and chipod data
-eval(['Load_chipod_paths_' Project])
+eval(['Load_chipod_paths_' the_project])
 
 % Load chipod deployment info
-eval(['Chipod_Deploy_Info_' Project])
+eval(['Chipod_Deploy_Info_' the_project])
 
 savespec = 0 ; % Option to save spectra
 

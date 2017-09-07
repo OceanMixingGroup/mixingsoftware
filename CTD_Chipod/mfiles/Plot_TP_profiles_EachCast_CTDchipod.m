@@ -1,13 +1,13 @@
-function Plot_TP_profiles_EachCast_CTDchipod(Project)
+function Plot_TP_profiles_EachCast_CTDchipod(the_project)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
-% function Plot_TP_profiles_EachCast_CTDchipod(Project)
+% function Plot_TP_profiles_EachCast_CTDchipod(the_project)
 %
 % Script to plot TP profiles from all chipods for each
 % cast. Allows comparison of TP from different sensors.
 %
 % INPUT
-% - Project
+% - the_project
 %
 % Dependencies:
 % Load_chipod_paths_Template.m
@@ -23,9 +23,9 @@ function Plot_TP_profiles_EachCast_CTDchipod(Project)
 saveplot = 1
 
 % Data paths
-eval(['Load_chipod_paths_' Project])
+eval(['Load_chipod_paths_' the_project])
 % load deployment info
-eval(['Chipod_Deploy_Info_' Project])
+eval(['Chipod_Deploy_Info_' the_project])
 
 % You should't have to modify anything below this
 %~~~~~~~~~~~~~~~~~~~~~~

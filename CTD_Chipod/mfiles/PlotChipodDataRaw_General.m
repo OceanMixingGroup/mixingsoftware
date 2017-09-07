@@ -1,4 +1,4 @@
-function PlotChipodDataRaw_General(Project,mixpath)
+function PlotChipodDataRaw_General(the_project,mixpath)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % PlotChipodDataRaw_General.m
@@ -7,7 +7,7 @@ function PlotChipodDataRaw_General(Project,mixpath)
 % any issues with data.
 %
 % INPUTS
-% Project
+% the_project
 % mixpath
 %
 % Saves figures to fig_path/chipodraw/[whSN]
@@ -32,10 +32,10 @@ saveplot=1
 addpath(fullfile(mixpath,'CTD_Chipod'))
 
 % Load paths for CTD and chipod data
-eval(['Load_chipod_paths_' Project])
+eval(['Load_chipod_paths_' the_project])
 
 % Load chipod deployment info
-eval(['Chipod_Deploy_Info_' Project])
+eval(['Chipod_Deploy_Info_' the_project])
 
 allSNs = ChiInfo.SNs ;
 

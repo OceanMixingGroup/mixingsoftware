@@ -1,4 +1,4 @@
-function plot_XC_summaries(Project)
+function plot_XC_summaries(the_project)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % function version of PlotXCsummaries_Template.m
@@ -27,17 +27,17 @@ function plot_XC_summaries(Project)
 saveplot = 1
 
 % Load paths for CTD and chipod data
-eval(['Load_chipod_paths_' Project])
+eval(['Load_chipod_paths_' the_project])
 
 % Load chipod deployment info
-eval(['Chipod_Deploy_Info_' Project])
+eval(['Chipod_Deploy_Info_' the_project])
 
 % change this if not using default processing Params
 Params = SetDefaultChiParams
 
 pathstr = MakeChiPathStr(Params) ;
 
-load(fullfile(BaseDir,'Data',[ChiInfo.Project '_XC_' pathstr]),'XC')
+load(fullfile(BaseDir,'Data',[ChiInfo.the_project '_XC_' pathstr]),'XC')
 
 ChkMkDir( fullfile(fig_path,'XC'))
 
@@ -86,12 +86,12 @@ for ivar=1:2
     ylim([0 5000])
     
     axes(ax(1)) ;
-    title([ChiInfo.Project '  -  ' whvar])
+    title([ChiInfo.the_project '  -  ' whvar])
     
     linkaxes(ax)
     
     if saveplot==1
-        print(fullfile(fig_path,'XC',[ChiInfo.Project '_' whvar '_AllSNs_Vslat']),'-dpng')
+        print(fullfile(fig_path,'XC',[ChiInfo.the_project '_' whvar '_AllSNs_Vslat']),'-dpng')
     end
     
 end % ivar

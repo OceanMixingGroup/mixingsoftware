@@ -1,4 +1,4 @@
-function XC = make_combined_chi_struct(Project,mixpath)
+function XC = make_combined_chi_struct(the_project,mixpath)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % function version of Make_Combined_Chi_Struct_Template.m
@@ -19,10 +19,10 @@ function XC = make_combined_chi_struct(Project,mixpath)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %% 
 % Load paths for CTD and chipod data
-eval(['Load_chipod_paths_' Project])
+eval(['Load_chipod_paths_' the_project])
 
 % Load chipod deployment info
-eval(['Chipod_Deploy_Info_' Project])
+eval(['Chipod_Deploy_Info_' the_project])
 
 this_file_name = 'make_combined_chi_struct' ;
 
@@ -76,7 +76,7 @@ TPvar= eps;
 emptystruct = struct('lat',lat,'lon',lon,'dnum',dnum,'TPvar',TPvar,'eps',eps,'chi',chi,'KT',KT,'dTdz',dTdz,'N2',N2,'t',t,'s',s);
 
 XC = struct();
-XC.Name       = [ChiInfo.Project];
+XC.Name       = [ChiInfo.the_project];
 XC.ChiDataDir = chi_proc_path;
 XC.MakeInfo   = ['Made ' datestr(now) ' w/ ' this_file_name];
 XC.BinInfo    = ['Profiles averaged in ' num2str(dzbin) 'm bins'];
@@ -174,7 +174,7 @@ end % wh SN
 
 if savedata == 1
     pathstr = MakeChiPathStr(Params) ;
-    save(fullfile(BaseDir,'data',[ChiInfo.Project '_XC_' pathstr]),'XC')
+    save(fullfile(BaseDir,'data',[ChiInfo.the_project '_XC_' pathstr]),'XC')
 end
 
 %%

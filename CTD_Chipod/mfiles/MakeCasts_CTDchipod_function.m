@@ -1,4 +1,4 @@
-function MakeCasts_CTDchipod_function(Project,mixpath)
+function MakeCasts_CTDchipod_function(the_project,mixpath)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % MakeCasts_CTDchipod_function.m
@@ -27,7 +27,7 @@ function MakeCasts_CTDchipod_function(Project,mixpath)
 % https://github.com/OceanMixingGroup/mixingsoftware/tree/master/CTD_Chipod
 %
 % INPUT
-% - Project
+% - the_project
 % - mixpath
 %
 %
@@ -46,14 +46,14 @@ function MakeCasts_CTDchipod_function(Project,mixpath)
 %%
 
 % Load paths for CTD and chipod data
-eval(['Load_chipod_paths_' Project])
+eval(['Load_chipod_paths_' the_project])
 
 % Load chipod deployment info
-eval(['Chipod_Deploy_Info_' Project])
+eval(['Chipod_Deploy_Info_' the_project])
 
 % optional list of bad chi files to ignore
 try
-    eval(['bad_file_list_' Project ';'])
+    eval(['bad_file_list_' the_project ';'])
 end
 
 %~~~~~~~~~~~~~~~~~~~~~~~~
@@ -89,7 +89,7 @@ MakeResultsTextFile
 if ~exist(fullfile(BaseDir,'Data','proc_info.mat'),'file')
     
     proc_info         = struct;
-    proc_info.Project = ChiInfo.Project;
+    proc_info.the_project = ChiInfo.the_project;
     proc_info.SNs     = ChiInfo.SNs;
     proc_info.icast   = nan*ones(1,length(CTD_list));
     proc_info.Name    = cell(1,length(CTD_list));

@@ -1,4 +1,4 @@
-function SummarizeChiProc(Project)
+function SummarizeChiProc(the_project)
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %
 % SummarizeChiProc.m
@@ -6,7 +6,7 @@ function SummarizeChiProc(Project)
 % Load proc_info.mat from MakeCasts and summarize CTD and chippod data.
 %
 % INPUT
-% - Project
+% - the_project
 %
 % OUTPUT
 % - Plot of which casts there is chipod data for
@@ -23,15 +23,15 @@ function SummarizeChiProc(Project)
 saveplots=1
 
 % %~~~
-% cruise=ChiInfo.Project;
+% cruise=ChiInfo.the_project;
 % %cd(fullfile(BaseDir,)
 % figdir=fullfile(BaseDir,'Figures')
 % %~~~
 
 % Data paths
-eval(['Load_chipod_paths_' Project])
+eval(['Load_chipod_paths_' the_project])
 % load deployment info
-eval(['Chipod_Deploy_Info_' Project])
+eval(['Chipod_Deploy_Info_' the_project])
 
 load( fullfile(BaseDir,'Data','proc','proc_info.mat') )
 
@@ -70,7 +70,7 @@ end % iSN
 % set(gca,'YTick',1:4)
 % set(gca,'YTickLabel',['SN1001' ;'SN1006'; 'SN1008' ;'SN1014'])
 % set(gca,'Fontsize',15)
-title([ChiInfo.Project ' - Casts w/ \chi pod data'])
+title([ChiInfo.the_project ' - Casts w/ \chi pod data'])
 
 %axes(ax2)
 xlabel('Cast id','fontsize',16)
@@ -79,7 +79,7 @@ set(gca,'YTickLabel',proc_info.SNs)%['SN1001' ;'SN1006'; 'SN1008' ;'SN1014'])
 set(gca,'Fontsize',15)
 
 if saveplots==1
-    figname=[ChiInfo.Project '_haveChiData_all']
+    figname=[ChiInfo.the_project '_haveChiData_all']
     print(fullfile(fig_path,figname),'-dpng')
 end
 
@@ -115,7 +115,7 @@ end % iSN
 %
 
 if saveplots==1
-    figname=[ChiInfo.Project '_timeoffsets_all']
+    figname=[ChiInfo.the_project '_timeoffsets_all']
     print(fullfile(fig_path,figname),'-dpng')
 end
 
@@ -179,7 +179,7 @@ and=' & ';
 lend=' \\ ';
 
 disp('\begin{table}[htdp]')
-disp(['\caption{Some $\chi$pod processing summary info for ' ChiInfo.Project ...
+disp(['\caption{Some $\chi$pod processing summary info for ' ChiInfo.the_project ...
     '. There were ' num2str(length(proc_info.icast)) ' CTD casts.}'])
 disp('\begin{center}')
 disp('\begin{tabular}{|c|c|c|c|}')

@@ -38,36 +38,42 @@ This is a guide to processing data from CTD-$\chi$pods. $\chi$pods are self-cont
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Software}
 \begin{itemize}
-\item The processing is done with Matlab codes, which are maintained in a github repository: \newline
- \url{https://github.com/OceanMixingGroup/mixingsoftware}.
- \item  The CTD-$\chi$pod specific codes are in the folder \verb+/CTD_Chipod+.
- \item Codes for processing raw CTD data (.hex format) are contained in \verb+/ctd_processing+.
+\item The processing is done with Matlab codes, which are maintained in github repositories:
+\item  \url{https://github.com/OceanMixingGroup/mixingsoftware}.
+ \item  The CTD-$\chi$pod specific codes are in  \newline \verb+/mixingsoftware/CTD_Chipod+.
+ \item Codes for processing raw CTD data (.hex format) are contained in \newline
+ \verb+/mixingsoftware/ctd_processing+.
+ \item Code for processing specific cruises is kept in the 'cruises' repository: \newline \url{https://github.com/OceanMixingGroup/cruises/tree/master/ctd_chipod}
 \end{itemize}
+
+See `Processing Steps' section for more details. Before processing, you should clone the 'mixingsoftware' and 'cruises' repositories and make sure you have the latest versions of both. The processing is designed so that code, figures and notes are kept in the 'cruises' repository. The data are too large to store on github, and must be stored on a server or local machine. A script in the processing specifies this location.
+
+
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Data Organziation}
 
-Raw data should be organized into folders as listed below. The function \verb+make_ctd_chipod_folders.m+ will make the empty folders when you start processing a project.
+Raw data should be organized into folders as listed below. It is important to use this standard structure so that the processing functions can be applied to each cruise. The function \verb+make_ctd_chipod_folders.m+ will make the empty folders when you start processing a project. \verb+Project+ is the name of the cruise ('IO8' for example).
 
 \subsection{Raw Data}
 \begin{itemize}
-\item \verb+/Data/raw/Chipod/SNxxxx+ : Raw $\chi$pod data.
-\item \verb+/Data/raw/CTD/+ : Raw CTD data (.hex,.XMLCON,.hdr).
+\item \verb+[Project]/Data/raw/Chipod/SNxxxx+ : Raw $\chi$pod data.
+\item \verb+[Project]/Data/raw/CTD/+ : Raw CTD data (.hex,.XMLCON,.hdr).
 \end{itemize}
 
 Processed data is organized as follows:
 \subsection{Processed Data}
 \begin{itemize}
 
-\item \verb+/Data/proc/Chipod/+ Main folder for processed $\chi$pod data
+\item \verb+[Project]/Data/proc/Chipod/+ Main folder for processed $\chi$pod data
 
-\item Data for each $\chi$pod is stored in \verb+/[whSN]/[pathstr]+ where \verb+pathstr+ constructed based on Params, for example:
+\item Data for each $\chi$pod is stored in \verb+/[whSN]/[pathstr]+ where \verb+pathstr+ is constructed based on Params, for example:
 \newline  \verb+zsm20m_fmax7Hz_respcorr0_fc_99hz_gamma20+
 \newline
 This allows us to run the processing for different Params and easily compare the results.
 
-\item \verb+/Data/proc/CTD+ Processed CTD data. (/24Hz,/binned).
+\item \verb+[Project]//Data/proc/CTD+ Processed CTD data. (/24Hz,/binned).
 \end{itemize}
 
 
@@ -105,10 +111,12 @@ Required fields for binned CTD data
 
 
 
+
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Brief Outline of Major Processing Steps}
 
 \begin{enumerate}
+\item Process raw CTD casts if necessary
 \item Find chipod data for each CTD cast
 \item Align chipod data with CTD data
 \item Calibrate chipod data
@@ -121,43 +129,63 @@ More details are given in the next section.
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Processing steps}
 
-All templates are located in \verb+/mixingsoftware/CTD_Chipod/Templates/+. In all template files, `Templates' should be replaced with the project name in both the script name and witihin the script.
+%All templates are located in \verb+/mixingsoftware/CTD_Chipod/Templates/+. In all template files, `Templates' should be replaced with the project name in both the script name and witihin the script.
 
 \begin{enumerate}
 
-\item Check the excel log files to look for any major issues, sensors switched during cruise etc.. 
+\item Clone the `mixingsoftware' and `cruises' repositories and make sure you have the latest versions of both. If you have cloned them already, you update to the latest version with \verg+git pull+ from terminal, or the `sync' button in Github Desktop. 
 
-\item Modify \verb+Load_chipod_paths_template.m+ . This specifies filepaths to raw data, as well as where output will be saved.
+\item In the \verb+process_[project]_script+, specify the path to your `mixingsoftware' folder (\verb+mixpath+), and make sure \verb+the_project+ is correct.
 
-\item Modify \verb+Chipod_Deploy_Info_template.m+ with info for specific deployment. Much of the rest of the processing uses information from the above two files. *The info for each unit can be found in the excel log file*.
+%\item Check the excel log files to look for any major issues, sensors switched during cruise etc.. 
 
-\item Plot the raw chi-pod data (\verb+Plot_Raw_Data_template+?). This will let you see quickly if any sensors or files are obviously bad. If there are bad files you can specify these in a \verb+Bad_File…+  list so they will not be loaded during processing (this is not necessary, but will reduce time loading bad files, and may prevent bad data from accidentally being used).  
+\item Make/modify \verb+Load_chipod_paths_[Project].m+ . This specifies filepaths to raw data, as well as where output will be saved. You should only need to specify the base directories (assuming data is in the standard structure):
+\begin{enumerate}
+\item \verb+BaseDir+ Path to directory where (raw) data is stored. Recommend making a copy of the raw data to process from, to avoid altering or deleting any of the original raw data.
+\item \verb+cruise_path+ Path to your local clone of the 'cruises' repository.
+\end{enumerate}
+
+Figures, notes, summaries etc. will be saved to folders under \verb+cruise_path+. Processed data will be saved to folders under \verb+BaseDir+.
+
+
+\item Make/modify \verb+Chipod_Deploy_Info_[Project].m+ with info for specific deployment. Much of the rest of the processing uses information from the above two files. *The info for each unit can be found in the excel log file*.
+
+\item Plot the raw chi-pod data (\verb+PlotChipodDataRaw_General+). This will let you see quickly if any sensors or files are obviously bad. If there are bad files you can specify these in a \verb+Bad_File…+  list so they will not be loaded during processing (this is not necessary, but will reduce time loading bad files, and may prevent bad data from accidentally being used).  
 
 % Figure \ref{x} shows an example of a normal-looking file. Figure \ref{xx} shows an example of file that looks bad. * check that up/down from logs appears correct*
 
-\item  Modify \verb+MakeCasts_CTDchipod_Template.m+ for specific cruise. This script finds $\chi$pod data for each cast, aligns the data, calibrates the data, and saves a file with data for each cast. 
+\item  Run \verb+MakeCasts_CTDchipod_function.m+ for a few casts.  Check time-offset / alignment (figure \ref{alignzoom}); if not right, probably need to modify \verb+az_correction+ or \verb+flip_ax_az+ in \verb+Chipod_Deploy_Info+. * Note if $\chi$pod clock is off by a large amount (for example you forgot to set clock), processing will not work because it finds the files for each cast by the timestamp in their name. You will need to apply a time offset to the raw files (make copies first) and rename them in this case.
 
-\item  Run \verb+MakeCasts_CTDchipod+ for one good cast for each SN. Check time-offset / alignment (figure \ref{alignzoom}); if not right, probably need to modify \verb+az_correction+ or \verb+flip_ax_az+ in \verb+Chipod_Deploy_Info+. * Note if $\chi$pod clock is off by a large amount (for example you forgot to set clock), processing will not work because it finds the files for each cast by the timestamp in their name. You will need to apply a time offset to the raw files (make copies first) and rename them in this case.
+
+\item  Run \verb+MakeCasts_CTDchipod+ for one good cast for each SN. Check time-offset / alignment (figure \ref{alignzoom}); if not right, probably need to modify \verb+az_correction+ or \verb+flip_ax_az+ in \verb+Chipod_Deploy_Info+ script. * Note if $\chi$pod clock is off by a large amount (for example you forgot to set clock), processing will not work because it finds the files for each cast by the timestamp in their name. You will need to apply a time offset to the raw files (make copies first) and rename them in this case.
 
 %Figure \ref{x} shows an example of where AX and AZ are flipped.  * figures showing example of flipped ax etc*
 
-\item  Once that is figured out, run \verb+MakeCasts_CTDchipod+ for all casts. Data are saved to \verb+/Data/proc/Chipod/cast+ and \verb+/Data/proc/Chipod/cal+. If Matlab crashes before finishing (which seems to happen relatively often on my laptop, you can load \verb+proc_info.mat+ and look at the \verb+last_icast+ field to see where to restart \verb+MakeCasts_CTDchipod+.
+\item  Once that is figured out, you can run \verb+MakeCasts_CTDchipod+ for all casts. This script finds $\chi$pod data for each cast, aligns the data, calibrates the data, and saves a file with data for each cast. 
+Data are saved to \newline
+\verb+/Data/proc/Chipod/cast+ and \newline
+ \verb+/Data/proc/Chipod/cal+. \newline
+ If Matlab crashes before finishing (which seems to happen relatively often on my laptop, you can load \verb+proc_info.mat+ and look at the \verb+last_icast+ field to see where to restart \verb+MakeCasts_CTDchipod+.
 
-\item Modify and run \verb+add_plot_ctd_Template.m+. This will add CTD data to the \verb+proc_info+ strucutre and make a summary plot of temp and sal for the transect. 
+%\item Modify and run \verb+add_plot_ctd_Template.m+. This will add CTD data to the \verb+proc_info+ strucutre and make a summary plot of temp and sal for the transect. 
 
-\item Run \verb+SummarizeProc_Template+. This makes some summary tables and figures from the `Xproc.mat' data saved during  \verb+MakeCasts_CTDchipod+. The two latex tables it produces can be copied and pasted into the Latex notes template.
+\item \verb+Plot_TP_profiles_EachCast_CTDchipod+
+
+\item Run \verb+SummarizeProc+. This makes some summary tables and figures from the `Xproc.mat' data saved during  \verb+MakeCasts_CTDchipod+. The two latex tables it produces can be copied and pasted into the Latex notes template.
 
 \item \verb+Plot_TP_profiles_EachCast_Template.m+ For each cast, this plots the temperature derivative from all chi pod sensors on the same scale so you can compare them and check for bad profiles. Figures are save to \verb+/Figures/TPprofiles/+. This is another good place to check that the up/down designations are correct; the title for the designated direction will be green. The corresponding profile should be less noisy than the other direction. 
 
-\item  Modify \verb+DoChiCalc_Template.m+ and run for all casts. This does the chi calculation for all the cast files made in \verb+MakeCasts_CTDchipod+. Data are saved to  \verb+/Data/proc/Chipod/avg/+
+\item   Run \verb+do_chi_calc_ctd_chipod.m+. This does the chi calculation for all the cast files made in \verb+MakeCasts_CTDchipod+. Data are saved to  \verb+/Data/proc/Chipod/avg/+
 
-\item Modify and run \verb+Make_Combined_Chi_Struct_Template+. This will combine all the processed `avg' files for each cast into a single structure `XC'.
+\item Modify and run \verb+make_combined_chi_struct+. This will combine all the processed `avg' files for each cast into a single structure `XC'.
 
-\item Modify and run \verb+PlotXCsummaries_Template+ to make summary plots from the combined `XC' structure.
+\item Modify and run \verb+plot_XC_summaries+ to make summary plots from the combined `XC' structure.
 
-\item Run \verb+Make_kml_Template.m+ to make a kml file of CTD cast positions that can be viewed in Google Earth.
+%\item Run \verb+Make_kml_Template.m+ to make a kml file of CTD cast positions that can be viewed in Google Earth.
 
-\item Screen processed casts... \verb+VisCheck_TP_profiles+ , \verb+Combine_XC_sensors_IO9+ etc..?
+%\item Screen processed casts... \verb+VisCheck_TP_profiles+ , \verb+Combine_XC_sensors_IO9+ etc..?
+
+\item \verb+Write_Latex_Notes+ Makes an automated latex notes file for this cruise.
 
 \end{enumerate}
 

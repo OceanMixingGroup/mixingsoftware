@@ -29,10 +29,6 @@ eval(['Chipod_Deploy_Info_' the_project])
 txtfname=fullfile(cruise_path,the_project,'Notes',['Chipod_Note_' the_project '_auto.tex']);
 
 fileID= fopen(fullfile(txtfname),'w');
-%%
-% if exist(fullfile(chi_proc_path,txtfname),'file')==2
-%     % results file for this day exists, append a # to it to make new file
-%     keepgoing=1;
 
 %% write preamble
 

@@ -240,12 +240,14 @@ elseif ~all(isnan(cal.CMP))
     cmpu=real(cmp); cmpv=imag(cmp);
     cmpu=interp1(time,cmpu,cal.time_acc,'linear','extrap');
     cmpv=interp1(time,cmpv,cal.time_acc,'linear','extrap');
-    CMP_fast=atan2(cmpv,cmpu)*180/pi;
-    cal.cur_x=cal.cur_u.*sind(CMP_fast)+cal.cur_v.*cosd(CMP_fast);
-    cal.cur_y=-cal.cur_u.*cosd(CMP_fast)+cal.cur_v.*sind(CMP_fast);
+    cal.CMP_fast=atan2(cmpv,cmpu)*180/pi;
+    cal.cur_x=cal.cur_u.*sind(cal.CMP_fast)+cal.cur_v.*cosd(cal.CMP_fast);
+    cal.cur_y=-cal.cur_u.*cosd(cal.CMP_fast)+cal.cur_v.*sind(cal.CMP_fast);
     r1tip=1.818*2.54/100;% distance from cable to shorter sensor tip
     ra=3.3*0.0254;% distance from accelerometer package to cable 
-    dyawdt=gradient(-CMP_fast*pi/180,1/head.samplerate(head.sensor_index.AX));dyawdt=deglitch(dyawdt,30,2);dyawdt=fillgap(dyawdt,1);
+    dyawdt=gradient(-cal.CMP_fast*pi/180,1/head.samplerate(head.sensor_index.AX));
+    dyawdt=deglitch(dyawdt,30,2);
+    dyawdt=fillgap(dyawdt,1);
     if isnan(dyawdt(1)); dyawdt(1)=dyawdt(2);end
     if isnan(dyawdt(end)); dyawdt(end)=dyawdt(end-1);end
     cal.r1omega=(ra+r1tip)*dyawdt;
@@ -266,6 +268,18 @@ elseif ~all(isnan(cal.CMP))
         cal.r1omega_3P=(ra+r2tip)*dyawdt;
         cal.fspd_3P=sqrt((cal.velx-cal.cur_x).^2+(cal.vely-(cal.cur_y+cal.r1omega_3P)).^2+cal.velz.^2);
     end
+    
+    % add in variables that are needed to make the chipod motion movie
+    % no yaw measurements made, need to use compass for yaw
+    cal.yaw = cal.CMP_fast';
+    cal.dispe=disp.x;
+    cal.dispn=disp.y;
+    cal.dispu=disp.z;
+    cal.vele=vel.x;
+    cal.veln=vel.y;
+    cal.velu=vel.z;
+    cal.cur_ufast = cal.cur_u;
+    cal.cur_vfast = cal.cur_v;
     
 % for the cases with no compass   
 else

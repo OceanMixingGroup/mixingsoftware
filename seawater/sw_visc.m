@@ -17,4 +17,4 @@
 %
 % renamed sw_visc and added to seawater routines 9/9/98
 
-      visc=1e-4*(17.91-0.5381*t+0.00694*t*t+0.02305*s)/sw_dens(s,t,p);
+      visc=1e-4*(17.91-0.5381*t+0.00694*t.*t+0.02305*s)./sw_dens(s,t,p);

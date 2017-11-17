@@ -56,13 +56,14 @@ rho0=1025;
 % $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 check=0;
 if size(ta,1)>1; check=1; ta=ta'; end
+if size(pr,1)>1; pr=pr'; end
 if size(pa,1)>1; pa=pa'; end
 if size(rh,1)>1; rh=rh'; end
 if size(sst,1)>1; sst=sst'; end
 if size(u10,1)>1; u10=u10'; end
-if size(sst,1)>1; sst=sst'; end
-if size(pr,1)>1; pr=pr'; end
+if size(sss,1)>1; sss=sss'; end
 if size(lw_cf,1)>1; lw_cf=lw_cf'; end
+if size(sw,1)>1; sw=sw'; end
 
 % % calculate rate of evaporation minus condensation E [kg/m^2/s]
 E = sw_evapor(ta,pa,rh,sst,u10);
@@ -102,8 +103,10 @@ if size(alpha,1)>1; alpha=alpha'; end
 % surface layer
 % (1) temperature of precipitated water
 tw=sw_wetbulbtemp(ta,rh);
+if size(tw,1)>1; tw=tw'; end
 % summ
-if check==0; sst=sst'; end
+% if check==0; sst=sst'; end
+if size(sst,1)>1; sst=sst'; end
 deltaT=tw-sst;
 
 M=s*beta*(pr-E)-alpha./c.*(L.*E+Qq)+alpha.*deltaT.*pr;

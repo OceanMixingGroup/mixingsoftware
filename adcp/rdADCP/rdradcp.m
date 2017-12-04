@@ -8,9 +8,9 @@ function [adcp,cfg,ens,hdr]=rdradcp(name,varargin);
 %  usually make p-files (which integrate nav info and do coordinate transformations)
 %  and then use RDPADCP. 
 %
-%  This current version does have some handling of VMDAS and WINRIVER output
+%  This current version does have some handling of VMDAS, WINRIVER, and WINRIVER2 output
 %  files, but it is still 'beta'. There are (inadequately documented) timestamps
-% of various kinds, for example.
+% of various kinds from VMDAS, for example, and caveat emptor on WINRIVER2 NMEA data.
 %
 %  [ADCP,CFG]=RDRADCP(...) returns configuration data in a
 %  separate data structure.
@@ -24,7 +24,10 @@ function [adcp,cfg,ens,hdr]=rdradcp(name,varargin);
 %
 %  Notes- sometimes the ends of files are filled with garbage. In this case you may
 %         have to rerun things explicitly specifying how many records to read (or the
-%         last record to read). I don't handle bad data very well.
+%         last record to read). I don't handle bad data very well. Also - in Aug/2007
+%         I discovered that WINRIVER-2 files can have a varying number of bytes per
+%         ensemble. Thus the estimated number of ensembles in a file (based on the
+%         length of the first ensemble and file size) can be too high or too low.
 %
 %       - I don't read in absolutely every parameter stored in the binaries;
 %         just the ones that are 'most' useful. Look through the code if
@@ -53,7 +56,12 @@ function [adcp,cfg,ens,hdr]=rdradcp(name,varargin);
 %                 This is useful for noisy data. Window sizes are [.3 .3 .3] m/s 
 %                 for [ horiz_vel vert_vel error_vel ] values. If you want to 
 %                 change these values, set 'despike' to the 3-element vector.
-%
+%  'type'       : [0 | 1 ]
+%                 You can set up VMDAS with OS instruments to do both NB and BB
+%                 pings. Use this to choose between the different ping types
+%                 (i.e. read once with '0' for the NB data, again with '1' for BB
+%                  data).
+%   
 % R. Pawlowicz (rich@eos.ubc.ca) - 17/09/99
 
 % R. Pawlowicz - 17/Oct/99 
@@ -90,11 +98,24 @@ function [adcp,cfg,ens,hdr]=rdradcp(name,varargin);
 %   23/Aug2006  - ouput some bt QC stiff
 %   29/Oct/2006 - winriver bottom track block had errors in it - now fixed.
 %   30/Oct/2006 - pitch_std, roll_std now uint8 and not int8 (thanks Felipe pimenta)
+%   13/Aug/2007 - added Rio Grande (firmware v 10), 
+%                 better handling of those cursed winriver ASCII NMEA blocks whose
+%                 lengths change unpredictably.
+%                 skipping the inadequately documented 2022 WINRIVER-2 NMEA block
+%   13/Mar/2010 - firmware version 50 for WH.
+%   12/Sep/2011 - firmware version 34 for DVL
+%          2014 - add different 'type's for VMDAS multi-ping setups.
+%   13/Mar/2015 - WINRIVER-II handler for GPS
+%   20/Jun/2016 - Added Sentinel V-series support
+%   19/Jul/2017 - added support for Vertical beam in V-series ADCPs
+
+global STANDARD
 
 num_av=5;   % Block filtering and decimation parameter (# ensembles to block together).
 nens=-1;   % Read all ensembles.
 century=2000;  % ADCP clock does not have century prior to firmware 16.05.
 vels='no';   % Default to simple averaging
+STANDARD=-1;  % Default to ignoring this.
 
 lv=length(varargin);
 if lv>=1 & ~isstr(varargin{1}),
@@ -119,7 +140,9 @@ while length(varargin)>0,
 	    else vels=[.3 .3 .3]; end;
 	   else
 	    vels=varargin{2}; 
-	   end;   
+	   end;  
+	 case 'typ',  
+	    STANDARD=varargin{2};  % Read type 0 or 1 for VMDAS-OS with two types of ping
 	 otherwise,
 	   error(['Unknown command line option  ->' varargin{1}]);
    end;
@@ -142,7 +165,7 @@ fprintf('\nOpening file %s\n\n',name);
 fd=fopen(name,'r','ieee-le');
 
 % Read first ensemble to initialize parameters
-
+ 
 [ens,hdr,cfg,pos]=rd_buffer(fd,-2); % Initialize and read first two records
 if ~isstruct(ens) & ens==-1,
   disp('No Valid data found');
@@ -151,7 +174,9 @@ if ~isstruct(ens) & ens==-1,
 end;  
 fseek(fd,pos,'bof');              % Rewind
 
-if (cfg.prog_ver<16.05 & cfg.prog_ver>5.999) | cfg.prog_ver<5.55,
+% This is a fix for not getting century right in early firmware versions
+
+if (cfg.prog_ver<16.05 & cfg.prog_ver>5.999) | cfg.prog_ver<5.55 | (cfg.prog_ver>=23 & cfg.prog_ver<30),
   fprintf('***** Assuming that the century begins year %d (info not in this firmware version) \n\n',century);
 else
   century=0;  % century included in clock.  
@@ -160,23 +185,13 @@ end;
 dats=datenum(century+ens.rtc(1,:),ens.rtc(2,:),ens.rtc(3,:),ens.rtc(4,:),ens.rtc(5,:),ens.rtc(6,:)+ens.rtc(7,:)/100);
 t_int=diff(dats);
 fprintf('Record begins at %s\n',datestr(dats(1),0));
-fprintf('Ping interval appears to be  %s\n',datestr(t_int,13));
+fprintf('Ping interval appears to be  %s\n',datestr(t_int,'HH:MM:SS.FFF'));
 
 
 % Estimate number of records (since I don't feel like handling EOFs correctly,
 % we just don't read that far!)
 
-
-% Now, this is a puzzle - it appears that this is not necessary in
-% a firmware v16.12 sent to me, and I can't find any example for
-% which it *is* necessary so I'm not sure why its there. It could be
-% a leftoever from dealing with the bad WAVESMON/PARSE problem (now
-% fixed) that inserted extra bytes.
-% ...So its out for now.
-%if cfg.prog_ver>=16.05, extrabytes=2; else extrabytes=0; end; % Extra bytes
-extrabytes=0;
-
-nensinfile=fix(naminfo.bytes/(hdr.nbyte+2+extrabytes));
+nensinfile=fix(naminfo.bytes/(hdr.nbyte+2));
 fprintf('\nEstimating %d ensembles in this file\n',nensinfile);  
 
 if length(nens)==1,
@@ -186,7 +201,7 @@ if length(nens)==1,
   fprintf('   Reading %d ensembles, reducing by a factor of %d\n',nens,num_av); 
 else
   fprintf('   Reading ensembles %d-%d, reducing by a factor of %d\n',nens,num_av); 
-  fseek(fd,(hdr.nbyte+2+extrabytes)*(nens(1)-1),'cof');
+  fseek(fd,(hdr.nbyte+2)*(nens(1)-1),'cof');
   nens=diff(nens)+1;
 end;
 
@@ -209,12 +224,13 @@ end;
 % things I think are useful.
 
 switch cfg.sourceprog,
-  case 'WINRIVER',
+  case {'WINRIVER','WINRIVER2'}
     adcp=struct('name','adcp','config',cfg,'mtime',zeros(1,n),'number',zeros(1,n),'pitch',zeros(1,n),...
         	'roll',zeros(1,n),'heading',zeros(1,n),'pitch_std',zeros(1,n),...
         	'roll_std',zeros(1,n),'heading_std',zeros(1,n),'depth',zeros(1,n),...
         	'temperature',zeros(1,n),'salinity',zeros(1,n),...
         	'pressure',zeros(1,n),'pressure_std',zeros(1,n),...
+		'coords','',...
         	'east_vel',zeros(cfg.n_cells,n),'north_vel',zeros(cfg.n_cells,n),'vert_vel',zeros(cfg.n_cells,n),...
         	'error_vel',zeros(cfg.n_cells,n),'corr',zeros(cfg.n_cells,4,n),...
         	'status',zeros(cfg.n_cells,4,n),'intens',zeros(cfg.n_cells,4,n),...
@@ -228,6 +244,7 @@ switch cfg.sourceprog,
         	'roll_std',zeros(1,n),'heading_std',zeros(1,n),'depth',zeros(1,n),...
         	'temperature',zeros(1,n),'salinity',zeros(1,n),...
         	'pressure',zeros(1,n),'pressure_std',zeros(1,n),...
+		'coords','',...
         	'east_vel',zeros(cfg.n_cells,n),'north_vel',zeros(cfg.n_cells,n),'vert_vel',zeros(cfg.n_cells,n),...
         	'error_vel',zeros(cfg.n_cells,n),'corr',zeros(cfg.n_cells,4,n),...
         	'status',zeros(cfg.n_cells,4,n),'intens',zeros(cfg.n_cells,4,n),...
@@ -235,13 +252,15 @@ switch cfg.sourceprog,
 		'bt_corr',zeros(4,n),'bt_ampl',zeros(4,n),'bt_perc_good',zeros(4,n),...
 	        'nav_smtime',zeros(1,n),'nav_emtime',zeros(1,n),...
 	        'nav_slongitude',zeros(1,n),'nav_elongitude',zeros(1,n),...
-	        'nav_slatitude',zeros(1,n),'nav_elatitude',zeros(1,n),'nav_mtime',zeros(1,n));
+	        'nav_slatitude',zeros(1,n),'nav_elatitude',zeros(1,n),...
+	        'nav_speedmadegd',zeros(1,n),'nav_direcmadegd',zeros(1,n),'nav_mtime',zeros(1,n));
   otherwise 
     adcp=struct('name','adcp','config',cfg,'mtime',zeros(1,n),'number',zeros(1,n),'pitch',zeros(1,n),...
         	'roll',zeros(1,n),'heading',zeros(1,n),'pitch_std',zeros(1,n),...
         	'roll_std',zeros(1,n),'heading_std',zeros(1,n),'depth',zeros(1,n),...
         	'temperature',zeros(1,n),'salinity',zeros(1,n),...
         	'pressure',zeros(1,n),'pressure_std',zeros(1,n),...
+		'coords','',...
         	'east_vel',zeros(cfg.n_cells,n),'north_vel',zeros(cfg.n_cells,n),'vert_vel',zeros(cfg.n_cells,n),...
         	'error_vel',zeros(cfg.n_cells,n),'corr',zeros(cfg.n_cells,4,n),...
         	'status',zeros(cfg.n_cells,4,n),'intens',zeros(cfg.n_cells,4,n),...
@@ -254,13 +273,17 @@ end;
 
 clear global ens
 % Loop for all records
+fprintf('\n    0');
 for k=1:n,
 
-  % Gives display so you know something is going on...
+  % Gives a display so you know something is going on...
     
-  if rem(k,50)==0,  fprintf('\n%d',k*num_av);end;
-%   fprintf('.');
-
+  if rem(k,50)==0,  
+     fprintf('\n%5d',k*num_av);
+  else  
+     fprintf('.');
+  end;
+  
   % Read an ensemble
   
   ens=rd_buffer(fd,num_av);
@@ -306,33 +329,76 @@ for k=1:n,
 
   
   adcp.bt_range(:,k)   =nmean(ens.bt_range,2);
-  adcp.bt_vel(:,k)     =nmean(ens.bt_vel,2);
-
+  if isstr(vels),                                 % added despiking for botom velocities RP 10/13
+    adcp.bt_vel(:,k)     =nmean(ens.bt_vel,2);
+  else
+    adcp.bt_vel(:,k)= nmedian(ens.bt_vel,vels(1)*1e3,2);
+  end;
+    
   adcp.bt_corr(:,k)=nmean(ens.bt_corr,2);          % felipe pimenta aug. 2006
   adcp.bt_ampl(:,k)=nmean(ens.bt_ampl,2);          %  "
   adcp.bt_perc_good(:,k)=nmean(ens.bt_perc_good,2);%  " 
     
+  % Vertical velocity data?  
+  if isfield(ens,'Vvert_vel'),
+    if ~isfield(adcp,'Vvert_vel'),  % preallocate if required
+       adcp.Vvert_vel=zeros(cfg.Vn_cells,n);
+    end;   
+    adcp.Vvert_vel(:,k)=mean(ens.Vvert_vel,2);
+  end;
+  if isfield(ens,'Vintens'),
+    if ~isfield(adcp,'Vintens'),    % preallocate if required
+       adcp.Vintens=zeros(cfg.Vn_cells,n);
+    end;   
+    adcp.Vintens(:,k)=mean(ens.Vintens,2);
+  end;
+    
   switch cfg.sourceprog,
-    case 'WINRIVER',
+    case {'WINRIVER','WINRIVER2'}
+ %%%   disp(datestr(ens.smtime,'HH:MM:SS'));
      adcp.nav_mtime(k)=nmean(ens.smtime);
+ %%%   disp(['--' datestr(adcp.nav_mtime(k),'HH:MM:SS')]);
      adcp.nav_longitude(k)=nmean(ens.slongitude);
      adcp.nav_latitude(k)=nmean(ens.slatitude);  
    case 'VMDAS',
      adcp.nav_smtime(k)   =ens.smtime(1);
-     adcp.nav_emtime(k)   =ens.emtime(1);
+     adcp.nav_emtime(k)   =ens.emtime(end);
      adcp.nav_slatitude(k)=ens.slatitude(1);
-     adcp.nav_elatitude(k)=ens.elatitude(1);
+     adcp.nav_elatitude(k)=ens.elatitude(end);
      adcp.nav_slongitude(k)=ens.slongitude(1);
-     adcp.nav_elongitude(k)=ens.elongitude(1);
+     adcp.nav_elongitude(k)=ens.elongitude(end);
+     adcp.nav_speedmadegd(k)=nmean(ens.speedmadegd);
+     adcp.nav_direcmadegd(k)=nmean(ens.direcmadegd);
      adcp.nav_mtime(k)=nmean(ens.nmtime);
   end;   
 end;  
 
+% Comments to help understand names
+switch adcp.config.coord_sys,
+  case 'beam',
+    adcp.coords='Beam coords: 1=east, 2=north, 3=vert, 4=error';
+  case 'instrument',
+    adcp.coords='Instrument coords: 1->2=east, 4->3=north, away=vert, error=error';
+  case 'ship',
+    adcp.coords='Ship coords: beam=east, forward=north, vert=vert, error=error';
+  case 'earth',
+    adcp.coords='Earth coords: east=east, north=north, vert=vert, error=error';
+end;
+  
+  
 fprintf('\n');
+fprintf('Read to byte %d in a file of size %d bytes\n',ftell(fd),naminfo.bytes);
+if ftell(fd)+hdr.nbyte<naminfo.bytes,
+  fprintf('-->There may be another %d ensembles unread\n',fix((naminfo.bytes-ftell(fd))/(hdr.nbyte+2)));
+end;
+ 
 fclose(fd);
 
 %----------------------------------------
 function valid=checkheader(fd);
+% Checks header - valid only if we find the header start
+% block for the NEXT block as well (in case 7F7F shows up
+% by coincidence) 
 
 %disp('checking');
 valid=0;
@@ -349,9 +415,9 @@ if numbytes>0,                                         % and we move forward num
        end;
      end;  
    end;  
- else    
+else    
    fseek(fd,-2,'cof');
- end;
+end;
      
 
 %-------------------------------------
@@ -372,7 +438,7 @@ while (cfgid(1)~=hex2dec('7F') | cfgid(2)~=hex2dec('7F'))  | ~checkheader(fd),
 	hdr=NaN;
         return;
     end
-    cfgid(2)=cfgid(1);cfgid(1)=nextbyte;
+    cfgid(2)=cfgid(1);cfgid(1)=nextbyte; 
     if mod(pos,1000)==0
         disp(['Still looking for valid cfgid at file position ' num2str(pos) '...'])
     end
@@ -390,10 +456,23 @@ hdr=rd_hdrseg(fd);
 function cfg=rd_fix(fd);
 % Read config data
 
+global STANDARD
+
 cfgid=fread(fd,1,'uint16');
-if cfgid~=hex2dec('0000'),
+if cfgid~=hex2dec('0000') & cfgid~=hex2dec('0001'),
  warning(['Fixed header ID ' cfgid 'incorrect - data corrupted or not a BB/WH raw file?']);
 end; 
+
+%if isempty(STANDARD),   % If not defined, take the first one listed
+%  if cfgid==hex2dec('0000'),
+%    STANDARD=0;
+%  elseif cfgid==hex2dec('0001')
+%    STANDARD=1;
+%  else
+%    warning(['Can''t make sense of Fixed Header ID ' cfgid ]);
+%  end;
+%end;
+  
 
 cfg=rd_fixseg(fd);
 
@@ -423,39 +502,70 @@ end;
 function [cfg,nbyte]=rd_fixseg(fd);
 % Reads the configuration data from the fixed leader
 
-%%disp(fread(fd,10,'uint8'))
-%%fseek(fd,-10,'cof');
 
-cfg.name='wh-adcp';
-cfg.sourceprog='instrument';  % default - depending on what data blocks are
-                              % around we can modify this later in rd_buffer.
+% This is what I know about firmware versions from scouring manuals:
+%
+% 4,5 - BB-ADCP
+% 8,9,16 - WH navigator
+% 10 -rio grande
+% 11- H-ADCP
+% 14, 23 -- Ocean Surveyor
+% 15, 17 - NB
+% 19 - REMUS, or customer specific (I have no info on this)
+% 31 - Streampro
+% 34 - NEMO
+% 47, 66? - V series
+% 50 - WH, no bottom track (built on 16.31)
+% 51 - WH, w/ bottom track
+% 52 - WH, mariner
+
+% This is what we can handle
+
 cfg.prog_ver       =fread(fd,1,'uint8')+fread(fd,1,'uint8')/100;
+switch fix(cfg.prog_ver),
+   case {4,5}
+      cfg.name='bb-adcp';
+   case {8,9,10,16,50,51,52}
+      cfg.name='wh-adcp';
+   case {14,23}
+      cfg.name='os-adcp';
+   case {34}
+      cfg.name='dvl'   ;    
+   case {47}
+      cfg.name='V-adcp';   
+   otherwise
+      cfg.name='unrecognized firmware version'   ;    
+end;
 
-if fix(cfg.prog_ver)==4 | fix(cfg.prog_ver)==5,
-    cfg.name='bb-adcp';
-elseif fix(cfg.prog_ver)==8 | fix(cfg.prog_ver)==9 | fix(cfg.prog_ver)==16,
-    cfg.name='wh-adcp';
-elseif fix(cfg.prog_ver)==14 | fix(cfg.prog_ver)==23,  % phase 1 and phase 2
-    cfg.name='os-adcp';
-else
-    cfg.name='unrecognized firmware version'   ;    
-end;    
+% Does data come from the instrument or from WINRIVER or VMDAS?
+
+cfg.sourceprog='instrument';  % default - depending on what data blocks are
+                             % around we can modify this later in rd_buffer.
+
 
 config         =fread(fd,2,'uint8');  % Coded stuff
 cfg.config          =[dec2base(config(2),2,8) '-' dec2base(config(1),2,8)];
- cfg.beam_angle     =getopt(bitand(config(2),3),15,20,30);
- cfg.numbeams       =getopt(bitand(config(2),16)==16,4,5);
- cfg.beam_freq      =getopt(bitand(config(1),7),75,150,300,600,1200,2400,38);
- cfg.beam_pattern   =getopt(bitand(config(1),8)==8,'concave','convex'); % 1=convex,0=concave
- cfg.orientation    =getopt(bitand(config(1),128)==128,'down','up');    % 1=up,0=down
+if strcmp(cfg.name,'V-adcp'),
+   cfg.beam_angle     =25;
+   cfg.numbeams       =getopt(bitand(config(2),16)==16,4,5);
+   cfg.beam_freq      =getopt(bitand(config(1),7),NaN,NaN,300,500,1000,NaN,NaN);
+   cfg.beam_pattern   ='convex';  
+   cfg.orientation    =getopt(bitand(config(1),128)==128,'down','up');    % 1=up,0=down
+else
+   cfg.beam_angle     =getopt(bitand(config(2),3),15,20,30,'other');
+   cfg.numbeams       =getopt(bitand(config(2),16)==16,4,5);
+   cfg.beam_freq      =getopt(bitand(config(1),7),75,150,300,600,1200,2400,38);
+   cfg.beam_pattern   =getopt(bitand(config(1),8)==8,'concave','convex'); % 1=convex,0=concave
+   cfg.orientation    =getopt(bitand(config(1),128)==128,'down','up');    % 1=up,0=down
+end;
 cfg.simflag        =getopt(fread(fd,1,'uint8'),'real','simulated'); % Flag for simulated data
-fseek(fd,1,'cof'); 
+cfg.laglength      =fread(fd,1,'uint8'); 
 cfg.n_beams        =fread(fd,1,'uint8');
 cfg.n_cells        =fread(fd,1,'uint8');
 cfg.pings_per_ensemble=fread(fd,1,'uint16');
 cfg.cell_size      =fread(fd,1,'uint16')*.01;	 % meters
 cfg.blank          =fread(fd,1,'uint16')*.01;	 % meters
-cfg.prof_mode      =fread(fd,1,'uint8');         %
+cfg.prof_mode      =fread(fd,1,'uint8');         %  For OS this is 1 (BB) or 10 (NB)
 cfg.corr_threshold =fread(fd,1,'uint8');
 cfg.n_codereps     =fread(fd,1,'uint8');
 cfg.min_pgood      =fread(fd,1,'uint8');
@@ -479,7 +589,8 @@ fseek(fd,1,'cof');
 cfg.xmit_lag       =fread(fd,1,'uint16')*.01; % meters
 nbyte=40;
 
-if fix(cfg.prog_ver)==8 | fix(cfg.prog_ver)==16,
+if fix(cfg.prog_ver)==8 | fix(cfg.prog_ver)==10 | fix(cfg.prog_ver)==16 ...
+     | fix(cfg.prog_ver)==50 | fix(cfg.prog_ver)==51 | fix(cfg.prog_ver)==52,
 
   if cfg.prog_ver>=8.14,  % Added CPU serial number with v8.14
     cfg.serialnum      =fread(fd,8,'uint8');
@@ -499,7 +610,7 @@ if fix(cfg.prog_ver)==8 | fix(cfg.prog_ver)==16,
   if cfg.prog_ver>=16.27,   % Added bytes for REMUS, navigators, and HADCP
     cfg.navigator_basefreqindex=fread(fd,1,'uint8');
     nbyte=nbyte+1;
-    cfg.remus_serialnum=fread(fd,4,'uint8');
+    cfg.remus_serialnum=fread(fd,1,'uint32');  % Thanks to Mark Halverson for this decoding
     nbyte=nbyte+4;
     cfg.h_adcp_beam_angle=fread(fd,1,'uint8');
     nbyte=nbyte+1;
@@ -518,13 +629,34 @@ elseif fix(cfg.prog_ver)==14 | fix(cfg.prog_ver)==23,
 
     cfg.serialnum      =fread(fd,8,'uint8');  % 8 bytes 'reserved'
     nbyte=nbyte+8;
-         
+
+elseif fix(cfg.prog_ver)==34,
+
+    fseek(fd,8,'cof'); % Spare
+    nbyte=nbyte+8;
+    cfg.sysbandwidth  =fread(fd,1,'uint16');
+    nbyte=nbyte+2;
+    fseek(fd,2,'cof'); % Spare
+    nbyte=nbyte+2;
+    cfg.serialnum      =fread(fd,1,'uint32');
+    nbyte=nbyte+4; 
+
+elseif  fix(cfg.prog_ver)==47,
+    fseek(fd,8,'cof'); % spare
+    cfg.sysbandwidth  =fread(fd,2,'uint8');
+    cfg.syspower      =fread(fd,1,'uint8');
+    fseek(fd,1,'cof'); % spare
+    cfg.serialnum      =fread(fd,4,'uint8');
+    cfg.beam_angle=fread(fd,1,'uint8');
+    fseek(fd,1,'cof'); % spare
+    nbyte=nbyte+18;    
+	  
 end;
 
 % It is useful to have this precomputed.
 
 cfg.ranges=cfg.bin1_dist+[0:cfg.n_cells-1]'*cfg.cell_size;
-if cfg.orientation==1, cfg.ranges=-cfg.ranges; end
+if strcmp(cfg.orientation,'up'), cfg.ranges=-cfg.ranges; end
 	
 	
 %-----------------------------
@@ -535,6 +667,9 @@ global ens hdr
 
 % A fudge to try and read files not handled quite right.
 global FIXOFFSET SOURCE
+
+% For OS files that can interleave NB and BB bings
+global STANDARD
 
 % If num_av<0 we are reading only 1 element and initializing
 if num_av<0,
@@ -563,15 +698,17 @@ if num_av<0 | isempty(ens),
 	    'bt_corr',zeros(4,n),'bt_ampl',zeros(4,n),'bt_perc_good',zeros(4,n),...
             'smtime',zeros(1,n),'emtime',zeros(1,n),'slatitude',zeros(1,n),...
 	    'slongitude',zeros(1,n),'elatitude',zeros(1,n),'elongitude',zeros(1,n),...
+	    'avgspd',zeros(1,n),'avtrktrue',zeros(1,n),'avtrkmag',zeros(1,n),...
+	    'speedmadegd',zeros(1,n),'direcmadegd',zeros(1,n),...
 	    'nmtime',zeros(1,n),'flags',zeros(1,n));
   num_av=abs(num_av);
 end;
-
+ 
 k=0;
 while k<num_av,
    
-   % This is in case junk appears in the middle of a file.
-   num_search=3000;
+   % This is in case junk appears in the middle of a file - look forward for next valid block
+   num_search=6000;
    
    id1=fread(fd,2,'uint8');
 
@@ -601,23 +738,56 @@ while k<num_av,
    [hdr,nbyte]=rd_hdrseg(fd);     
    byte_offset=nbyte+2;
 %% fprintf('# data types = %d\n  ',(length(hdr.dat_offsets)));
+%% fprintf('Blocklen = %d\n  ',hdr.nbyte);
     % Read all the data types.
    for n=1:length(hdr.dat_offsets),
 
     id=dec2hex(fread(fd,1,'uint16'),4);
-%%   fprintf('ID=%s SOURCE=%d\n',id,SOURCE);
+%%  fprintf('ID=%s SOURCE=%d  k=%d\n',id,SOURCE,k);%%pause;
     
     % handle all the various segments of data. Note that since I read the IDs as a two
     % byte number in little-endian order the high and low bytes are exchanged compared to
     % the values given in the manual.
-    %
     
+    winrivprob=0;
+    
+    % For OS instruments run through VMDAS - 
+    % if there are two different sets of pings, then they are differentiated by
+    % having a 0 or a 1 in the 4th byte. In order NOT to read those, I change
+    % the block number so it is not valid by sticking an 'X' in there (so it becomes
+    % un-identifiable).
+    
+    if STANDARD==1, 
+       if id(1)=='0'  & id(4)=='0',
+         id(4)='X';
+       elseif id(1)=='0'  & id(4)=='1',
+         id(4)='0';
+       end;
+    elseif STANDARD==0,
+        if id(1)=='0'  & id(4)=='0',
+         id(4)='0';
+       elseif id(1)=='0'  & id(4)=='1',
+         id(4)='X';
+       end;   	 	  
+  %%     fprintf('NEW ID=%s SOURCE=%d\n',id,SOURCE);
+    end;
+    
+%%  fprintf('id = %s\n',id);
+ 
+ 
+ % The following code decodes different blocks. I try to implement a reader for
+ % all the blocks I know about, but I have not necessarily implemented code
+ % to decode the info in each block and return this to the user.
+ 
+       
     switch id,           
-     case '0000',   % Fixed leader
+     case {'0000' }   % Fixed leader
       [cfg,nbyte]=rd_fixseg(fd);
       nbyte=nbyte+2;
       
-    case '0080'   % Variable Leader
+   %   fprintf('frm=%7.4f  NCELLS = %d\n',cfg.prog_ver,cfg.n_cells);
+      
+    case {'0080' }   % Variable Leader
       k=k+1;
       ens.number(k)         =fread(fd,1,'uint16');
       ens.rtc(:,k)          =fread(fd,7,'uint8');
@@ -636,7 +806,7 @@ while k<num_av,
       ens.roll_std(k)       =fread(fd,1,'uint8')*.1;   % degrees
       ens.adc(:,k)          =fread(fd,8,'uint8');
       nbyte=2+40;
-
+ 
       if strcmp(cfg.name,'bb-adcp'),
       
           if cfg.prog_ver>=5.55,
@@ -652,12 +822,13 @@ while k<num_av,
           ens.error_status_wd(k)=fread(fd,1,'uint32');
           nbyte=nbyte+4;;
 
-          if fix(cfg.prog_ver)==8 | fix(cfg.prog_ver)==16,
-	  
+          if fix(cfg.prog_ver)==8 | fix(cfg.prog_ver)==10 | fix(cfg.prog_ver)==16 ...
+	       | fix(cfg.prog_ver)==50 | fix(cfg.prog_ver)==51 | fix(cfg.prog_ver)==52,
+
 	      if cfg.prog_ver>=8.13,  % Added pressure sensor stuff in 8.13
                   fseek(fd,2,'cof');   
-                  ens.pressure(k)       =fread(fd,1,'uint32');  
-                  ens.pressure_std(k)   =fread(fd,1,'uint32');
+                  ens.pressure(k)       =fread(fd,1,'int32');  % changed from uint to int Nov/2013
+                  ens.pressure_std(k)   =fread(fd,1,'int32');  % ditto (thanks to U. Neumeier for finding this)
 	          nbyte=nbyte+10;  
 	      end;
 
@@ -667,7 +838,8 @@ while k<num_av,
 	      end;
 
  	  
-	      if cfg.prog_ver>=16.05,   % Added more fields with century in clock 16.05
+	      if ( cfg.prog_ver>=10.01 & cfg.prog_ver<=10.99 ) ...
+	          | cfg.prog_ver>=16.05,   % Added more fields with century in clock 16.05
 	          cent=fread(fd,1,'uint8');            
 	          ens.rtc(:,k)=fread(fd,7,'uint8');   
 	          ens.rtc(1,k)=ens.rtc(1,k)+cent*100;
@@ -687,7 +859,7 @@ while k<num_av,
 	      end;
 	   
 	  end;
-      
+       
       elseif strcmp(cfg.name,'os-adcp'),
 	  
 	  fseek(fd,16,'cof'); % 30 bytes all set to zero, 14 read above
@@ -697,37 +869,97 @@ while k<num_av,
                fseek(fd,2,'cof');
 	       nbyte=nbyte+2;
 	  end;    
+	  
+      elseif strcmp(cfg.name,'dvl'),
+          fseek(fd,6,'cof'); % Error status word   
+          ens.pressure(k)       =fread(fd,1,'uint32');  
+          ens.pressure_std(k)   =fread(fd,1,'uint32');
+          fseek(fd,4,'cof'); % Error status word   
+	  nbyte=nbyte+18;
+
+      elseif strcmp(cfg.name,'V-adcp'),
+	  
+	  fseek(fd,6,'cof'); % Error status word (I don't decode this)
+          ens.pressure(k)       =fread(fd,1,'uint32')/1000;  % dbar  
+          ens.pressure_std(k)   =fread(fd,1,'uint32')/1000;
+	  fseek(fd,1,'cof'); % Spare
+	  cent=fread(fd,1,'uint8');            % possibly also for 5.55-5.58 but
+	  ens.rtc(:,k)=fread(fd,7,'uint8');    % I have no data to test.
+	  ens.rtc(1,k)=ens.rtc(1,k)+cent*100;
+	  fseek(fd,1,'cof'); % Spare
+	  nbyte=nbyte+24; 
+	  
       end;
-  	      
-    case '0100',  % Velocities
+      	      
+    case {'0100'}  % Velocities
       vels=fread(fd,[4 cfg.n_cells],'int16')'*.001;     % m/s
+      
+      [nn,mm]=size(ens.east_vel);
+      if nn~=cfg.n_cells,
+        ens.east_vel =zeros(cfg.n_cells,mm);
+	ens.north_vel=zeros(cfg.n_cells,mm);
+	ens.vert_vel =zeros(cfg.n_cells,mm);
+	ens.error_vel=zeros(cfg.n_cells,mm);
+      end;
+      	
       ens.east_vel(:,k) =vels(:,1);
       ens.north_vel(:,k)=vels(:,2);
       ens.vert_vel(:,k) =vels(:,3);
       ens.error_vel(:,k)=vels(:,4);
       nbyte=2+4*cfg.n_cells*2;
       
-    case '0200',  % Correlations
+    case {'0200'}  % Correlations
+     [nn,mm,oo]=size(ens.corr);
+      if nn~=cfg.n_cells,
+        ens.corr =zeros(cfg.n_cells,4,oo);
+      end;	
+
       ens.corr(:,:,k)   =fread(fd,[4 cfg.n_cells],'uint8')';
       nbyte=2+4*cfg.n_cells;
       
-    case '0300',  % Echo Intensities  
+    case {'0300'}  % Echo Intensities  
+      [nn,mm,oo]=size(ens.intens);
+      if nn~=cfg.n_cells,
+        ens.intens =zeros(cfg.n_cells,4,oo);
+      end;	
+
       ens.intens(:,:,k)   =fread(fd,[4 cfg.n_cells],'uint8')';
       nbyte=2+4*cfg.n_cells;
 
-    case '0400',  % Percent good
+    case {'0400'}  % Percent good
+      [nn,mm,oo]=size(ens.percent);
+      if nn~=cfg.n_cells,
+        ens.percent =zeros(cfg.n_cells,4,oo);
+      end;	
+
       ens.percent(:,:,k)   =fread(fd,[4 cfg.n_cells],'uint8')';
       nbyte=2+4*cfg.n_cells;
    
-    case '0500',  % Status
+      if fix(cfg.prog_ver)==34,   % This is perhaps a bug; thes block was
+        fseek(fd,-2,'cof');       % 2 bytes short. I am *guessing* some problem
+	nbyte=nbyte-2;            % with the checksum
+      end;	 
+
+    case {'0500'}  % Status
+      [nn,mm,oo]=size(ens.status);
+      if nn~=cfg.n_cells,
+        ens.status =zeros(cfg.n_cells,4,oo);
+      end;	
+ 
+      if strcmp(cfg.name,'bb-adcp')
          % Note in one case with a 4.25 firmware SC-BB, it seems like
          % this block was actually two bytes short!
-      ens.status(:,:,k)   =fread(fd,[4 cfg.n_cells],'uint8')';
-      nbyte=2+4*cfg.n_cells;
-
-    case '0600', % Bottom track
-                 % In WINRIVER GPS data is tucked into here in odd ways, as long
-                 % as GPS is enabled.
+        ens.status(:,:,k)   =fread(fd,[4 cfg.n_cells],'uint8')';
+	fseek(fd,-2,'cof');
+        nbyte=2+4*cfg.n_cells-2;
+      else	
+        ens.status(:,:,k)   =fread(fd,[4 cfg.n_cells],'uint8')';
+	nbyte=2+4*cfg.n_cells;
+      end;
+     
+    case {'0600'} % Bottom track
+                  % In WINRIVER GPS data is tucked into here in odd ways, as long
+                  % as GPS is enabled.
       if SOURCE==2,
           fseek(fd,2,'cof');
           long1=fread(fd,1,'uint16');
@@ -740,7 +972,13 @@ while k<num_av,
           fseek(fd,14,'cof'); % Skip over a bunch of stuff
       end;    
       ens.bt_range(:,k)=fread(fd,4,'uint16')*.01; %
+      ii=ens.bt_range(:,k)==0;                    % Change no data to NaN 10/13
+      if any(ii), ens.bt_range(ii,k)=NaN; end;
+      
       ens.bt_vel(:,k)  =fread(fd,4,'int16');
+      ii=ens.bt_vel(:,k)==-32768;                 % Change baddata to NaN 10/13
+      if any(ii),ens.bt_evl(ii,k)=NaN; end;
+       
       ens.bt_corr(:,k)=fread(fd,4,'uint8');      % felipe pimenta aug. 2006
       ens.bt_ampl(:,k)=fread(fd,4,'uint8');      % "
       ens.bt_perc_good(:,k)=fread(fd,4,'uint8'); % "
@@ -753,7 +991,7 @@ while k<num_av,
 	  fseek(fd,16,'cof');
 	  qual=fread(fd,1,'uint8');
 	  if qual==0, 
-	     fprintf('qual==%d,%f %f',qual,ens.slatitude(k),ens.slongitude(k));
+%%	     fprintf('qual==%d,%f %f',qual,ens.slatitude(k),ens.slongitude(k));
 	     ens.slatitude(k)=NaN;ens.slongitude(k)=NaN; 
 	  end;
           fseek(fd,71-45-21,'cof');
@@ -778,81 +1016,160 @@ while k<num_av,
 % The raw files produced by VMDAS contain a binary navigation data
 % block. 
       
-    case '2000',  % Something from VMDAS.
+    case {'2000'},  % Something from VMDAS.
       cfg.sourceprog='VMDAS';
+      if k==0, k=1; end;
       if SOURCE~=1, fprintf('\n***** Apparently a VMDAS file \n\n'); end;
       SOURCE=1;
       utim  =fread(fd,4,'uint8');
       mtime =datenum(utim(3)+utim(4)*256,utim(2),utim(1));
-      ens.smtime(k)     =mtime+fread(fd,1,'uint32')/8640000;
+      ens.smtime(k)     =mtime+fread(fd,1,'int32')/1e4/86400;
       fseek(fd,4,'cof');  % PC clock offset from UTC
       cfac=180/2^31;
       ens.slatitude(k)  =fread(fd,1,'int32')*cfac;
       ens.slongitude(k) =fread(fd,1,'int32')*cfac;
-      ens.emtime(k)     =mtime+fread(fd,1,'uint32')/8640000;
+      ens.emtime(k)     =mtime+fread(fd,1,'int32')/1e4/86400;
       ens.elatitude(k)  =fread(fd,1,'int32')*cfac;
       ens.elongitude(k) =fread(fd,1,'int32')*cfac;
-      fseek(fd,12,'cof');   
+      ens.avgspd(k)     =fread(fd,1,'int16')/1000; % m/sec
+      cfac2=180/2^15;
+      ens.avgtrktrue(k) =fread(fd,1,'int16')*cfac2;
+      ens.avgtrkmag(k)  =fread(fd,1,'int16')*cfac2;
+      ens.speedmadegd(k)=fread(fd,1,'int16')/1000; % m/sec  Calculated from positions
+      ens.direcmadegd(k)=fread(fd,1,'int16')*cfac2; % Calculated from positions
+      fseek(fd,2,'cof');   
       ens.flags(k)      =fread(fd,1,'uint16');	
       fseek(fd,6,'cof');
       utim  =fread(fd,4,'uint8');
       mtime =datenum(utim(1)+utim(2)*256,utim(4),utim(3));
-      ens.nmtime(k)     =mtime+fread(fd,1,'uint32')/8640000;
+      ens.nmtime(k)     =mtime+fread(fd,1,'uint32')/1e4/86400;
                           % in here we have 'ADCP clock' (not sure how this
                           % differs from RTC (in header) and UTC (earlier in this block).
       fseek(fd,16,'cof');
       nbyte=2+76;
+      
+    case {'2022'},  % New NMEA data block from WInRiverII
+    
+      cfg.sourceprog='WINRIVER2';
+      if SOURCE~=3, fprintf('\n***** Apparently a WINRIVER II file  - GGA handler only implemented \n\n'); end;
+      SOURCE=3;
+      
+      specID=fread(fd,1,'uint16');
+      msgsiz=fread(fd,1,'int16');
+      deltaT=fread(fd,1,'double');  % Whatever this is, it is undocumented.
+      nbyte=2+12;
+
+
+ %%     fprintf(' %d \n',specID);
+      switch specID,
+        case 100,
+	  gpstring=char(fread(fd,10,'uchar')');
+	  utc=char(fread(fd,10,'uchar')');
+	  try, ens.smtime(k)=(sscanf(utc(1:2),'%d')+sscanf(utc(3:4),'%d')/60+sscanf(utc(5:6),'%d')/3600)/24; end;
+	  ens.slatitude(k)=fread(fd,1,'double');
+	  if char(fread(fd,1,'uchar'))=='S',
+	     ens.slatitude(k)=-ens.slatitude(k);
+	  end;   
+	  ens.slongitude(k)=fread(fd,1,'double');
+	  if char(fread(fd,1,'uchar'))=='W',
+	     ens.slongitude(k)=-ens.slongitude(k);
+	  end;   
+          nbyte=nbyte+38;
+	  msgsiz=msgsiz-38;
+ 	case 101,
+	             % WinriverII v<2.000 VTG not implemented
+ 	case 102,
+ 	             % WinriverII v<2.000 DBT not implemented
+	case 103,
+	             % WinriverII v<2.000 HDT not implemented
+	case 104,
+	  gpstring=char(fread(fd,7,'uchar')');
+	  utc=char(fread(fd,10,'uchar')');
+	  ens.smtime(k)=(sscanf(utc(1:2),'%d')+sscanf(utc(3:4),'%d')/60+sscanf(utc(5:6),'%d')/3600)/24;
+	  ens.slatitude(k)=fread(fd,1,'double');
+	  if char(fread(fd,1,'uchar'))=='S',
+	     ens.slatitude(k)=-ens.slatitude(k);
+	  end;   
+	  ens.slongitude(k)=fread(fd,1,'double');
+	  if char(fread(fd,1,'uchar'))=='W',
+	     ens.slongitude(k)=-ens.slongitude(k);
+	  end;   
+          nbyte=nbyte+35;
+	  msgsiz=msgsiz-35;
+	case 105,
+	             % WinriverII v>=2.000 VTG not implemented
+	case 106,
+	             % WinriverII v>=2.000 DBT not implemented
+	case 107,
+	             % WinriverII v>=2.000 HDT not implemented
+       end;
+      fseek(fd,msgsiz,'cof');
+      nbyte=nbyte+msgsiz;
+	 
        
 % The following blocks come from WINRIVER files, they aparently contain
 % the raw NMEA data received from a serial port.
 %
 % Note that for WINRIVER files somewhat decoded data is also available
 % tucked into the bottom track block.
+%
+% I've put these all into their own block because RDI's software apparently completely ignores the
+% stated lengths of these blocks and they very often have to be changed. Rather than relying on the
+% error coding at the end of the main block to do this (and to produce an error message) I will
+% do it here, without an error message to emphasize that I am kludging the WINRIVER blocks only!
     
-    case '2100', % $xxDBT  (Winriver addition) 38
-      cfg.sourceprog='WINRIVER';
-      if SOURCE~=2, fprintf('\n***** Apparently a WINRIVER file - Raw NMEA data handler not yet implemented\n\n'); end;
-      SOURCE=2;
-      str=fread(fd,38,'uchar')';
-      nbyte=2+38;
+    case {'2100','2101','2102','2103','2104'}
+    
+    winrivprob=1;
+    
+    switch id,
+    
+      case '2100', % $xxDBT  (Winriver addition) 38
+	cfg.sourceprog='WINRIVER';
+	if SOURCE~=2, fprintf('\n***** Apparently a WINRIVER file - Raw DBT NMEA data handler not yet implemented\n\n'); end;
+	SOURCE=2;
+	str=fread(fd,38,'uchar')';
+	nbyte=2+38;
 
-    case '2101', % $xxGGA  (Winriver addition) 94 in maanual but 97 seems to work
-      cfg.sourceprog='WINRIVER';
-      if SOURCE~=2, fprintf('\n***** Apparently a WINRIVER file - Raw NMEA data handler not yet implemented\n\n'); end;
-      SOURCE=2;
-      str=setstr(fread(fd,97,'uchar')');
-      nbyte=2+97;
-      l=strfind(str,'$GPGGA');
-      if ~isempty(l),
-        ens.smtime(k)=(sscanf(str(l+7:l+8),'%d')+(sscanf(str(l+9:l+10),'%d')+sscanf(str(l+11:l+12),'%d')/60)/60)/24;
-      end;
-%      disp(['->' setstr(str(1:50)) '<-']);
-      
-    case '2102', % $xxVTG  (Winriver addition) 45
-      cfg.sourceprog='WINRIVER';
-      if SOURCE~=2, fprintf('\n***** Apparently a WINRIVER file - Raw NMEA data handler not yet implemented\n\n'); end;
-      SOURCE=2;
-      str=fread(fd,45,'uchar')';
-      nbyte=2+45;
-%      disp(setstr(str));
-      
-    case '2103', % $xxGSA  (Winriver addition) 60
-      cfg.sourceprog='WINRIVER';
-      if SOURCE~=2, fprintf('\n***** Apparently a WINRIVER file - Raw NMEA data handler not yet implemented\n\n'); end;
-      SOURCE=2;
-      str=fread(fd,60,'uchar')';
-%      disp(setstr(str));
-      nbyte=2+60;
+      case '2101', % $xxGGA  (Winriver addition) 94 in manual but 97 seems to work
+                   % Except for a winriver2 file which seems to use 77.
+	cfg.sourceprog='WINRIVER';
+	if SOURCE~=2, fprintf('\n***** Apparently a WINRIVER file - Raw GG NMEA data handler not yet implemented\n\n'); end;
+	SOURCE=2;
+	str=setstr(fread(fd,97,'uchar')');
+	nbyte=2+97;
+	l=strfind(str,'$GPGGA');
+	if ~isempty(l),
+          ens.smtime(k)=(sscanf(str(l+7:l+8),'%d')+(sscanf(str(l+9:l+10),'%d')+sscanf(str(l+11:l+12),'%d')/60)/60)/24;
+	end;
+  %	disp(['->' setstr(str(1:50)) '<-']);
 
-    case '2104',  %xxHDT or HDG (Winriver addition) 38
-      cfg.sourceprog='WINRIVER';
-      if SOURCE~=2, fprintf('\n***** Apparently a WINRIVER file - Raw NMEA data handler not yet implemented\n\n'); end;
-      SOURCE=2;
-      str=fread(fd,38,'uchar')';
-%      disp(setstr(str));
-      nbyte=2+38;
+      case '2102', % $xxVTG  (Winriver addition) 45 (but sometimes 46 and 48)
+	cfg.sourceprog='WINRIVER';
+	if SOURCE~=2, fprintf('\n***** Apparently a WINRIVER file - Raw VTG NMEA data handler not yet implemented\n\n'); end;
+	SOURCE=2;
+	str=fread(fd,45,'uchar')';
+	nbyte=2+45;
+  %      disp(setstr(str));
+
+      case '2103', % $xxGSA  (Winriver addition) 60
+	cfg.sourceprog='WINRIVER';
+	if SOURCE~=2, fprintf('\n***** Apparently a WINRIVER file - Raw GSA NMEA data handler not yet implemented\n\n'); end;
+	SOURCE=2;
+	str=fread(fd,60,'uchar')';
+  %      disp(setstr(str));
+	nbyte=2+60;
+
+      case '2104',  %xxHDT or HDG (Winriver addition) 38
+	cfg.sourceprog='WINRIVER';
+	if SOURCE~=2, fprintf('\n***** Apparently a WINRIVER file - Raw HDT NMEA data handler not yet implemented\n\n'); end;
+	SOURCE=2;
+	str=fread(fd,38,'uchar')';
+  %      disp(setstr(str));
+	nbyte=2+38;
+      end;  
       
-      
+     
         
     case '0701', % Number of good pings
       fseek(fd,4*cfg.n_cells,'cof');
@@ -866,12 +1183,75 @@ while k<num_av,
       fseek(fd,4*cfg.n_cells,'cof');
       nbyte=2+4*cfg.n_cells;
 
-% These blocks were implemented for 5-beam systems
+% These are for V-series ADCPs (47.xx firmware)
 
-    case '0A00', % Beam 5 velocity (not implemented)
+    case {'7000'}           % resend firmware and frequency info, as well as pressure rating
+      fseek(fd,14,'cof');  % I am skipping this all...
+      nbyte=2+14;
+      
+    case {'7001'}        % COntains info on ping sequencing
+    
+      fseek(fd,42,'cof');  % I am skipping this all
+      nbyte=2+42;
+      if ( cfg.prog_ver>=47.17  )    % Change happened after 47.11 and before 47.17
+        fseek(fd,14,'cof');  % I am skipping this all
+        nbyte=nbyte+14;
+      end;
+      
+    case {'7002'}    % Advanced system diagnostics
+      fseek(fd,14,'cof');   % Skip them all
+      nbyte=2+14;
+      
+    case {'7003'}    % Contains various 'feature keys' in the V series firmware
+      numfeature=fread(fd,1,'uint8');
+      fseek(fd,1,'cof');  % Spare
+      fseek(fd,86*(numfeature),'cof');
+      nbyte=2+2+86*(numfeature);
+    
+    case {'7004'}  % Contains fault handling and diagnostics
+      numfault=fread(fd,1,'uint16');
+      fseek(fd,4*(numfault),'cof');
+      nbyte=2+4*(numfault)+2;
+ 
+
+    case {'3200'}   % Instrument transformation matrix (beam to instrument coords)
+     vals=fread(fd,16,'int16')*0.0001;
+     cfg.beam2instrument_transform_matrix= reshape(vals,4,4)';  % coord transformation matrix (specific to instrument)
+     nbyte=2+32;
+
+
+
+% These blocks were implemented for 5-beam Sentinel-V systems 
+
+    case {'0F01'}, % Vertical beam leader
+       cfg.Vn_cells=fread(fd,1,'uint16');
+       cfg.Vpings_per_ensemble=fread(fd,1,'uint16');
+       cfg.Vcell_size=fread(fd,1,'uint16')*.01;	 % meters
+       cfg.Vbin1_dist=fread(fd,1,'uint16')*.01;	% meters
+       cfg.Vmode     =fread(fd,1,'uint16');         %  1 = Low res, 2 = High res
+       cfg.Vxmit_pulse     =fread(fd,1,'uint16')*.01;	% meters
+       fseek(fd,38-14,'cof');
+      cfg.Voffset     =fread(fd,1,'int16')*.001;	% seconds
+      nbyte=2+38;
+  %%% fprintf('%f\n',cfg.Voffset);
+    
+    case {'0A00'}, % Beam 5 velocity (not implemented)
+      vels=fread(fd,[cfg.Vn_cells],'int16')'*.001;     % m/s
+      ens.Vvert_vel(:,k) =vels;
+     nbyte=2+2*cfg.n_cells;
+%%% fprintf('-');
+
+    case {'0B00'}, % Beam 5 correlations (not implemented)
       fseek(fd,cfg.n_cells,'cof');
       nbyte=2+cfg.n_cells;
 
+    case {'0C00'}, % Beam 5 amplitude 
+      ens.Vintens(:,k)=fread(fd,[cfg.n_cells],'uint8');
+      nbyte=2+cfg.n_cells;
+      
+      
+% Can't remember what these are for: experimental 5-beam system?      
+      
     case '0301', % Beam 5 Number of good pings (not implemented)
       fseek(fd,cfg.n_cells,'cof');
       nbyte=2+cfg.n_cells;
@@ -910,9 +1290,11 @@ while k<num_av,
 	fseek(fd,12*nflds*dfac,'cof');
 	nbyte=2+12*nflds*dfac;
       
-      else
+      elseif id(4)~='X',  % I code ones to skip with an 'X'.
         fprintf('Unrecognized ID code: %s\n',id);
         nbyte=2;
+      else
+        nbyte=2;	
       end;	
      %% ens=-1;
      %% return;
@@ -922,17 +1304,28 @@ while k<num_av,
    
     % here I adjust the number of bytes so I am sure to begin
     % reading at the next valid offset. If everything is working right I shouldn't have
-    % to do this but every so often firware changes result in some differences.
+    % to do this but every so often firmware changes result in some differences.
 
-    %%fprintf('#bytes is %d, original offset is %d\n',nbyte,byte_offset);
+%%   fprintf('#bytes is %d, original offset is %d\n',nbyte,byte_offset);
     byte_offset=byte_offset+nbyte;   
       
+    % Some  times when I don't want this warning
+    printwarn =    ~winrivprob ... 
+                 && ~(id(4)=='X') ...  % Skipping missed stuff for os-adcp
+		 && ~( strcmp(cfg.name,'os-adcp')  & (strcmp(id,'0000') | strcmp(id,'2000')) );
+  
     if n<length(hdr.dat_offsets),
       if hdr.dat_offsets(n+1)~=byte_offset,    
-%         fprintf('%s: Adjust location by %d\n',id,hdr.dat_offsets(n+1)-byte_offset);
+        if printwarn, fprintf('%s: Adjust location by %d\n',id,hdr.dat_offsets(n+1)-byte_offset); end;
         fseek(fd,hdr.dat_offsets(n+1)-byte_offset,'cof');
       end;	
       byte_offset=hdr.dat_offsets(n+1); 
+    else
+      if hdr.nbyte-2~=byte_offset,    
+        if printwarn, fprintf('%s: Adjust location by %d\n',id,hdr.nbyte-2-byte_offset); end;
+        fseek(fd,hdr.nbyte-2-byte_offset,'cof');
+      end;
+      byte_offset=hdr.nbyte-2;
     end;
   end;
 

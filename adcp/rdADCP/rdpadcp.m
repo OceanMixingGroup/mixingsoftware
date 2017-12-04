@@ -334,12 +334,12 @@ for k=1:n,
 
      ol=ones(size(ens.east_vel,1),1);
 
-     if (strcmp(ref,'bes') | strcmp(ref,'bot')) & finite(adcp.bt_east_vel(k)),
+     if (strcmp(ref,'bes') | strcmp(ref,'bot')) & isfinite(adcp.bt_east_vel(k)),
        adcp.east_vel(:,k)    =nmean((ens.east_vel -ens.bt_east_vel(ol,:)) ,2);
        adcp.north_vel(:,k)   =nmean((ens.north_vel-ens.bt_north_vel(ol,:)),2);
        adcp.vert_vel(:,k)    =nmean((ens.vert_vel -ens.bt_vert_vel(ol,:)) ,2);
        adcp.error_vel(:,k)   =nmean((ens.error_vel-ens.bt_error_vel(ol,:)),2);
-     elseif (strcmp(ref,'bes') | strcmp(ref,'nav')) & finite(adcp.nav_east_vel(k)), 
+     elseif (strcmp(ref,'bes') | strcmp(ref,'nav')) & isfinite(adcp.nav_east_vel(k)), 
        if strcmp(ref,'bes'), disp('No Bottom track - using Nav to correct velocities'); end;
        adcp.east_vel(:,k)    =nmean((ens.east_vel +ens.nav_east_vel(ol,:)) ,2);
        adcp.north_vel(:,k)   =nmean((ens.north_vel+ens.nav_north_vel(ol,:)),2);
@@ -373,12 +373,12 @@ for k=1:n,
 
      ol=ones(size(ens.east_vel,1),1);
 
-     if (strcmp(ref,'bes') | strcmp(ref,'bot')) & finite(adcp.bt_east_vel(k)),
+     if (strcmp(ref,'bes') | strcmp(ref,'bot')) & isfinite(adcp.bt_east_vel(k)),
        adcp.east_vel(:,k)    =nmedian((ens.east_vel -ens.bt_east_vel(ol,:)) ,vels(1),2);
        adcp.north_vel(:,k)   =nmedian((ens.north_vel-ens.bt_north_vel(ol,:)),vels(1),2);
        adcp.vert_vel(:,k)    =nmedian((ens.vert_vel -ens.bt_vert_vel(ol,:)) ,vels(2),2);
        adcp.error_vel(:,k)   =nmedian((ens.error_vel-ens.bt_error_vel(ol,:)),vels(3),2);
-     elseif (strcmp(ref,'bes') | strcmp(ref,'nav')) & finite(adcp.nav_east_vel(k)), 
+     elseif (strcmp(ref,'bes') | strcmp(ref,'nav')) & isfinite(adcp.nav_east_vel(k)), 
        if strcmp(ref,'bes'), disp('No Bottom track - using Nav to correct velocities'); end;
        adcp.east_vel(:,k)    =nmedian((ens.east_vel +ens.nav_east_vel(ol,:)) ,vels(1),2);
        adcp.north_vel(:,k)   =nmedian((ens.north_vel+ens.nav_north_vel(ol,:)),vels(1),2);
@@ -846,21 +846,21 @@ if n1==1,
  y=x;
 else
   if n2==1,
-   kk=sum(finite(x),1);
+   kk=sum(isfinite(x),1);
    if kk>0,
      x1=x(fix((kk-1)/2)+1);
      x2=x(fix(kk/2)+1);
      x(abs(x-(x1+x2)/2)>window)=NaN;
    end;
    x = sort(x,1);
-   kk=sum(finite(x),1);
+   kk=sum(isfinite(x),1);
    x(isnan(x))=0;
    y=NaN;
    if kk>0,
     y=sum(x)/kk;
    end;
   else
-   kk=sum(finite(x),1);
+   kk=sum(isfinite(x),1);
    ll=kk<n1-2;
    kk(ll)=0;x(:,ll)=NaN;
    x1=x(fix((kk-1)/2)+1+[0:n2-1]*n1);
@@ -868,7 +868,7 @@ else
 
    x(abs(x-ones(n1,1)*(x1+x2)/2)>window)=NaN;
    x = sort(x,1);
-   kk=sum(finite(x),1);
+   kk=sum(isfinite(x),1);
    x(isnan(x))=0;
    y=NaN+ones(1,n2);
    if any(kk),
@@ -889,7 +889,7 @@ function y=nmean(x,dim);
 %   R_NMEAN(X,DIM) takes the mean along the dimension DIM of X. 
 %
 
-kk=finite(x);
+kk=isfinite(x);
 x(~kk)=0;
 
 if nargin==1, 

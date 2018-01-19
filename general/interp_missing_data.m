@@ -6,7 +6,7 @@ function in=interp_missing_data(in,maxgap)
 %
 % see also extrapolate_data, fillgap, fillgap2d
 %
-% *** (sjw Jan 2018) USE fast_interp_missing_data which is nearly 100x
+% *** (sjw Jan 2018) USE fast_fillgap which is nearly 100x
 % faster than this code for large datasets!! ***
 
 if nargin<2

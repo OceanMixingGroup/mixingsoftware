@@ -8,7 +8,7 @@ function [out]=fillgap(in,extrap,method)
 % or closest not-NaN's
 % if argument method is empty, closest not-NaN's will be used
 %
-% see also fast_interp_missing_data, interp_missing_data, extrapolate_data, fillgap2d
+% see also fast_fillgap, interp_missing_data, extrapolate_data, fillgap2d
 
 if  nargin==1
     extrap=0;

@@ -8,6 +8,8 @@ The starting point for these codes were codes written by Jonathan Nash, June Mar
 
 ### Organization
 
+*Note templates are being replaced w/ general functions so we don't have to make a separate copy of each mfile for each cruise.*
+
 - **mixingsoftware/chipod** contains base chi-pod functions (including the actual chipod calculations).
 - **mixingsoftware/CTD_chipod/mfiles** contains Matlab functions called during the processing of CTD-chipod data. Many of these call the base /chipod functions after prepping the data.
 - **mixingsoftware/CTD_chipod/templates** contains template scripts that can be modified to process a specific cruise.

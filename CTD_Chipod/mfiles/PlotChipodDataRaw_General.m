@@ -55,6 +55,8 @@ for iSN = 1:length(allSNs)
     chi_file_list = dir( fullfile(data_dir));
     Nfiles = length(chi_file_list);
     
+    disp([num2str(Nfiles) ' files found for ' num2str(whSN) ])
+    
     for whfile = 1:Nfiles
         
         clear fname

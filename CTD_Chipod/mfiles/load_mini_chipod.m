@@ -15,7 +15,7 @@ end
 
 fid = fopen(fname,'r','l');
 if fid==-1
-   disp('No file found...')
+   disp(['File ' fname ' not found... ' ])
    data=[];head=[];
    return
 end

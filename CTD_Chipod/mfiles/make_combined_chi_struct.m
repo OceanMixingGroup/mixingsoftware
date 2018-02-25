@@ -76,7 +76,7 @@ TPvar= eps;
 emptystruct = struct('lat',lat,'lon',lon,'dnum',dnum,'TPvar',TPvar,'eps',eps,'chi',chi,'KT',KT,'dTdz',dTdz,'N2',N2,'t',t,'s',s);
 
 XC = struct();
-XC.Name       = [ChiInfo.the_project];
+XC.Name       = [the_project];
 XC.ChiDataDir = chi_proc_path;
 XC.MakeInfo   = ['Made ' datestr(now) ' w/ ' this_file_name];
 XC.BinInfo    = ['Profiles averaged in ' num2str(dzbin) 'm bins'];
@@ -174,7 +174,7 @@ end % wh SN
 
 if savedata == 1
     pathstr = MakeChiPathStr(Params) ;
-    save(fullfile(BaseDir,'data',[ChiInfo.the_project '_XC_' pathstr]),'XC')
+    save(fullfile(BaseDir,'data',[the_project '_XC_' pathstr]),'XC')
 end
 
 %%

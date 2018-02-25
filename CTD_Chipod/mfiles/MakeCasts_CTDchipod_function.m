@@ -89,7 +89,7 @@ MakeResultsTextFile
 if ~exist(fullfile(BaseDir,'Data','proc_info.mat'),'file')
     
     proc_info         = struct;
-    proc_info.the_project = ChiInfo.the_project;
+    proc_info.the_project = the_project;
     proc_info.SNs     = ChiInfo.SNs;
     proc_info.icast   = nan*ones(1,length(CTD_list));
     proc_info.Name    = cell(1,length(CTD_list));

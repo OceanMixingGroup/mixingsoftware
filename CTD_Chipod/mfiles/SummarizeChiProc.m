@@ -70,7 +70,7 @@ end % iSN
 % set(gca,'YTick',1:4)
 % set(gca,'YTickLabel',['SN1001' ;'SN1006'; 'SN1008' ;'SN1014'])
 % set(gca,'Fontsize',15)
-title([ChiInfo.the_project ' - Casts w/ \chi pod data'])
+title([the_project ' - Casts w/ \chi pod data'])
 
 %axes(ax2)
 xlabel('Cast id','fontsize',16)
@@ -79,7 +79,7 @@ set(gca,'YTickLabel',proc_info.SNs)%['SN1001' ;'SN1006'; 'SN1008' ;'SN1014'])
 set(gca,'Fontsize',15)
 
 if saveplots==1
-    figname=[ChiInfo.the_project '_haveChiData_all']
+    figname=[the_project '_haveChiData_all']
     print(fullfile(fig_path,figname),'-dpng')
 end
 
@@ -115,7 +115,7 @@ end % iSN
 %
 
 if saveplots==1
-    figname=[ChiInfo.the_project '_timeoffsets_all']
+    figname=[the_project '_timeoffsets_all']
     print(fullfile(fig_path,figname),'-dpng')
 end
 
@@ -179,7 +179,7 @@ and=' & ';
 lend=' \\ ';
 
 disp('\begin{table}[htdp]')
-disp(['\caption{Some $\chi$pod processing summary info for ' ChiInfo.the_project ...
+disp(['\caption{Some $\chi$pod processing summary info for ' the_project ...
     '. There were ' num2str(length(proc_info.icast)) ' CTD casts.}'])
 disp('\begin{center}')
 disp('\begin{tabular}{|c|c|c|c|}')

@@ -12,7 +12,9 @@ function cfg=MakeCtdConfigFromXMLCON(confile)
 %
 % Modified from ' load_CTD_coefficients' by J. Nash.
 %
-% 28 April 2015 - A. Pickering - apickering@coas.oregonstate.edu
+% 13 March - J. Nash revised the handling of conductivity coefficients to make 
+% compatible with Matlab 2017 handling of structure assignments. 
+% 28 April 2015 - A. Pickering - 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%
 
@@ -50,16 +52,9 @@ for a=2
                                     FF=EE.Children(f);
                                     if ~isempty(FF.Children)
                                         try
-                                            if isfield(coef.(this_name).(EE.Name),FF.Name)
-                                                disp(coef.(this_name).(EE.Name));
-                                                FF.name;
-                                                paus
-                                            end
-                                            coef.(this_name).(EE.Name);
-                                            FF.Name;
-                                            coef.(this_name).(EE.Name).(FF.Name)=eval(FF.Children(1).Data);
+                                            coef.(this_name).(FF.Name)=eval(FF.Children(1).Data);
                                         catch
-                                            coef.(this_name).(EE.Name).(FF.Name)=FF.Children(1).Data;
+                                            coef.(this_name).(FF.Name)=FF.Children(1).Data;
                                         end
                                     end
                                 end
@@ -81,7 +76,6 @@ x=coef.ConductivitySensor1;
 % c1
 cfg.c1sn = x.SerialNumber; %aw
 cfg.c1date = x.CalibrationDate;
-x=coef.ConductivitySensor1.Coefficients;
 cfg.c1cal.ghij = [x.G x.H x.I x.J];
 cfg.c1cal.ctpcor = [x.CTcor x.CPcor];
 
@@ -97,7 +91,6 @@ x=coef.ConductivitySensor2;
 % c2
 cfg.c2sn = x.SerialNumber; %aw
 cfg.c2date = x.CalibrationDate;
-x=coef.ConductivitySensor2.Coefficients;
 cfg.c2cal.ghij = [x.G x.H x.I x.J];
 cfg.c2cal.ctpcor = [x.CTcor x.CPcor];
 

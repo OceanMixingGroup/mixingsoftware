@@ -250,35 +250,35 @@ return;
 function head = Getsaildata(head,F);
 head.saildata=space(setstr(F'));
 % parse out GPS data
-sail1=head.saildata(1:35);
+sail1=head.saildata(1:50);
+sail2 = head.saildata(51:100);
 % in general, the GGA string is not necessarily fixed length. 
 pos = find(sail1==',');
 if length(pos)>=4
-  head.time.start=sail1(1:pos(1)-1);
-  if length(head.time.start)<9
-    head.time.start = [head.time.start '.000'];
-  end;
-  head.lat.start=sail1(pos(1)+1:pos(2)-1);
-  head.lon.start=sail1(pos(3)+1:pos(4)-1);
+  head.time.start=sail1(pos(1)+1:pos(2)-1);
+  head.lat.start=sail1(pos(2)+1:pos(3)-1);
+  head.lon.start=sail1(pos(4)+1:pos(5)-1);
+ 
 else
   head.time.start='';
   head.lat.start='';
   head.lon.start='';
-end;
+end
 
-sail1=head.saildata(37:end-1);
-pos = find(sail1==',');
+
+pos = find(sail2==',');
 if length(pos)>=4
-  head.time.end=sail1(1:pos(1)-1);
-  if length(head.time.end)<9
-    head.time.end = [head.time.end '.000'];
-  end;
-  head.lat.end=sail1(pos(1)+1:pos(2)-1);
-  head.lon.end=sail1(pos(3)+1:pos(4)-1);
-else  head.time.end='';
+  head.time.end=sail2(1:pos(1)-1);
+  head.time.end=sail2(pos(1)+1:pos(2)-1);
+  head.lat.end=sail2(pos(2)+1:pos(3)-1);
+  head.lat.dir = sail2(pos(3)+1:pos(4)-1);
+  head.lon.end=sail2(pos(4)+1:pos(5)-1);
+  head.lon.dir = sail2(pos(5)+1:pos(6)-1);
+else
+  head.time.end='';
   head.lat.end='';
   head.lon.end='';
-end;
+end
 return;
 %%%%% Done with saildata %%%%%%%%%%%%%%%%%%%
 

@@ -14,12 +14,12 @@ function han = m_plot(varargin)
 
 global MAP_PROJECTION MAP_VAR_LIST
 
-if isempty(MAP_PROJECTION),
+if isempty(MAP_PROJECTION)
   disp('No Map Projection initialized - call M_PROJ first!');
   return;
-end;
+end
 
-if nargin < 2;
+if nargin < 2
   help m_plot
   return
 end

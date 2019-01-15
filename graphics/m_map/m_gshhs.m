@@ -1,4 +1,4 @@
-function m_gshhs(resolution,varargin);
+function h=m_gshhs(resolution,varargin)
 % M_GSHHS Add a coastline to a given map using 
 %           the Global Self-consistant Hierarchical High-resolution 
 %           Shorelines, Rivers, and Borders
@@ -28,7 +28,7 @@ function m_gshhs(resolution,varargin);
 %                      'b' WDB Border
 %                      'r' WDB River
 %  
-%         Third char - if 2nd char is 'c':
+%         Third char - if 2nd char is 'b':
 %                      '1' Country borders
 %                      '2' State/Province and Country borders
 %                    - if 2nd char is 'r': '1','2','3','4' 
@@ -62,10 +62,16 @@ function m_gshhs(resolution,varargin);
 % 20/Jan/2008 - added borders and rivers from gshhs v1.10
 % 4/DEc/11 - isstr to ischar
 % Sep/14 - added hierarchy to borders
+% Aug/18 - fixed error that occurred when called m_gshhs_X with 'save'
+%          option (Thanks to H. Grant for pointing this out).
 
-% Root of directories where gshhs_X.b files live
+
+% Root of directories where all the gshhs_X.b, wdb_borders-X.b and wdb_rivers_X.b
+% files live
 FILNAME='private/';
 
+
+%-------------don't change below here----------------------------
 
 res_list = char('c','l','i','h','f') ;
 typ_list=char('c','b','r');
@@ -74,27 +80,27 @@ typ_names={'gshhs_','wdb_borders_','wdb_rivers_'};
 typ=1;
 flaglim='9';
 
-if ischar(resolution),
- if length(resolution)>=2,
+if ischar(resolution)
+ if length(resolution)>=2
    typ = strmatch(lower(resolution(2)),typ_list);
- end;  
- if length(resolution)>=3,
+ end
+ if length(resolution)>=3
    flaglim = resolution(3);
- end;  
+ end  
  resolution = strmatch(lower(resolution(1)),res_list);
-end;
+end
  
  
-if isempty(resolution) | resolution<1 | resolution> length(res_list),
+if isempty(resolution) || resolution<1 || resolution> length(res_list)
   error('**Don''t recognize the specified resolution');
-end;
-if isempty(typ) | typ<1 | typ> length(res_list),
+end
+if isempty(typ) || typ<1 || typ> length(res_list)
   error('**Don''t recognize the specified type');
-end;
+end
   
 res_char = res_list(resolution) ;
 file     = [FILNAME,sprintf('%s%s.b',typ_names{typ},res_char)] ;
-tag_name = sprintf('%s%s',typ_names{typ},res_char) ;
+tag_name = sprintf('m_%s%s',typ_names{typ},res_char) ;
 
 
 % Set current projection to geographic
@@ -102,12 +108,16 @@ Currentmap=m_coord('set');
 m_coord('geographic');
 
 
-if length(varargin)>1 & strcmp(varargin{1},'save'),
+if length(varargin)>1 && strcmp(varargin{1},'save')
   [ncst,Area,k]=mu_coast(res_char,file);
-  eval(['save ' varargin{2} ' ncst k Area']);
+  save(varargin{2},'ncst','k','Area');
+  h=varargin{2};   % Error if you call m_gshhs_i with 'save' option - thanks HG, Aug/1/2018
 else
-  mu_coast([res_char flaglim],file,varargin{:},'tag',tag_name);
-end;
+  h=mu_coast([res_char flaglim],file,varargin{:},'tag',tag_name);
+end
 
 m_coord(Currentmap.name);
 
+if nargout==0
+    clear h
+end

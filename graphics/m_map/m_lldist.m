@@ -38,7 +38,7 @@ angles = 2 * atan2( sqrt(a), sqrt(1-a) );
 dist = earth_radius * angles;
 
 
-if nargin==3 & nargout>1,   % Compute geodesics.
+if nargin==3 && nargout>1   % Compute geodesics.
 
   % Cartesian unit vectors in rows of v1,v2
   v1=[cos(long1).*cos(lat1)   sin(long1).*cos(lat1)   sin(lat1) ];
@@ -51,7 +51,7 @@ if nargin==3 & nargout>1,   % Compute geodesics.
 
   lons=zeros(m,N+1);
   lats=zeros(m,N+1);
-  for k=1:m,
+  for k=1:m
 
    % Radials for all points
    p1=v1(k,:)'*cos(angles(k)*[0:N]/N) + t1(k,:)'*sin(angles(k)*[0:N]/N);
@@ -59,7 +59,7 @@ if nargin==3 & nargout>1,   % Compute geodesics.
    lons(k,:)=atan2(p1(2,:),p1(1,:))/pi180;
    lats(k,:)=asin(p1(3,:))/pi180;
 
-  end;
+  end
 
-end;
+end
 

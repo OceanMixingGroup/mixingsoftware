@@ -41,17 +41,17 @@ function [h,varargout]=m_ellipse(long,lat,fmaj,fmin,finc,fpha,scl,tpe,varargin)
 
 global MAP_PROJECTION MAP_VAR_LIST
  
-if isempty(MAP_PROJECTION),
+if isempty(MAP_PROJECTION)
   error('No Map Projection initialized - call M_PROJ first!');
   return;
-end;
+end
 
-if nargin<8,
+if nargin<8
     error('m_ellipse requires at least 8 input parameters')
     return;
 end
 
-if isempty(scl),
+if isempty(scl)
   scl=1;    
 end
 scl=scl*1/100/60*2;
@@ -61,7 +61,7 @@ pha_flag=1;  %draw phase lines for ellipse type 'line'
 
 % if phase information is not given - take it to be 0
 
-if isempty(fpha),
+if isempty(fpha)
   fpha=zeros(size(fmaj));
   pha_flag=0;  % do not draw phase lines or phase patch colours 
 end
@@ -120,18 +120,18 @@ ye=(Y2+my)';
 % Each column of xp and yp define the vertices of a triangle.  Loop
 % over times (triangles) instead of ellipses.
 
-if strcmp(tpe,'patch'),
+if strcmp(tpe,'patch')
 
-  for k=lt-2:-1:1,
+  for k=lt-2:-1:1
   
      xp=[X';xe([k;k+1],:)];
      yp=[Y';ye([k;k+1],:)];
 
      h(k)=patch(xp,yp,ones(size(xp))*(lt-k).^(1/3),(k).^(1/3),varargin{:});
-  end;   
+  end   
   set(h,'edgecolor','none','clip','off')
   
-  if pha_flag==0,  %no phase info, and no varargin given
+  if pha_flag==0  %no phase info, and no varargin given
       set(h,'facecolor','b',varargin{:})
   end
   
@@ -139,20 +139,20 @@ end
 
 % draw ellipses as simple lines, with a line for phang(t=1) and
 % phang(t=2)
-if strcmp(tpe,'line'),
+if strcmp(tpe,'line')
 
   h=line(xe(:),ye(:),varargin{:});
   
-  if pha_flag==1,
+  if pha_flag==1
     ii=fmin(:)>0; % Different colours for CW (same as ellipse colour) and CCW (opposite colour)
-    if any(ii),
+    if any(ii)
       hp(ii)=line([X(ii)';xe(1,ii)],[Y(ii)';ye(1,ii)],'linewi',2,'color',get(h,'color'));
       hp2(ii)=line([X(ii)';xe(2,ii)],[Y(ii)';ye(2,ii)],'linewi',2,'color',get(h,'color'),'linest',':');
-    end;
-    if any(~ii),
+    end
+    if any(~ii)
       hp(~ii)=line([X(~ii)';xe(1,~ii)],[Y(~ii)';ye(1,~ii)],'linewi',2,'color',[1 1 1]-get(h,'color'));
       hp2(~ii)=line([X(~ii)';xe(2,~ii)],[Y(~ii)';ye(2,~ii)],'linewi',2,'color',[1 1 1]-get(h,'color'),'linest',':');
-    end;
+    end
     
     h=[h,hp,hp2];
   
@@ -164,9 +164,9 @@ end %ellipse 'line'
 set(h,'tag','m_ellipse')
 
 
-if nargout==0,
+if nargout==0
  clear h
-end;
+end
 
 
 

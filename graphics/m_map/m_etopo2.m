@@ -1,4 +1,4 @@
-function [values,longs,lats]=m_etopo2(varargin);
+function [values,longs,lats]=m_etopo2(varargin)
 % M_ETOPO2 Contour elevation onto a map using the  ETOPOX database
 %        M_ETOPO2 contours elevations at 1000m intervals for the map.
 %        M_ETOPO2(OPTN (,LEVELS) (,ARGS,...) ) lets you change various options.
@@ -82,19 +82,19 @@ ny=180*(ptsperdeg);  % Grid width
 
 
 
-if efid==-1,
- warning(sprintf(['Cannot open ' PATHNAME 'etopo2 !! \n   Have you installed the Etopo2 database correctly?' ...
+if efid==-1
+ warning(['Cannot open ' PATHNAME 'etopo2 !! \n   Have you installed the Etopo2 database correctly?' ...
         '\n   This (optional) database must be installed separately - see the M_Map user''s guide for instructions' ...
-	'\n   ----Using default elevation database instead']));
- if nargout==0,
+	    '\n   ----Using default elevation database instead']);
+ if nargout==0
    m_elev(varargin{:});
-  elseif nargout==2,
+  elseif nargout==2
    [values,longs]=m_elev(varargin{:});
-  elseif nargout==3,	
+  elseif nargout==3	
    [values,longs,lats]=m_elev(varargin{:});
-  end;	
+ end	
   return;
-end;
+end
 
 
 global MAP_PROJECTION MAP_VAR_LIST
@@ -102,20 +102,20 @@ global MAP_PROJECTION MAP_VAR_LIST
 % Have to have initialized a map first
 
 draw_map=1;
-if nargin==1 & ~ischar(varargin{1}) & length(varargin{1})==4,
+if nargin==1 && ~ischar(varargin{1}) && length(varargin{1})==4
   draw_map=0;
-end;
+end
 
-if draw_map==1 & isempty(MAP_PROJECTION),
+if draw_map==1 && isempty(MAP_PROJECTION)
   disp('No Map Projection initialized - call M_PROJ first!');
   return;
-end;
+end
 
 % This finds the nearest cell boundaries
 
-if grid,
+if grid
 
-   if draw_map,
+   if draw_map
 
      blat=floor(MAP_VAR_LIST.lats(1)*ptsperdeg);
      tlat=ceil(MAP_VAR_LIST.lats(2)*ptsperdeg);
@@ -134,7 +134,7 @@ if grid,
      lngdec=1;
      latdec=1;
 
-   end;
+   end
 
  
    lgs=        [llong:rlong]/ptsperdeg;   
@@ -144,7 +144,7 @@ if grid,
    
 else   % Cell entering
 
-   if draw_map,
+   if draw_map
 
      blat=floor(MAP_VAR_LIST.lats(1)*ptsperdeg-1/2);
      tlat=ceil(MAP_VAR_LIST.lats(2)*ptsperdeg-1/2);
@@ -163,7 +163,7 @@ else   % Cell entering
      lngdec=1;
      latdec=1;
 
-   end;
+   end
 
    % Cell centers are moved 1/60 = .5/30 awa from the cell boundaries
    %
@@ -173,17 +173,17 @@ else   % Cell entering
    lts=fliplr( ([blat:tlat]-1/2)/ptsperdeg );  % move down
 
    ptsperline=nx;
-end;   
+end   
 
 eaxes=[llong+nx/2 rlong+nx/2 ny/2-blat ny/2-tlat];  % indexes of edges (start with 0)
 
 % Get it inside, or just off the right edge if edge-crossing   
-if eaxes(2)>nx,  eaxes([1 2])=eaxes([1 2])-nx; end;
-if eaxes(1)<0,   eaxes([1 2])=eaxes([1 2])+nx; end;
+if eaxes(2)>nx,  eaxes([1 2])=eaxes([1 2])-nx; end
+if eaxes(1)<0,   eaxes([1 2])=eaxes([1 2])+nx; end
 
 
 
-if (eaxes(2)>nx  ),   % Read it in in 2 pieces!
+if (eaxes(2)>nx  )   % Read it in in 2 pieces!
 
 
   nlat=round((eaxes(3)-eaxes(4)))+1;
@@ -192,85 +192,85 @@ if (eaxes(2)>nx  ),   % Read it in in 2 pieces!
   nlng=nlgr+nlgl;
 
   values=zeros(nlat,nlng);
-  for ii=[1:nlat],
+  for ii=[1:nlat]
    fseek(efid,( (ii-1+eaxes(4))*ptsperline )*2,'bof');
    values(ii,nlng+[-nlgr:-1]+1)=fread(efid,[1 nlgr],'int16');
    fseek(efid,( (ii-1+eaxes(4))*ptsperline+eaxes(1) )*2,'bof');
    values(ii,1:nlgl)=fread(efid,[1 nlgl],'int16');
-  end;
+  end
 
 else  % Read it in one piece
 
-  nlat=round((eaxes(3)-eaxes(4)))+1
-  nlng=round((eaxes(2)-eaxes(1)))+1
+  nlat=round((eaxes(3)-eaxes(4)))+1;
+  nlng=round((eaxes(2)-eaxes(1)))+1;
   values=zeros(nlat,nlng);
-  for ii=[1:nlat],
+  for ii=[1:nlat]
    fseek(efid,( (ii-1 +eaxes(4))*ptsperline +eaxes(1) )*2,'bof');
    values(ii,:)=fread(efid,[1 nlng],'int16');
-  end;
+  end
 
-end;
+end
  
  
 
-if draw_map,
+if draw_map
 
-   % Set current projection to geographic
-   Currentmap=m_coord('set');
-   m_coord('geographic');
+  % Set current projection to geographic
+  Currentmap=m_coord('set');
+  m_coord('geographic');
  
-   if nargin==0,
+  if nargin==0
    levels=[-7000:1000:-1000 000:1000:5000];
    optn='contour';
    n_opt=1;
   else
-   if ischar(varargin{1}),
+   if ischar(varargin{1})
      optn=varargin{1};
-   end;
-   if nargin==1,
+   end
+   if nargin==1
      levels=[-7000:1000:-1000 000:1000:5000];
      n_opt=2;
    else
-     if ischar(varargin{2}),
+     if ischar(varargin{2})
        levels=[-7000:1000:-1000 000:1000:5000];
        n_opt=2;
     else
        levels=varargin{2};
        n_opt=3;
-     end;
-   end;
-  end;
+     end
+   end
+ end
 
   topo=values(1:latdec:end,1:lngdec:end);
   lts=lts(1:latdec:end);
   lgs=lgs(1:lngdec:end);
    
-  if all(levels<0),
+  if all(levels<0)
    topo=-topo;
    levels=-levels;
-  end;
+  end
   
  hold on;
- switch optn,
-   case 'contour',
+ switch optn
+   case 'contour'
       [values,longs]=m_contour(lgs,lts,topo,levels);
-   case 'contourf',
+   case 'contourf'
       [values,longs]=m_contourf(lgs,lts,topo,levels);
-  end;  
-  set(longs,'tag','m_etopo2');
-  if n_opt<length(varargin), 
-    for l=1:length(longs), set(longs(l),varargin{n_opt:end}); end; 
-  end;
+ end  
+ set(longs,'tag','m_etopo2');
+ if n_opt<length(varargin) 
+    for l=1:length(longs), set(longs(l),varargin{n_opt:end}); end 
+ end
   
-  m_coord(Currentmap.name);
+ m_coord(Currentmap.name);
 
 else
 
   [longs,lats]=meshgrid(lgs,lts);
 
-end;
+end
 
 
 if nargout==0
  clear values longs lats
-end;
+end

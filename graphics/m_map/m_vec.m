@@ -92,7 +92,7 @@ if nargin==0,  % demo
     % something looks reasonable on the screen, it is likely to look
     % wrong when printed.
 
-    ha2 = axes('position', pos2);
+    %ha2 = axes('position', pos2);
 
     axes(ha1); % Back to the main axes.
 
@@ -140,8 +140,9 @@ if nargin==0,  % demo
     vlon = vlon - 3;
     sst = 12 - incs * 4;
     hpv4 = m_vec(100, vlon-4, vlat, uu, vv, sst);
-    colorbar(ha2);
-    axes(ha2); xlabel('SST'); axes(ha1);
+    ha2=colorbar('southoutside');
+    set(get(ha2,'xlabel'),'string','SST');
+    %axes(ha2); xlabel('SST'); axes(ha1);
     %% These vectors will not show up well on the screen because they
     %% have no edges, but they will print adequately.  There does not
     %% seem to be any easy way to get around this; I would have to
@@ -223,7 +224,7 @@ if istr0 > 0,    % There are strings.
    n_numeric = istr0 - 1;  %Actually, numeric or colorspec.
    keyvars = varargin(istr0:nvarargin);
    finished = 0;
-   while ~isempty(keyvars) & ~finished,
+   while ~isempty(keyvars) && ~finished,
       kv = lower(keyvars{1});
       value = keyvars{2};
       if     strcmp(kv, 'headlength')
@@ -235,7 +236,7 @@ if istr0 > 0,    % There are strings.
 
       elseif strcmp(kv, 'shaftwidth')
          shaftwidth = value/72;
-      elseif strcmp(kv, 'centered')  & lower(value(1)) == 'y',
+      elseif strcmp(kv, 'centered')  && lower(value(1)) == 'y',
          centered = 1;
       elseif strcmp(kv, 'key')
          key = value;
@@ -254,12 +255,12 @@ else
 end
 
 % Calculate the headwidth if it is not given explicitly:
-if isnan(headwidth) & headangle < 170 & headangle > 0
+if isnan(headwidth) && headangle < 170 && headangle > 0
    headwidth = headlength * tan(headangle*pi/180);
 end
 headwidth = max([headwidth; shaftwidth]);
 
-if n_numeric == 2 | n_numeric == 3,
+if n_numeric == 2 || n_numeric == 3,
    u = varargin{1}(:);
    v = varargin{2}(:);
    if n_numeric == 3,
@@ -277,12 +278,12 @@ else
 end
 
 [nr,nc] = size(c);
-if nr == 1 & nc == length(u) & (nc ~= 3 | (any(c<=1) | any(c>=0))),
+if nr == 1 && nc == length(u) && (nc ~= 3 || (any(c<=1) || any(c>=0))),
    c = c(:);
 end
 % c could be a 1x3 colorspec
 
-if (length(x) == 1 & length(y) == 1 & length(u) > 1)
+if (length(x) == 1 && length(y) == 1 && length(u) > 1)
    x = x(ones(size(u)));
    y = y(ones(size(u)));
 end
@@ -444,7 +445,7 @@ else,
   hp = patch('Faces', Faces, 'Vertices', [X(:) Y(:)], 'tag', 'm_vec','clipping','off');
 end;
 
-if ischar(c) | (size(c,1) == 1 & size(c,2) == 3),
+if ischar(c) || (size(c,1) == 1 && size(c,2) == 3),
    set(hp, 'EdgeColor', c, 'FaceColor', c, 'LineWidth', 0.1);
 else
    set(hp, 'EdgeColor', 'none', 'FaceColor','Flat', ...
@@ -456,7 +457,7 @@ end
 
 if ~isempty(key)
    ht = text(X(1), Y(1)-0.5*HW, Z(1), key, ...
-      'color', c, 'horiz','left','vert','top', 'tag','m_vec', ...
+      'color', c, 'horizontalalignment','left','verticalalignment','top', 'tag','m_vec', ...
       'clipping','off');
    set(hp,'clipping','off')
 else

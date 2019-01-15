@@ -1,4 +1,4 @@
-function MAP_ELLIP=mc_ellips();
+function MAP_ELLIP=mc_ellips()
 %
 % Definitions of different ellipsoids
 %

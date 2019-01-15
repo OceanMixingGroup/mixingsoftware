@@ -29,11 +29,11 @@ function [longMAG,latMAG,phiVecMAG,thetaVecMAG]=m_geo2mag(longGEO,latGEO,phiVecG
 % This software is provided "as is" without warranty of any kind. But
 % it's mine, so you can't sell it.
 
-if nargin==2,
+if nargin==2
    [longMAG,latMAG]=mc_coords('geo2mag',longGEO,latGEO);
-elseif nargin==4,
+elseif nargin==4
    [longMAG,latMAG,phiVecMAG,thetaVecMAG]=mc_coords('geo2mag',longGEO,latGEO,phiVecGEO,thetaVecGEO);
 else
    error('Wrong number of input parameters');
-end;   
+end  
 

@@ -1,4 +1,4 @@
-function coordsys=m_coord(coordsys);
+function coordsys=m_coord(coordsys)
 % M_COORD Initializes the coordinate system for varous conversions.
 %
 %   M_COORD('set') tells you the current coordinate system
@@ -17,34 +17,34 @@ function coordsys=m_coord(coordsys);
 
 global MAP_COORDS
 
-if nargin==0, coordsys='usage'; end;
+if nargin==0, coordsys='usage'; end
 
 coordsys=lower(coordsys);
 
 coords=mc_coords('name');
 
-switch coordsys,
+switch coordsys
 
-   case 'get',
+   case 'get'
       disp(' ');
       disp('Available coordinate systems are:'); 
-      for k=1:length(coords.name),
+      for k=1:length(coords.name)
         disp(['     ' coords.name{k}]);
-      end;
+      end
    
-   case 'set',
-      if isempty(MAP_COORDS),
+   case 'set'
+      if isempty(MAP_COORDS)
          disp('No coordinate system initialized');
          m_coord('usage');
       else
-         if nargout==0,
+         if nargout==0
            disp(MAP_COORDS.name);
-	 else
-	   coordsys=MAP_COORDS;
-	 end;    
-      end;
+         else
+	       coordsys=MAP_COORDS;
+         end   
+      end
  
-   case 'usage',
+   case 'usage'
       disp(' ');
       disp('Possible calling options are:');
       disp('  ''usage''                    - this list');
@@ -56,5 +56,5 @@ switch coordsys,
      k=strmatch(coordsys,lower(coords.name));
      MAP_COORDS=mc_coords('parameters',coords.name{k});
    
-end;   
+end   
     % Check to see if a non-lat/long coordinate system is being used.

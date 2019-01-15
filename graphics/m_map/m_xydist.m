@@ -18,10 +18,10 @@ function dist = m_xydist(x,y)
 
 global MAP_PROJECTION MAP_VAR_LIST
 
-if isempty(MAP_PROJECTION),
+if isempty(MAP_PROJECTION)
   disp('No Map Projection initialized - call M_PROJ first!');
   return;
-end;
+end
 
 % get lon, lat coords
 [lon,lat] = m_xy2ll(x,y);

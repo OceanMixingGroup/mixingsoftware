@@ -1,4 +1,4 @@
-function [X,Y,I]=m_ll2xy(varargin);
+function [X,Y,I]=m_ll2xy(varargin)
 % M_LL2XY Converts long,lat to X,Y coordinates using the current projection
 %         [X,Y]=m_ll2xy(LONGITUDE,LATITUDE);
 %
@@ -28,21 +28,21 @@ global MAP_PROJECTION MAP_COORDS
 
 
 
-if nargin==0 | ischar(varargin{1}),
+if nargin==0 || ischar(varargin{1})
   disp(' Usage');
   disp(' [X,Y]=m_ll2xy(LONGITUDES,LATITUDES <,''clip'',( ''on''|''off''|''patch'' | ''point'' ) >)');
 else
-  if strcmp(MAP_COORDS.name,MAP_PROJECTION.coordsystem.name),
+  if strcmp(MAP_COORDS.name,MAP_PROJECTION.coordsystem.name)
      % Sneaky way of making default clipping on (sneaky 'cause only the 4th
      % input parameter is checked for the clipping property)
      [X,Y,I]=feval(MAP_PROJECTION.routine,'ll2xy',varargin{:},'clip','on');
      
-  elseif strcmp(MAP_COORDS.name,'geographic'),
+  elseif strcmp(MAP_COORDS.name,'geographic')
      [LONG,LAT]=mc_coords('geo2mag',varargin{1:2});
      args={varargin{3:end},'clip','on'};
      [X,Y,I]=feval(MAP_PROJECTION.routine,'ll2xy',LONG,LAT,args{:});
      
-  elseif strcmp(MAP_COORDS.name,'IGRF2000-geomagnetic') | ...
+  elseif strcmp(MAP_COORDS.name,'IGRF2000-geomagnetic') || ...
          strcmp(MAP_COORDS.name,'IGRF2011-geomagnetic')
      [LONG,LAT]=mc_coords('mag2geo',varargin{1:2});
      args={varargin{3:end},'clip','on'};
@@ -50,10 +50,10 @@ else
      
    else
      error('m_ll2xy: Unrecognized coordinate system');   
-  end;  
-end;
+  end 
+end
 
-if nargout==0,
+if nargout==0
  clear X Y I
-end;
+end
 

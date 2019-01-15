@@ -127,6 +127,6 @@ end %if
 
 m_coord(Currentmap.name);
 
-if nargout==0,
+if nargout==0
  clear bndry_lon bndry_lat
-end;
+end

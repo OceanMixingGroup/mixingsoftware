@@ -101,14 +101,14 @@ MAP_ELLIP = struct ( 'normal', [1.0, 0], ...
     'intl67', [6378157.5, 1/298.250]);
 
 
-if nargin<5,
+if nargin<5
   spheroid='wgs84';
-end;
+end
 ellip=getfield(MAP_ELLIP,spheroid); 
-if length(ellip)~=2,
+if length(ellip)~=2
  disp(MAP_ELLIP);
  error('Spheroid not chosen from above list');
-end;
+end
 
 
 % Do the equivalent of meshgrid-type calls to make all
@@ -117,18 +117,18 @@ end;
 % of these has to be a '1'.
 allsize=[size(lon1);size(lat1);size(lon2);size(lat2)];
 i1=ones(1,size(allsize,2));
-for k=1:size(allsize,2),
+for k=1:size(allsize,2)
  rs=unique(allsize(:,k));
- if length(rs)==2 & rs(1)==1,
+ if length(rs)==2 && rs(1)==1
    j1=i1;j1(k)=rs(2);
-   if allsize(1,k)==1,lon1=repmat(lon1,j1); end;
-   if allsize(2,k)==1,lat1=repmat(lat1,j1); end;
-   if allsize(3,k)==1,lon2=repmat(lon2,j1); end;
-   if allsize(4,k)==1,lat2=repmat(lat2,j1); end;
- elseif length(rs)>2,
+   if allsize(1,k)==1,lon1=repmat(lon1,j1); end
+   if allsize(2,k)==1,lat1=repmat(lat1,j1); end
+   if allsize(3,k)==1,lon2=repmat(lon2,j1); end
+   if allsize(4,k)==1,lat2=repmat(lat2,j1); end
+ elseif length(rs)>2
   error('incompatible array sizes!');  
- end;
-end;
+ end
+end
  
 % reshape inputs
 keepsize = size(lat1);
@@ -146,7 +146,7 @@ end
 
 % correct for errors at exact poles by adjusting 0.6 millimeters:
 kidx = abs(90-abs(lat1)) < 1e-10;
-if any(kidx);
+if any(kidx)
     lat1(kidx) = sign(lat1(kidx))*(90-(1e-10));
 end
 kidx = abs(90-abs(lat2)) < 1e-10;
@@ -177,9 +177,9 @@ cossigma=lambdaold;
 sigma = lambdaold;
 cos2sigmam = lambdaold;
 C = lambdaold;
-k = logical(ones(size(lat1)));
+k = true(size(lat1));
 itercount = 0;
-warninggiven = logical(0);
+warninggiven = false;
 while any(k)  % force at least one execution
     itercount = itercount+1;
     if itercount > 50
@@ -210,7 +210,7 @@ while any(k)  % force at least one execution
     if any(lambda(k) > pi)
         warning(['Essentially antipodal points encountered. ' ...
             'Precision may be reduced slightly.']);
-        warninggiven = logical(1);
+        warninggiven = true;
         lambdaold(lambda>pi) = pi;
         lambda(lambda>pi) = pi;
     end

@@ -56,14 +56,14 @@ MAP_ELLIP = struct ( 'normal', [1.0, 0], ...
     'intl24', [6378388.0, 1/297.000], ...
     'intl67', [6378157.5, 1/298.250]);
 
-if nargin<5,
+if nargin<5
   spheroid='wgs84';
-end;
+end
 ellip=getfield(MAP_ELLIP,spheroid); 
-if length(ellip)~=2,
+if length(ellip)~=2
  disp(MAP_ELLIP);
  error('Spheroid not chosen from above list');
-end;
+end
 
 % Do the equivalent of meshgrid-type calls to make all
 % matrix sizes match. To do this we can have no more than
@@ -71,18 +71,18 @@ end;
 % of these has to be a '1'.
 allsize=[size(lon1);size(lat1);size(a12);size(s)];
 i1=ones(1,size(allsize,2));
-for k=1:size(allsize,2),
+for k=1:size(allsize,2)
  rs=unique(allsize(:,k));
- if length(rs)==2 & rs(1)==1,
+ if length(rs)==2 && rs(1)==1
    j1=i1;j1(k)=rs(2);
-   if allsize(1,k)==1,lon1=repmat(lon1,j1); end;
-   if allsize(2,k)==1,lat1=repmat(lat1,j1); end;
-   if allsize(3,k)==1,a12=repmat(a12,j1); end;
-   if allsize(4,k)==1,s=repmat(s,j1); end;
- elseif length(rs)>2,
+   if allsize(1,k)==1,lon1=repmat(lon1,j1); end
+   if allsize(2,k)==1,lat1=repmat(lat1,j1); end
+   if allsize(3,k)==1,a12=repmat(a12,j1);   end
+   if allsize(4,k)==1,s=repmat(s,j1);       end
+ elseif length(rs)>2
   error('incompatible array sizes!');  
- end;
-end;
+ end
+end
 
 % reshape inputs
 keepsize = size(lat1);
@@ -98,7 +98,7 @@ end
 
  % correct for errors at exact poles by adjusting 0.6 millimeters:
 kidx = abs(90-abs(lat1)) < 1e-10;
-if any(kidx);
+if any(kidx)
     lat1(kidx) = sign(lat1(kidx))*(90-(1e-10));
 end
 
@@ -153,17 +153,17 @@ L=lambda-(1-C).*f.*sin(alpha).*(sigma+C.*sin(sigma).*(cos2sigmam+ ...
 
 lon2=mod(reshape((lon1+L/pi180),keepsize),360);
 
-if nargout>1,
+if nargout>1
   numer=sin(U1).*cos(sigma)+cos(U1).*sin(sigma).*cos(a12);
   denom=(1-f)*sqrt(sin(alpha).^2 +  ...
                  (sin(U1).*sin(sigma) - cos(U1).*cos(sigma).*cos(a12)).^2 );
   lat2=reshape(atan2(numer,denom)/pi180,keepsize);
-end;
+end
 
-if nargout>2,
+if nargout>2
   a21=mod(reshape( atan2( -sin(alpha),  ...
                        sin(U1).*sin(sigma)-cos(U1).*cos(sigma).*cos(a12) )/pi180, ...
                 keepsize),360);
-end;
+end
 
 

@@ -19,12 +19,12 @@ function [h] = m_legend(varargin)
 
 global MAP_PROJECTION MAP_VAR_LIST
 
-if isempty(MAP_PROJECTION),
+if isempty(MAP_PROJECTION)
   disp('No Map Projection initialized - call M_PROJ first!');
   return;
-end;
+end
 
-if nargin < 2;
+if nargin < 2
   help m_legend
   return
 end
@@ -100,12 +100,12 @@ for i = 1:lh
   iy = (i*sf-1)*0.8/lh + 0.25;
   yp = [iy iy iy];
   
-  if verLessThan('matlab','8.4.0'),
+  if ~MAP_PROJECTION.newgraphics
     lintest=strcmp(get(handles(i),'type'),'line');
   else
     lintest=isgraphics(handles(i),'line');
-  end;
-  if lintest,    
+  end
+  if lintest
     mark = get(handles(i),'marker');
     msize = get(handles(i),'markersize');
     linest = get(handles(i),'linestyle');

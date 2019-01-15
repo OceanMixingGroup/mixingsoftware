@@ -1,4 +1,4 @@
-function h=m_quiver(long,lat,u,v,varargin);
+function h=m_quiver(long,lat,u,v,varargin)
 % M_QUIVER Makes a quiverplot on a map (QUIVER-style)
 %    M_QUIVER(LONG,LAT,U,V) plots velocity vectors as arrows with components 
 %    (U,V) at the points (LONG,LAT) on the currently defined map.  The 
@@ -44,10 +44,10 @@ global MAP_PROJECTION MAP_VAR_LIST
 
 % Have to have initialized a map first
 
-if isempty(MAP_PROJECTION),
+if isempty(MAP_PROJECTION)
   disp('No Map Projection initialized - call M_PROJ first!');
   return;
-end;
+end
 
 
 
@@ -65,10 +65,13 @@ end;
 mU=u.*reshape(diff(XE),size(lat))*1000 + v.*reshape(diff(XN),size(lat))*1000;
 mV=u.*reshape(diff(YE),size(lat))*1000 + v.*reshape(diff(YN),size(lat))*1000;
 
+% Only pass over mapped stuff (otherwise auto-scaling doesn't work)
 
-h=quiver(X,Y,mU,mV,varargin{:});
+ii=isfinite(X(:)) & isfinite(u(:));
+ 
+h=quiver(X(ii),Y(ii),mU(ii),mV(ii),varargin{:});
 set(h,'tag','m_quiver');
 
-if nargout==0,,
+if nargout==0
  clear h
-end;
+end

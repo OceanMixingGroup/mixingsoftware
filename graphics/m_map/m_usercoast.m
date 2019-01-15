@@ -1,4 +1,4 @@
-function m_usercoast(varargin);
+function m_usercoast(varargin)
 % M_USERCOAST Add a coastline using a user-specified coastline file.
 %         M_USERCOAST(FILENAME) uses data previously extracted and stored
 %         in FILENAME to draw a coast.

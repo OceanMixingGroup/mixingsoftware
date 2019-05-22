@@ -91,11 +91,19 @@ end
 %SC(4) = C30./(M(3).*C30 + ZSG(4).*M(2).*S30);
 % Pluddeman version of code 
 % changed for his difference in beam angle convention
-SC(1) = (M(3).*C30 + ZSG(1).*M(1).*S30);
-SC(2) = (M(3).*C30 + ZSG(2).*M(1).*S30);
-SC(3) = (M(3).*C30 + ZSG(3).*M(2).*S30);
-SC(4) = (M(3).*C30 + ZSG(4).*M(2).*S30);
+%SC(1) = (M(3).*C30 + ZSG(1).*M(1).*S30);
+%SC(2) = (M(3).*C30 + ZSG(2).*M(1).*S30);
+%SC(3) = (M(3).*C30 + ZSG(3).*M(2).*S30);
+%SC(4) = (M(3).*C30 + ZSG(4).*M(2).*S30);
 %SC
+
+% Fix scale factors (Ken Hughes, 9 Jan 2019)
+% This makes rdradcp(ENX file) the same as converted rdradcp(ENS file)
+% Also modify VES below
+SC(1) = (M(3).*C30 + ZSG(1).*M(1).*S30)/C30;
+SC(2) = (M(3).*C30 + ZSG(2).*M(1).*S30)/C30;
+SC(3) = (M(3).*C30 + ZSG(3).*M(2).*S30)/C30;
+SC(4) = (M(3).*C30 + ZSG(4).*M(2).*S30)/C30;
 
 
 % form the transducer to instrument coordinate system
@@ -125,7 +133,13 @@ SSCOR = ssnd/ECssnd;
 VXS = SSCOR/(2.0*S30);
 VYS = VXS;
 VZS = SSCOR/(4.0*C30);
-VES = VZS;
+% VES = VZS;
+
+% Fix error velocity factor (Ken Hughes, 9 Jan 2019)
+% Follow RDI's convention by including sqrt(2)
+% RDI 2008 "ADCP Coordinate Transformation" Section 5.3, page 11
+VES = VXS/sqrt(2);
+
 
 [NBINS, n]=size(beam);
 earth=zeros(size(beam));

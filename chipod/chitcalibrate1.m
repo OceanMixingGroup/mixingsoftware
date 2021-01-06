@@ -8,19 +8,20 @@ function chitcalibrate1(sbdir,unit,ttop,tbot,polinom_order)
 %
 %  This version also uses only 2nd order polynomial fit
 %  MJB  7/10/13
+% Pavan Vutukur, consolidated plots of fit vs actual figures into 2 subplots.
 
 
 polinom_order=2;
 
 % Load and plot data 
-load([sbdir '\' num2str(unit) '_T']);
+load([sbdir '\' num2str(unit) '\' num2str(unit) '_T']);
 
 % chi.time(length(chi.time)) = []
 %  chi.T2(length(chi.T1)) = []
 % display(length(chi.time))
 % display(length(chi.T1))
 A = length(chi.time)/(length(chi.T1));
- display(A);
+%  display(A);
 % if length(chi.time)==2*length(chi.T1)
 if A == 2
     chi.time=chi.time(1:2:end);
@@ -32,7 +33,10 @@ tlims=[min(sbe.temp)-1 max(sbe.temp)+1];
 fig1hdl = figure(1); clf;
 s(1)=subplot(2,1,1);
 plot(sbe.time,sbe.temp,'k.')
-datetick
+datetick;
+grid on;
+ylabel('T [\circC]');
+xlabel('Time in HH:MM');
 title('Seabird')
 set(gca,'xlim',[sbe.time(1) sbe.time(end)])
 s(2)=subplot(2,1,2);
@@ -41,16 +45,20 @@ plot(chi.time,chi.T1,'b.')
 if isfield(chi,'T2')
     plot(chi.time,chi.T2,'r.')
 end
-kdatetick
+datetick;
+grid on;
 if isfield(chi,'T2')
     legend(['T1: ' ttop],['T2: ' tbot],'location','best')
 else
     legend(['T1: ' ttop],'location','best')
 end
+ylabel('T in volts');
+xlabel('Time in HH:MM');
 title(['Chipod ' num2str(unit)])
 set(gca,'xlim',[sbe.time(1) sbe.time(end)])
+set(gca,'ylim',[0 4]);
 linkaxes(s,'x')
-print(fig1hdl,'-dpng','-r200',[sbdir '\' num2str(unit) 'seabird_T']);
+print(fig1hdl,'-dpng','-r200',[sbdir '\' num2str(unit) '\' num2str(unit) 'seabird_T']);
 
 % calibrate  top thermistor
 clear cal
@@ -65,9 +73,9 @@ for ii=1:max(sbe.count)
 %converts into the preceeding even number. For Ex: if size = 75 
 %then sze_in = 0.5*(75-1) = 37. 
     if mod(sze_in(:,2),2) == 0
-        sze = 0.5*sze_in(:,2)
+        sze = 0.5*sze_in(:,2);
     else
-        sze = 0.5*(sze_in(:,2)-1)
+        sze = 0.5*(sze_in(:,2)-1);
     end
     
 % end
@@ -81,7 +89,7 @@ for ii=1:max(sbe.count)
       % find the Chipod mean value over the shrunken interval
     cal.chiv1(ii)=nanmean(chi.T1(chi.time>time1(1) & chi.time<time1(10)));
 end  
-% cal.chiv1 = [3.079 3.239 3.393 3.542 3.679];
+% cal.chiv1 = [1.261 1.436 1.607 1.776 1.94 2.101 2.257 2.409 2.556];
 
 % display(cal.chiv1);
 % display(cal.sbt);
@@ -90,39 +98,56 @@ if ~isempty(good)
     cal.chiv1=cal.chiv1(good);
     cal.sbt=cal.sbt(good);
 end
-v=min(cal.chiv1):0.01:max(cal.chiv1); 
+v=(min(cal.chiv1)-0.1):0.01:(max(cal.chiv1)+0.1); 
 p=polyfit(cal.chiv1,cal.sbt,polinom_order);
 coeff.T1(1:polinom_order+1)=fliplr(p);
 
 % coeff.T1=head.coef.T1;
 fig3hdl = figure(3); clf;
-subplot(3,1,1)
+subplot(2,1,1)
 
 %assume polinom_order==2
-    plot(v,coeff.T1(1)+coeff.T1(2).*v+coeff.T1(3).*v.^2,'b-')
+    plot(v,coeff.T1(1)+coeff.T1(2).*v+coeff.T1(3).*v.^2,'b-');
+    hold on;
+    
+    plot(cal.chiv1,cal.sbt,'o','color','k');
+    legend('Fit T','Actual T','location','best');
+    grid on;
     title(['Unit ' num2str(unit) ' T1 (' ttop '): ' num2str(coeff.T1(1)) ' + ' num2str(coeff.T1(2))...
-        '\cdotV + ' num2str(coeff.T1(3)) '\cdotV^2'])
+        '\cdotV + ' num2str(coeff.T1(3)) '\cdotV^2']);
+    
+    
 
 if ~isnan(v)
-    set(gca,'ylim',tlims,'xlim',[min(v) max(v)]);
+    set(gca,'ylim',tlims,'xlim',[(min(v)-0.1) (max(v)+0.1)]);
 end
-xlabel('V')
-ylabel('Fit T')
-subplot(3,1,2)
-plot(cal.sbt,'k.','markersize',10)
-hold on
-%assume  polinom_order==2
-    plot(coeff.T1(1)+coeff.T1(2).*cal.chiv1+coeff.T1(3).*cal.chiv1.^2,'b.','markersize',10)
-
-legend('Seabird T','Chipod T1','location','best')
-ylabel('T [\circC]')
-subplot(3,1,3)
+ylabel('T [\circC]');
+xlabel('T [volts]');
+% subplot(3,1,2)
+% plot(cal.sbt,'k.','markersize',10)
+% hold on
+% %assume  polinom_order==2
+%     plot(coeff.T1(1)+coeff.T1(2).*cal.chiv1+coeff.T1(3).*cal.chiv1.^2,'r.','markersize',10)
+% 
+% legend('Seabird T','Chipod T1','location','best')
+% ylabel('T [\circC]')
+subplot(2,1,2)
 %assume polinom_order==2
-    plot(coeff.T1(1)+coeff.T1(2).*cal.chiv1+coeff.T1(3).*cal.chiv1.^2-cal.sbt,'c.','markersize',10)
+    plot(cal.chiv1,coeff.T1(1)+coeff.T1(2).*cal.chiv1+coeff.T1(3).*cal.chiv1.^2-cal.sbt,'r*','markersize',10);
+    grid on;
+ if ~isnan(v)
+        set(gca,'xlim',[(min(v)-0.1) (max(v)+0.1)]);
+ end
+    grid on;
+legend('Chipod T2 - Seabird T','location','best');
+ylabel('T [\circC]');
+xlabel('T [volts]');
+legend('Chipod T1 - Seabird T','location','best');
+print(fig3hdl,'-dpng','-r200',[sbdir '\' num2str(unit) '\' num2str(unit) 'T1cals']);
 
-legend('Chipod T1 - Seabird T','location','best')
-ylabel('T [\circC]')
-print(fig3hdl,'-dpng','-r200',[sbdir '\' num2str(unit) 'T1cals']);
+
+
+
 if isfield(chi,'T2')
 clear cal
 %refer to comments for T1 above for methodology used in calculations below.
@@ -144,40 +169,49 @@ for ii=1:max(sbe.count)
     cal.sbt(ii)=nanmean(sbt(good));
     cal.chiv2(ii)=nanmean(chi.T2(chi.time>time1(1) & chi.time<time1(10)));
 end   
-% cal.chiv2 = [3.057 3.188 3.311 3.427 3.536];
+% cal.chiv2 = [1.285 1.46 1.633 1.802 1.966 2.128 2.284 2.436 2.584];
 good=find(~isnan(cal.chiv2));
 if ~isempty(good)
     cal.chiv2=cal.chiv2(good);
     cal.sbt=cal.sbt(good);
 end
-v=min(cal.chiv2):0.01:max(cal.chiv2) 
+v=(min(cal.chiv2)-0.1):0.01:(max(cal.chiv2)+0.1);  
 p=polyfit(cal.chiv2,cal.sbt,polinom_order);
 coeff.T2(1:polinom_order+1)=fliplr(p);
 
 fig4hdl = figure(4); clf;
-subplot(3,1,1)
+subplot(2,1,1)
 %assume polinom_order==2
     plot(v,coeff.T2(1)+coeff.T2(2).*v+coeff.T2(3).*v.^2,'r-')
     title(['Unit ' num2str(unit) ' T2 (' tbot '): ' num2str(coeff.T2(1)) ' + ' num2str(coeff.T2(2))...
         '\cdotV + ' num2str(coeff.T2(3)) '\cdotV^2'])
-
+    hold on;
+    
+    plot(cal.chiv2,cal.sbt,'o','color','k');
+    legend('Fit T','Actual T','location','best');
+    grid on;
 if ~isnan(v)
-    set(gca,'ylim',tlims,'xlim',[min(v) max(v)]);
+    set(gca,'ylim',tlims,'xlim',[(min(v)-0.1) (max(v)+0.1)]);
 end
-xlabel('V')
-ylabel('Fit T')
-subplot(3,1,2)
-plot(cal.sbt,'k.')
-hold on
-%assume  polinom_order==2
-    plot(coeff.T2(1)+coeff.T2(2).*cal.chiv2+coeff.T2(3).*cal.chiv2.^2,'r.','markersize',10)
-legend('Seabird T','Chipod T2','location','best')
+xlabel('T [volts]');
 ylabel('T [\circC]')
-subplot(3,1,3)
+% subplot(3,1,2)
+% plot(cal.sbt,'k.')
+% hold on
+% %assume  polinom_order==2
+%     plot(coeff.T2(1)+coeff.T2(2).*cal.chiv2+coeff.T2(3).*cal.chiv2.^2,'r.','markersize',10)
+% legend('Seabird T','Chipod T2','location','best')
+% ylabel('T [\circC]')
+subplot(2,1,2)
 %assume polinom_order==2
-    plot(coeff.T2(1)+coeff.T2(2).*cal.chiv2+coeff.T2(3).*cal.chiv2.^2-cal.sbt,'m.','markersize',10)
+    plot(cal.chiv2,coeff.T2(1)+coeff.T2(2).*cal.chiv2+coeff.T2(3).*cal.chiv2.^2-cal.sbt,'m*','markersize',10);
+    if ~isnan(v)
+        set(gca,'xlim',[(min(v)-0.1) (max(v)+0.1)]);
+    end
+    grid on;
 legend('Chipod T2 - Seabird T','location','best')
-ylabel('T [\circC]')
-print(fig4hdl,'-dpng','-r200',[sbdir '\' num2str(unit) 'T2cals']);
+ylabel('T [\circC]');
+xlabel('T [volts]');
+print(fig4hdl,'-dpng','-r200',[sbdir '\' num2str(unit) '\' num2str(unit) 'T2cals']);
+save([sbdir '\' num2str(unit) '\' 'calcoeff' num2str(unit)],'coeff')
 end
-save([sbdir 'calcoeff' num2str(unit)],'coeff')

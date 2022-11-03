@@ -339,7 +339,7 @@ for icast=1:length(CTD_list)
                             end
                             chi_up.ctd.bin=datau_1m;
                             chi_up.ctd.raw=CTD_24hz;
-                            chi_uo.time_offset_correction_used=chidat.time_offset_correction_used;
+                            chi_up.time_offset_correction_used=chidat.time_offset_correction_used;
                             
                             % downcast
                             chi_dn=struct();

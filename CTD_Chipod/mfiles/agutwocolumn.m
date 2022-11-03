@@ -13,9 +13,9 @@ function agutwocolumn(vextent)
 CWIDTH = 7;
 CHEIGHT = 8.5*vextent;
 
-un=get(gcf,'units');
-set(gcf,'units','inches','paperpos',[0.75 0.75 CWIDTH CHEIGHT]);
-set(gcf,'units',un);
+un=get(gcf,'paperunits');
+set(gcf,'paperunits','inches','paperpos',[0.75 0.75 CWIDTH CHEIGHT]);
+set(gcf,'paperunits',un);
 
 set(gcf,'defaultaxesfontsize',11);
 set(gcf,'defaulttextfontsize',11);

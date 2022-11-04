@@ -27,7 +27,7 @@ Load_chipod_paths_P15S
 
 cd(fullfile(BaseDir,'mfiles'))
 figdir=fullfile(BaseDir,'Figures')
-load(fullfile(BaseDir,'Data','proc_info.mat'))
+load(fullfile(BaseDir_data,'Data','proc','proc_info.mat'))
 
 
 %% Plot if we have data, if T1cal is good, and time offset for one chipod

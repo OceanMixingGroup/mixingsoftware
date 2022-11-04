@@ -86,7 +86,7 @@ end
 MakeResultsTextFile
 
 % Make a structure to save processing summary info
-if ~exist(fullfile(BaseDir,'Data','proc_info.mat'),'file')
+if ~exist(fullfile(BaseDir_data,'Data','proc','proc_info.mat'),'file')
     
     proc_info         = struct;
     proc_info.the_project = the_project;
@@ -111,7 +111,7 @@ if ~exist(fullfile(BaseDir,'Data','proc_info.mat'),'file')
     
 else
     disp('proc_info already exists, will load and add to it')
-    load(fullfile(BaseDir,'Data','proc_info.mat'))
+    load(fullfile(BaseDir_data,'Data','proc_info.mat'))
 end
 
 % Loop through each ctd file
@@ -412,7 +412,7 @@ for icast=1:length(CTD_list)
     proc_info.MakeInfo = ['Made ' datestr(now) ] ;
     proc_info.last_iSN = iSN;
     proc_info.last_icast = icast;
-    save(fullfile(BaseDir,'Data','proc','proc_info.mat'),'proc_info')
+    save(fullfile(BaseDir_data,'Data','proc','proc_info.mat'),'proc_info')
     
 end % icast (each CTD file)
 
@@ -426,7 +426,7 @@ proc_info.Readme = {'Prange : max pressure of each CTD cast' ; ...
     'Name : CTD filename for each cast';...
     'duration : length of cast in days'} ;
 
-save(fullfile(BaseDir,'Data','proc','proc_info.mat'),'proc_info')
+save(fullfile(BaseDir_data,'Data','proc','proc_info.mat'),'proc_info')
 
 telapse = toc(tstart);
 

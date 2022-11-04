@@ -174,7 +174,7 @@ end % wh SN
 
 if savedata == 1
     pathstr = MakeChiPathStr(Params) ;
-    save(fullfile(BaseDir,'data',[the_project '_XC_' pathstr]),'XC')
+    save(fullfile(BaseDir_data,'Data',[the_project '_XC_' pathstr]),'XC')
 end
 
 %%

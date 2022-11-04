@@ -145,10 +145,19 @@ for iSN = 1:length(ChiInfo.SNs)
                     castfile = Flist(icast).name;
                     id1 = strfind(castfile,['_' whSN]);
                     castStr = castfile(1:id1-1);
+
                     %fname=fullfile(savedir_cal,[castStr '_' whSN '_' castdir 'cast.mat']);
                     fname = fullfile(savedir_cal,castfile) ;
                     load(fname)
                     %---
+
+                    chi_proc_path_avg = fullfile(chi_proc_path_specific,'avg',...
+                        ['zsm' num2str(Params.z_smooth) 'm_fmax' num2str(Params.fmax) 'Hz_respcorr' num2str(Params.resp_corr) '_fc_' num2str(Params.fc) 'hz_gamma' num2str(Params.gamma*100)] ) ;
+                    processed_file=fullfile(chi_proc_path_avg,['avg_' castStr '_' C.castdir 'cast_' whSN '_' whsens '.mat']);
+                    if exist(processed_file,'file')
+                        disp(['avg_' castStr '_' C.castdir 'cast_' whSN '_' whsens ' already processed, skipping...'])
+                        continue;
+                    end
                     
                     clear TP ctd
                     TP = C.([whsens 'P']);
@@ -239,7 +248,7 @@ for iSN = 1:length(ChiInfo.SNs)
                     ylabel('P [db]')
                     xlabel('# good data windows')
                     title([whSN ' cast ' castStr ' - ' C.castdir 'cast'],'interpreter','none')
-                    print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avgPhist']))
+                    print('-dpng',fullfile(chi_fig_path_specific,[whSN '_Cast_' castStr '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avgPhist']))
                     whfig=whfig+1;
                     end
                     
@@ -321,7 +330,7 @@ for iSN = 1:length(ChiInfo.SNs)
                     title([whSN],'interpreter','none')
                     axes(ax(3))
                     title(['Sensor ' whsens])
-                    print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avg_chi_KT_dTdz']))
+                    print('-dpng',fullfile(chi_fig_path_specific,[whSN '_Cast_' castStr '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avg_chi_KT_dTdz']))
                     whfig=whfig+1;
                     %~~~
                     

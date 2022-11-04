@@ -198,10 +198,12 @@ for icast=1:length(CTD_list)
         savedir_cal = fullfile(chi_proc_path_specific,'cal') ;
         ChkMkDir(savedir_cal)
         
-        % Plot the raw CTD data
-        ax = PlotRawCTD(CTD_24hz) ;
-        print(fullfile(chi_fig_path_specific,[whSN '_Cast_' castStr '_Fig0_RawCTD']),'-dpng')
-        
+        if ~exist(fullfile(chi_fig_path_specific,[whSN '_Cast_' castStr '_Fig0_RawCTD.png']),'file')
+            % Plot the raw CTD data
+            ax = PlotRawCTD(CTD_24hz) ;
+            print(fullfile(chi_fig_path_specific,[whSN '_Cast_' castStr '_Fig0_RawCTD']),'-dpng')
+        end
+
         try
             
             %~~ Load chipod data

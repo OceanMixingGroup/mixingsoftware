@@ -64,7 +64,16 @@ for iSN = 1:length(allSNs)
         
         clear data head chidat
         close all
-        
+
+        if saveplot==1
+            figdir = fullfile(fig_path,'chipodraw',whSN);
+            figname = [chi_file_list(whfile).name(1:end-4)] ;
+            if exist(fullfile(figdir,[figname,'.png']),'file')
+                disp([figname,' has already been plotted; skipping...'])
+                continue;
+            end
+        end
+
         %~~~ load chipod data
         try
             % 'big' chipod
@@ -175,9 +184,9 @@ for iSN = 1:length(allSNs)
             end
             
             if saveplot==1
-                figdir = fullfile(fig_path,'chipodraw',whSN);
+%                 figdir = fullfile(fig_path,'chipodraw',whSN);
                 ChkMkDir(figdir)
-                figname = [chi_file_list(whfile).name(1:end-4)] ;
+%                 figname = [chi_file_list(whfile).name(1:end-4)] ;
                 print( fullfile(figdir,figname),'-dpng')
             end
             

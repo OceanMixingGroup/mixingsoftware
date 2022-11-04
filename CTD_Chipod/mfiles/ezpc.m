@@ -16,4 +16,21 @@ elseif nargin ==3
     x=varargin{1};y=varargin{2};var=varargin{3};
 end
 
+% added by EPA, Mar 2022:
+
+if numel(y)>length(y)
+    y=y(:,1);
+end
+if numel(x)>length(x)
+    x=x(1,:);
+end
+good_x=find(~isnan(x));
+x=x(good_x);
+var=var(:,good_x);
+newx=[(3*x(1)-x(2)),(x(1:end-1)+x(2:end)),(x(end)*3-x(end-1))]/2;
+[x,y]=meshgrid(newx,y);
+var=[var,nan(length(y),1)];
+
+% back to original programming:
+
 h=pcolor(x,y,var);shading flat;axis ij

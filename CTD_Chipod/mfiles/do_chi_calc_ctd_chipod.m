@@ -145,19 +145,10 @@ for iSN = 1:length(ChiInfo.SNs)
                     castfile = Flist(icast).name;
                     id1 = strfind(castfile,['_' whSN]);
                     castStr = castfile(1:id1-1);
-
                     %fname=fullfile(savedir_cal,[castStr '_' whSN '_' castdir 'cast.mat']);
                     fname = fullfile(savedir_cal,castfile) ;
                     load(fname)
                     %---
-
-                    chi_proc_path_avg = fullfile(chi_proc_path_specific,'avg',...
-                        ['zsm' num2str(Params.z_smooth) 'm_fmax' num2str(Params.fmax) 'Hz_respcorr' num2str(Params.resp_corr) '_fc_' num2str(Params.fc) 'hz_gamma' num2str(Params.gamma*100)] ) ;
-                    processed_file=fullfile(chi_proc_path_avg,['avg_' castStr '_' C.castdir 'cast_' whSN '_' whsens '.mat']);
-                    if exist(processed_file,'file')
-                        disp(['avg_' castStr '_' C.castdir 'cast_' whSN '_' whsens ' already processed, skipping...'])
-                        continue;
-                    end
                     
                     clear TP ctd
                     TP = C.([whsens 'P']);

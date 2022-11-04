@@ -247,7 +247,7 @@ for icast=1:Ncasts
     end
     
     if saveplot==1
-        %figdir=fullfile(BaseDir,'Figures','TPprofiles_AllSN');
+        %figdir=fullfile(BaseDir_data,'Figures','TPprofiles_AllSN');
         figdir=fullfile(fig_path,'TPprofiles_AllSN');
         ChkMkDir(figdir)
         print( fullfile( figdir , ['TP_profs_' castname] ) , '-dpng' )

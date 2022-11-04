@@ -82,7 +82,7 @@ for iSN = 1:length(ChiInfo.SNs)
     % Specific paths for this sensor
     clear chi_proc_path_specific chi_fig_path savedir_cal
     chi_proc_path_specific = fullfile(chi_proc_path,[whSN]) ;
-    chi_fig_path_specific  = fullfile(fig_path,'proc',whSN) ;
+    chi_fig_path_specific  = fullfile(chi_proc_path_specific,'figures') ;
     savedir_cal = fullfile(chi_proc_path_specific,'cal')    ;
     
     %##

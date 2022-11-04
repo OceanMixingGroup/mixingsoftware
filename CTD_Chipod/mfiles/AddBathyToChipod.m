@@ -15,7 +15,7 @@ clear ; close all
 project='P15S'
 
 eval(['Load_chipod_paths_' project])
-load(fullfile(BaseDir,'Data','proc_info.mat'))
+load(fullfile(BaseDir_data,'Data','proc_info.mat'))
 
 % Get lat/lons
 lat=proc_info.lat;

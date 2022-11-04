@@ -33,7 +33,7 @@ eval(['Load_chipod_paths_' the_project])
 % load deployment info
 eval(['Chipod_Deploy_Info_' the_project])
 
-load( fullfile(BaseDir,'Data','proc','proc_info.mat') )
+load( fullfile(BaseDir_data,'Data','proc','proc_info.mat') )
 
 
 %% Plot if we have chi for each cast data

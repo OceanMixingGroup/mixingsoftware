@@ -23,7 +23,7 @@ close all
 eval(['Load_chipod_paths_' Project])
 eval(['Chipod_Deploy_Info_' Project])
 
-load( fullfile(BaseDir,'Data','proc','proc_info.mat'))
+load( fullfile(BaseDir_data,'Data','proc','proc_info.mat'))
 
 % loop through chipods
 for iSN=1:length(ChiInfo.SNs)

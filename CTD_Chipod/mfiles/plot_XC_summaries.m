@@ -37,7 +37,7 @@ Params = SetDefaultChiParams
 
 pathstr = MakeChiPathStr(Params) ;
 
-load(fullfile(BaseDir,'Data',[ChiInfo.the_project '_XC_' pathstr]),'XC')
+load(fullfile(BaseDir_data,'Data',[the_project '_XC_' pathstr]),'XC')
 
 ChkMkDir( fullfile(fig_path,'XC'))
 

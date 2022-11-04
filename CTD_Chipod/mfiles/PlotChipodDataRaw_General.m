@@ -52,7 +52,7 @@ for iSN = 1:length(allSNs)
     
     % make list of all the data files we have
     %chi_file_list=dir( fullfile(data_dir,['/*' whSN '*']))
-    chi_file_list = dir( fullfile(data_dir));
+    chi_file_list = dir( fullfile(data_dir,'*.mlg'));
     Nfiles = length(chi_file_list);
     
     disp([num2str(Nfiles) ' files found for ' num2str(whSN) ])

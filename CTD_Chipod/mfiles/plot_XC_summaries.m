@@ -82,16 +82,16 @@ for ivar=1:2
             whvar = 'KT';
     end
     
-    ax = PlotChipodXC_OneVarAllSN(XC,ChiInfo,whvar) ;
+    ax = PlotChipodXC_OneVarAllSN(XC,ChiInfo,whvar,xvar) ;
     ylim([0 5000])
     
     axes(ax(1)) ;
-    title([ChiInfo.the_project '  -  ' whvar])
+    title([the_project '  -  ' whvar])
     
     linkaxes(ax)
     
     if saveplot==1
-        print(fullfile(fig_path,'XC',[ChiInfo.the_project '_' whvar '_AllSNs_Vslat']),'-dpng')
+        print(fullfile(fig_path,'XC',[the_project '_' whvar '_AllSNs_Vs' xvar]),'-dpng')
     end
     
 end % ivar

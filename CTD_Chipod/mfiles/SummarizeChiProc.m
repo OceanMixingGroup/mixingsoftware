@@ -98,7 +98,7 @@ for iSN=1:length(proc_info.SNs)
     whSN=proc_info.SNs{iSN}
     idg=find(proc_info.(whSN).IsChiData==1);
     
-    ax1=subplot(ceil(length(proc_info.SNs))/2,2,iSN);
+    ax1=subplot(ceil(length(proc_info.SNs)/2),2,iSN);
     plot(proc_info.icast(idg),proc_info.(whSN).toffset(idg),'o')
     hold on
     idb=find(abs(proc_info.(whSN).toffset(idg))>yl(2));

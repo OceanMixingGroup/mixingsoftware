@@ -205,9 +205,7 @@ for icast=1:length(CTD_list)
         try
             
             %~~ Load chipod data
-            if  1 %~exist(processed_file,'file')
-                %load(processed_file)
-                % else
+            if ~exist(fullfile(savedir_cal,[castStr '_' whSN '_downcast.mat']),'file')
                 disp('loading chipod data')
                 
                 % Find and load chipod data for this time range
@@ -391,13 +389,17 @@ for icast=1:length(CTD_list)
                     fprintf(fileID,' No chi file found ');
                     %##
                     proc_info.(whSN).IsChiData(icast)=0;
+
+                    delete(fullfile(chi_fig_path_specific,[whSN '_Cast_' castStr '_Fig0_RawCTD.png'])); % delete the CTD figure
                 end % if we have good chipod data for this profile
                 
             else
-                disp('this file already processed')
-                %##
+% %                 load(processed_file)
+%                 disp('this file already processed')
+%                 %##
                 fprintf(fileID,' file already exists, skipping ');
-                %##
+                continue;
+%                 %##
             end % already processed
             
         catch

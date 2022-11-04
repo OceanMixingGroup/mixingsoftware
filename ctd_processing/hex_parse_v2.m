@@ -34,15 +34,17 @@ data.oxygen = hexword2volt(h(:, 49:54)); % ch6, ch7
 %data.spar = hexword2spar(h(:, 58:60));
 
 [data.lon, data.lat] = hexword2lonlat(h(:, 55:68)); % lonneg, latneg ***
-data.pst = hexword2pststat(h(:, [75:78]-6));
+
+end_offset=88-size(h,2);
+data.pst = hexword2pststat(h(:, [75:78]-end_offset));
 %[data.pst, data.ctdstatus] = hexword2pststat(h(:, 75:78));
-data.modcount = hex2dec(h(:, [73:74]-6));
+data.modcount = hex2dec(h(:, [73:74]-end_offset));
 
 % seconds since 1970/1/1 0000
-data.time =  hex2dec(h(:, [87:88 85:86 83:84 81:82]-6)); % original
+data.time =  hex2dec(h(:, [87:88 85:86 83:84 81:82]-end_offset)); % original
 
 % following is corresponding line in older version of hex-parse from
 % IWISE/LADCP_processing/ctd_proc2/ , which doesn't have the -6 at end..
-%data.time =  hex2dec(h(:, [87:88 85:86 83:84 81:82])); 
+% data.time =  hex2dec(h(:, [87:88 85:86 83:84 81:82])); 
 
 %%

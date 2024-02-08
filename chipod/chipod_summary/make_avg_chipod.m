@@ -19,6 +19,7 @@ clear avg out data head;
 avg.T1=[]; avg.T2=[]; avg.time=[]; avg.W=[];avg.WP=[];avg.P=[];
 avg.AX=[];avg.AY=[];avg.AZ=[];avg.T1P=[];avg.T2P=[];avg.CMP=[];
 avg.V = []; avg.Va = [];
+tic;
 for inm = 1:length(nm)
     try
     [data,head]=raw_load_chipod([pathname,nm(inm).name]); %raw_load_chipod
@@ -26,7 +27,7 @@ for inm = 1:length(nm)
     out=quick_avg_noadcp(data,head); %function to run 1hr summary
     avg.time=[avg.time out.time]; %concatenation of 1hr averages
     avg.W=[avg.W out.W];
-%     avg.WP=[avg.WP out.WP]; % WP is no longer used in chipods since 2018
+    avg.Va=[avg.Va out.Va]; % WP is analog voltage with offset
     avg.T1=[avg.T1 out.T1];
     avg.T2=[avg.T2 out.T2];
     avg.P=[avg.P out.P];
@@ -37,15 +38,17 @@ for inm = 1:length(nm)
     avg.T2P=[avg.T2P out.T2P];        
     avg.CMP=[avg.CMP out.CMP];
     avg.V = [avg.V out.V]; %digital voltage recorded in chipod
-    save([summary_loc,num2str(chipod),'_quick_summary.mat'],'avg');
+%     save([summary_loc,num2str(chipod),'_quick_summary.mat'],'avg');
      
     catch
         fprintf('\nSkipping processing due to error in File %s \n',nm(inm).name);
     end
+    toc;
 end
+    
     avg.chipod = chipod;
     avg.mooring = mooring_loc;
-	avg.sensor_id.T1 = head.sensor_id(1,:);
+    avg.sensor_id.T1 = head.sensor_id(1,:);
     avg.sensor_id.T2 = head.sensor_id(9,:);
    %save summary file
     save([summary_loc,num2str(chipod),'_quick_summary.mat'],'avg');

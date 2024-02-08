@@ -14,8 +14,9 @@ hax(1)=subplot(311);
 plot(data.datenum(1:2:end),cal.T1);hold on
 plot(data.datenum(1:2:end),cal.T2,'r');
 legend('T1','T2');
-ylabel('T in Celsius');
+ylabel('T (C)');
 ylim([0 35]);
+grid on;
 datetick;
 
 %Plot temperature differential T1P and T2P
@@ -25,13 +26,15 @@ plot(data.datenum,data.T2P,'r');
 ylabel('TP');
 legend('T1P','T2P');
 ylim([0 5]);
+grid on;
 datetick;
 
 %plot Pressure sensor in dbar
 hax(3)=subplot(313);
 plot(data.datenum(1:2:end),cal.P);hold on
-ylabel('P in dBar');
-ylim([0 20]);
+ylabel('P (dBar)');
+% ylim([0 20]);
+grid on;
 datetick;
 
 %Plot Pitot data 
@@ -40,10 +43,11 @@ hax(4) = subplot(311);
 plot(data.datenum(1:2:end),data.W);hold on
 % plot(data.datenum(1:2:end),data.WP,'r');
 % plot(data.datenum(1:2:end),data.DP3,'b');
-ylabel('Pitot');
+ylabel('Pitot (V)');
 ylim([0 5]);
 % legend('W','WP');
 legend('Pitot');
+grid on;
 datetick;
 
 %plot accelerometer data in volts
@@ -54,14 +58,16 @@ plot(data.datenum(1:2:end),data.AZ,'k');
 legend('ax','ay','az');
 ylabel('Acc');
 ylim([0 4]);
+grid on;
 datetick;
 
 %Plot compass heading data in degrees
 hax(6) = subplot(313);
 plot(data.datenum(1:20:end),data.CMP./10)
-ylabel('CMP');
+ylabel('CMP (deg)');
 ylim([0 359]);
 datetick;
+grid on;
 linkaxes(hax,'x');
 
 

@@ -239,7 +239,7 @@ for iSN = 1:length(ChiInfo.SNs)
                     ylabel('P [db]')
                     xlabel('# good data windows')
                     title([whSN ' cast ' castStr ' - ' C.castdir 'cast'],'interpreter','none')
-                    print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avgPhist']))
+                    print('-dpng',fullfile(chi_fig_path_specific,[whSN '_Cast_' castStr '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avgPhist']))
                     whfig=whfig+1;
                     end
                     
@@ -321,7 +321,7 @@ for iSN = 1:length(ChiInfo.SNs)
                     title([whSN],'interpreter','none')
                     axes(ax(3))
                     title(['Sensor ' whsens])
-                    print('-dpng',fullfile(chi_fig_path_specific,[whSN '_' castStr '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avg_chi_KT_dTdz']))
+                    print('-dpng',fullfile(chi_fig_path_specific,[whSN '_Cast_' castStr '_Fig' num2str(whfig) '_' C.castdir 'cast_chi_' whsens '_avg_chi_KT_dTdz']))
                     whfig=whfig+1;
                     %~~~
                     

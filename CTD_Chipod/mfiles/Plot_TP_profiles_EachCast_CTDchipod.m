@@ -49,6 +49,14 @@ for icast=1:Ncasts
     waitbar(icast/Ncasts,hb)
     castname=CTDlist(icast).name(1:end-4)
     
+    if saveplot==1
+        figdir=fullfile(BaseDir_data,'Figures','TPprofiles_AllSN');
+        if exist(fullfile(figdir,['TP_profs_' castname '.png']),'file')
+            disp('Figure already plotted')
+            continue;
+        end
+    end
+
     % Set up figure
     figure(1);clf
     agutwocolumn(1)

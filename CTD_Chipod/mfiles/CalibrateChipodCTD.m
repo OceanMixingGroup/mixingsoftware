@@ -82,7 +82,11 @@ if test_dtdt
     loglog(f,p2,f,p,'linewidth',2);
     axis tight
     grid on
-    legend('digital','analog','location','best')
+    try
+        legend('digital','analog','location','best','AutoUpdate','off')
+    catch
+        legend('digital','analog','location','best');
+    end
     xlabel('Frequency [hz]')
     title(['Spectra of dT/dt - \tau =' num2str(chidat.cal.coef.T1P)])
     ylabel('\Phi_{T_z} [^oC^2/s^{-2}]')
@@ -114,7 +118,11 @@ if chidat.Info.isbig
         loglog(f,p2,f,p,'linewidth',2);
         axis tight
         grid on
-        legend('digital','analog','location','best')
+        try
+            legend('digital','analog','location','best','AutoUpdate','off')
+        catch
+            legend('digital','analog','location','best');
+        end
         xlabel('Frequency [hz]')
         title(['T2- Spectra of dT/dt - \tau =' num2str(chidat.cal.coef.T1P)])
         ylabel('\Phi_{T_z} [^oC^2/s^{-2}]')
